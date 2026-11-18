@@ -1,0 +1,369 @@
+{
+  "startDate": "2026-11-18",
+  "notes": [
+    {
+      "week": 1,
+      "emoji": "🎀",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 2,
+      "emoji": "🌷",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 3,
+      "emoji": "🧸",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 4,
+      "emoji": "🌙",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 5,
+      "emoji": "💜",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 6,
+      "emoji": "🐸",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 7,
+      "emoji": "☕",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 8,
+      "emoji": "🌸",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 9,
+      "emoji": "✨",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 10,
+      "emoji": "🐇",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 11,
+      "emoji": "🥜",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 12,
+      "emoji": "🦋",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 13,
+      "emoji": "🪷",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 14,
+      "emoji": "🫧",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 15,
+      "emoji": "💐",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 16,
+      "emoji": "🕊️",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 17,
+      "emoji": "🍓",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 18,
+      "emoji": "🐥",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 19,
+      "emoji": "🌹",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 20,
+      "emoji": "🎶",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 21,
+      "emoji": "🐚",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 22,
+      "emoji": "💌",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 23,
+      "emoji": "🪻",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 24,
+      "emoji": "🎠",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 25,
+      "emoji": "🧁",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 26,
+      "emoji": "🍀",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 27,
+      "emoji": "🎀",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 28,
+      "emoji": "🌷",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 29,
+      "emoji": "🧸",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 30,
+      "emoji": "🌙",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 31,
+      "emoji": "💜",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 32,
+      "emoji": "🐸",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 33,
+      "emoji": "☕",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 34,
+      "emoji": "🌸",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 35,
+      "emoji": "✨",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 36,
+      "emoji": "🐇",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 37,
+      "emoji": "🥜",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 38,
+      "emoji": "🦋",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 39,
+      "emoji": "🪷",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 40,
+      "emoji": "🫧",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 41,
+      "emoji": "💐",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 42,
+      "emoji": "🕊️",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 43,
+      "emoji": "🍓",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 44,
+      "emoji": "🐥",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 45,
+      "emoji": "🌹",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 46,
+      "emoji": "🎶",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 47,
+      "emoji": "🐚",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 48,
+      "emoji": "💌",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 49,
+      "emoji": "🪻",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 50,
+      "emoji": "🎠",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 51,
+      "emoji": "🧁",
+      "title": "",
+      "message": "",
+      "published": false
+    },
+    {
+      "week": 52,
+      "emoji": "🍀",
+      "title": "",
+      "message": "",
+      "published": false
+    }
+  ]
+}
