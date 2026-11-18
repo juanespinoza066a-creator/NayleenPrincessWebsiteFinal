@@ -1,1 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210"><defs><filter id="soft"><feDropShadow dx="0" dy="4" stdDeviation="2" flood-color="#806087" flood-opacity=".12"/></filter></defs><g filter="url(#soft)"><path d="M54 36h92v149H54Z" fill="#6f85b3" stroke="#53658d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M54 48h92v16H54Zm0 117h92v12H54Z" fill="#f0d383" stroke="#ddbc6c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="100" cy="116" rx="28" ry="28" fill="#f4e8ed" /><path d="M72 116a28 28 0 0 1 56 0Z" fill="#bd729a" stroke="#835577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M72 116h56" fill="none" stroke="#6f557c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="100" cy="116" rx="9" ry="9" fill="#faf2fa" stroke="#765b85" stroke-width="3"/><text x="100" y="88" text-anchor="middle" font-size="14" font-family="sans-serif" font-weight="bold" fill="#f2d471">POKÉMON</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="600" viewBox="0 0 512 600" role="img" aria-label="Purple and gold Pokémon booster pack">
+<defs>
+<linearGradient id="foil" x1="0" x2="1" y2="1"><stop stop-color="#3b205f"/><stop offset=".28" stop-color="#8b5cc1"/><stop offset=".46" stop-color="#d4b7f1"/><stop offset=".51" stop-color="#70449c"/><stop offset=".8" stop-color="#4c2877"/><stop offset="1" stop-color="#24113f"/></linearGradient>
+<linearGradient id="gold" x1="0" x2="1"><stop stop-color="#8c5a24"/><stop offset=".3" stop-color="#e7c369"/><stop offset=".55" stop-color="#fff0aa"/><stop offset=".8" stop-color="#d7a54b"/><stop offset="1" stop-color="#91602d"/></linearGradient>
+<linearGradient id="shine" x1="0" x2="1"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".52" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#ecd9ff" stop-opacity=".8"/><stop offset="1" stop-color="#d9bdff" stop-opacity="0"/></radialGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="9" stdDeviation="8" flood-color="#241233" flood-opacity=".25"/></filter>
+<pattern id="seal" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M1 0V8" stroke="#fff0bd" stroke-opacity=".45" stroke-width="2"/></pattern>
+</defs>
+<g transform="translate(30 22) rotate(-5 225 280)" filter="url(#shadow)">
+<path d="M96 34 343 40 350 533 89 527Z" fill="url(#foil)" stroke="#39214f" stroke-width="3"/>
+<path d="m96 34 247 6 1 30-250-6zm-6 460 260 6 0 33-261-6z" fill="url(#gold)"/>
+<path d="m96 34 247 6 1 30-250-6zm-6 460 260 6 0 33-261-6z" fill="url(#seal)"/>
+<path d="m100 77 235 6-1 401-236-6z" fill="none" stroke="#e4bd70" stroke-opacity=".8" stroke-width="2"/>
+<ellipse cx="218" cy="290" rx="133" ry="165" fill="url(#glow)"/>
+<g transform="translate(218 296) rotate(8)">
+<circle r="81" fill="#f6f1fc" stroke="#3a2552" stroke-width="10"/>
+<path d="M-80 0A80 80 0 0 1 80 0Z" fill="#c768a4"/>
+<path d="M-78 0H78" stroke="#3a2552" stroke-width="10"/>
+<circle r="25" fill="#ede4f7" stroke="#3a2552" stroke-width="9"/>
+<circle r="12" fill="#fff"/>
+</g>
+<text x="220" y="137" text-anchor="middle" font-family="Arial,sans-serif" font-size="45" font-weight="900" fill="#f7d665" stroke="#2d3d78" stroke-width="7" paint-order="stroke">Pokémon</text>
+<rect x="136" y="151" width="169" height="20" rx="3" fill="#b84169" stroke="#e9c47e"/>
+<text x="220" y="165" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold" font-size="10" letter-spacing="2" fill="#fff5de">TRADING CARD GAME</text>
+<path d="m312 196 4 12 12 4-12 4-4 12-4-12-12-4 12-4zm-186 187 4 12 12 4-12 4-4 12-4-12-12-4 12-4z" fill="#f8dda0"/>
+<path d="m174 198 3 7 8 3-8 3-3 8-3-8-8-3 8-3zm116 201 3 7 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#fff1ca"/>
+<path d="m111 85 38 0 138 399-39-1z" fill="url(#shine)"/>
+<text x="220" y="454" text-anchor="middle" font-family="Georgia,serif" font-size="18" letter-spacing="3" fill="#f3dca8">A LITTLE SURPRISE</text>
+<path d="m112 480 207 6" stroke="#e5b1e7" stroke-opacity=".7"/>
+</g></svg>

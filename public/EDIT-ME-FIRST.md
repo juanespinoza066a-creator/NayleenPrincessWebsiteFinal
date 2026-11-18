@@ -52,3 +52,7 @@ Do not rename item IDs, outfit IDs, or file paths just to change visible names. 
 ## Temporary testing buttons
 
 Set `testingTools: false` in root `settings.js` before gifting. While true, the main page offers reset and unlock-all dialogs. Reset clears this browser/profile’s progress, including weekly limits, and syncs the reset when a backend is connected. Unlock-all marks the four outfit goals complete and adds all collectibles; it does not consume the weekly games. These are testing conveniences, not secure admin controls.
+
+## Save button visibility
+
+In this Vercel edition edit `public/settings.js` in GitHub. `saveTools: false` hides backup/restore/reload controls; `testingTools: false` hides reset/unlock controls. Both are hidden in this version. Set a flag to true and commit to show its controls again. See root UPDATE-IN-GITHUB.md for all text file locations.

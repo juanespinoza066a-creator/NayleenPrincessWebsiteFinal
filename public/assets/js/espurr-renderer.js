@@ -125,7 +125,7 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
     }
     if (outfit === 'kda') {
         path([[-22,-58],[-19,-68],[10,-70],[19,-62],[28,-58],[2,-57]], '#302a48', '#c8a868');
-        path([[9,-68],[2,-63],[9,-62]], '#e6e1ef');
+        c.save();c.translate(0,-62);c.scale(.55,.55);c.fillStyle='#e4c17c';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('K/DA',0,0);c.restore();
     }
     // Gold crown and lavender ribbon match her portrait.
     c.save();

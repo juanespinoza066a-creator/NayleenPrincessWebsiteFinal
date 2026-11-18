@@ -113,3 +113,7 @@ Official references: https://vercel.com/pricing ; https://supabase.com/pricing ;
 - Too many tries: wait one minute; the server limits attempts per network address.
 - Wrong progress: sign out, then use the intended profile’s code. Main and testing are labeled separately.
 - GitHub Pages URL: that separate ZIP is browser-only; use the Vercel edition and URL for code-based cloud saves.
+
+## New art and control visibility
+
+See UPDATE-IN-GITHUB.md for the artwork-only update, text locations, branch workflow, and the saveTools/testingTools settings. Both tools are now hidden by default; automatic saving remains active.

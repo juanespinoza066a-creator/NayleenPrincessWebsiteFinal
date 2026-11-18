@@ -4,8 +4,8 @@ export const PRIZES = [
     ['espurr', 'Pocket Espurr'], ['peanut', 'Crunchy companion'], ['frog', 'Our Build-A-Bear frog'], ['rose', 'Forever rose'], ['cat', 'Ann’s tiny cat'],
     ['sunday', 'Sunday plushie'], ['bunny', 'Sleepy bunny'], ['duck', 'Little duck'], ['akali', 'Akali plushie'], ['pokemon', 'Pokémon card pack'],
     ['pterodactyl', 'Pterodactyl plushie'], ['gambit', 'Maid Gambit figure'], ['lilies', 'Lily-of-the-valley bouquet'], ['mew', 'Bubble Mew card'], ['coach', 'Coach bag'],
-    ['blondie', 'Blondie coffee'], ['rafayel', 'Rafayel plushie'], ['stitch', 'Stitch plushie'], ['mitski', 'Mitski record']
-].map(([id, name]) => ({ id, name, image: id === 'espurr' ? 'assets/images/espurr-princess.webp' : id === 'peanut' ? 'assets/images/crunchy-peanut.svg' : `assets/images/collectibles/${id}.svg` }));
+    ['blondie', 'Blondie coffee'], ['rafayel', 'Rafayel plushie'], ['mitski', 'Mitski record']
+].map(([id, name]) => ({ id, name, image: id === 'espurr' ? 'assets/images/espurr-princess.webp' : `assets/images/collectibles/${id}.${['pokemon','gambit','mew'].includes(id) ? 'svg' : 'webp'}` }));
 export const OUTFITS = [
     { id: 'royal', name: 'My little princess', hint: 'Yours from the beginning', icon: '♛', image: 'assets/images/espurr-princess.webp' },
     { id: 'sunday', name: 'Sunday’s little angel', hint: 'Reach a best card-table score of 200', icon: '☀', image: 'assets/images/outfits/sunday.webp' },
@@ -20,8 +20,11 @@ export const UPGRADES = [
     { id: 'press', name: 'Royal crunch press', detail: '+7 crunches every second', base: 175, icon: '⚙' },
     { id: 'factory', name: 'The peanut palace', detail: '+40 crunches every second', base: 1000, icon: '♛' }
 ];
-const LEGACY = { bear: 'frog', sylveon: 'akali', moon: 'sunday', compact: 'coach', star: 'pokemon', tea: 'blondie', cake: 'stitch', book: 'gambit', shell: 'pterodactyl', flower: 'lilies', crystal: 'rafayel', heart: 'mew', music: 'mitski' };
+const LEGACY = { bear: 'frog', sylveon: 'akali', moon: 'sunday', compact: 'coach', star: 'pokemon', tea: 'blondie', book: 'gambit', shell: 'pterodactyl', flower: 'lilies', crystal: 'rafayel', heart: 'mew', music: 'mitski' };
 const OLD_IDS = new Set(['espurr', 'sylveon', 'bear', 'peanut', 'moon', 'rose', 'compact', 'cat', 'star', 'bunny', 'tea', 'cake', 'book', 'shell', 'flower', 'duck', 'crystal', 'heart', 'music']);
+// Accept retired IDs in old saves; omit them from the collection and prize pool.
+const retiredPrize = id => id === 'stitch' || id === 'cake';
+const knownPrize = id => id === 'stitch' || PRIZES.some(p => p.id === id);
 const prizeID = id => typeof id === 'string' ? (PRIZES.some(p => p.id === id) ? id : Object.hasOwn(LEGACY, id) ? LEGACY[id] : undefined) : undefined;
 const number = (v, max = 1e9) => Number.isFinite(v) && v >= 0 ? Math.min(max, v) : 0;
 const integer = (v, max = 1e9) => Math.floor(number(v, max));
@@ -49,8 +52,8 @@ export function normalizeState(raw, now = Date.now()) {
     s.clicker.lastTick = Math.min(now, number(raw.clicker?.lastTick, now) || now);
     s.weeklyClaims = weeks(raw.weeklyClaims);
     s.mazeWeeks = weeks(raw.mazeWeeks);
-    if (raw.weeklyBox && weeks([raw.weeklyBox.week]).length && prizeID(raw.weeklyBox.id))
-        s.weeklyBox = { week: raw.weeklyBox.week, id: prizeID(raw.weeklyBox.id), revealed: raw.weeklyBox.revealed === true };
+    if (raw.weeklyBox && weeks([raw.weeklyBox.week]).length && (prizeID(raw.weeklyBox.id) || retiredPrize(raw.weeklyBox.id)))
+        s.weeklyBox = { week: raw.weeklyBox.week, id: prizeID(raw.weeklyBox.id) || 'espurr', revealed: raw.weeklyBox.revealed === true };
     if (raw.manorRun && weeks([raw.manorRun.week]).length && ['active', 'won', 'lost'].includes(raw.manorRun.status)) {
         s.manorRun = { week: raw.manorRun.week, status: raw.manorRun.status, loot: (Array.isArray(raw.manorRun.loot) ? raw.manorRun.loot : []).filter((x, i, all) => all.some(y => y?.claimed) ? x === all.find(y => y?.claimed) : i === 0).slice(0, 1).map(x => ({ id: prizeID(x.id) || 'espurr', claimed: x.claimed === true })), checkpoint: normalizeCheckpoint(raw.manorRun.checkpoint) };
     }
@@ -67,7 +70,7 @@ export function normalizeCheckpoint(c) {
     return { player: position(c.player), hunter: position(c.hunter), hp: Math.max(1, Math.min(3, integer(c.hp) || 3)), stamina: number(c.stamina, 100), charges: integer(c.charges, 3), elapsed: number(c.elapsed, 86400), rescued: c.rescued === true, machines: Array.from({ length: 3 }, (_, i) => number(c.machines?.[i], 40)), pallets: Array.from({ length: 3 }, (_, i) => c.pallets?.[i] === true) };
 }
 export function validState(raw) {
-    if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > 19 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => PRIZES.some(p => p.id === id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
+    if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > 19 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => knownPrize(id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
         return false;
     if (raw.manorPeanut && (typeof raw.manorPeanut.found !== 'boolean' || !Number.isSafeInteger(raw.manorPeanut.count) || raw.manorPeanut.count < 0 || raw.manorPeanut.count > 1e9)) return false;
     if (![2, 3].includes(raw.version))
@@ -87,9 +90,9 @@ export function validState(raw) {
     if (raw.version === 3) {
         if (!OUTFITS.some(o => o.id === raw.outfit) || !Array.isArray(raw.mazeWeeks) || raw.mazeWeeks.length > 52 || raw.mazeWeeks.some(n => !Number.isInteger(n) || n < 1 || n > 52))
             return false;
-        if (raw.weeklyBox && (!weeks([raw.weeklyBox.week]).length || !PRIZES.some(p => p.id === raw.weeklyBox.id) || typeof raw.weeklyBox.revealed !== 'boolean'))
+        if (raw.weeklyBox && (!weeks([raw.weeklyBox.week]).length || !knownPrize(raw.weeklyBox.id) || typeof raw.weeklyBox.revealed !== 'boolean'))
             return false;
-        if (raw.manorRun && (!weeks([raw.manorRun.week]).length || !['active', 'won', 'lost'].includes(raw.manorRun.status) || !Array.isArray(raw.manorRun.loot) || raw.manorRun.loot.length > 5 || raw.manorRun.loot.some(x => !x || !PRIZES.some(p => p.id === x.id) || typeof x.claimed !== 'boolean') || (JSON.stringify(raw.manorRun.checkpoint) || '').length > 4000))
+        if (raw.manorRun && (!weeks([raw.manorRun.week]).length || !['active', 'won', 'lost'].includes(raw.manorRun.status) || !Array.isArray(raw.manorRun.loot) || raw.manorRun.loot.length > 5 || raw.manorRun.loot.some(x => !x || !knownPrize(x.id) || typeof x.claimed !== 'boolean') || (JSON.stringify(raw.manorRun.checkpoint) || '').length > 4000))
             return false;
     }
     return true;

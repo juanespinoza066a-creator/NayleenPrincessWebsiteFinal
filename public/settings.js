@@ -1,2 +1,7 @@
-// Set testingTools to false before gifting. The login code belongs only in Vercel environment variables.
-window.CARNIVAL_CONFIG = {mode:'code', testingTools:true};
+// GitHub: toggle these display options, commit, and let Vercel redeploy.
+// No login codes or database secrets belong in this public file.
+window.CARNIVAL_CONFIG = {
+  mode: 'code',
+  saveTools: false,
+  testingTools: false
+};

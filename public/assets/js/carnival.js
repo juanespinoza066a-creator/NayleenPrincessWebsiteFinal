@@ -18,7 +18,7 @@ function close() { dialog.close(); }
 $('game-close').onclick = close;
 function render(s, event = {}) {
     $('save-status').textContent = event.status || store.status;
-    $('sync-retry').hidden = STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
+    $('sync-retry').hidden = window.CARNIVAL_CONFIG?.saveTools !== true || STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
     const week = weekNumber(), pending = s.weeklyBox && !s.weeklyBox.revealed, claimed = s.weeklyClaims.includes(week);
     $('weekly-label').textContent = t('weekly.eyebrow', { week: String(pending ? s.weeklyBox.week : week).padStart(2, '0') });
     $('weekly-copy').textContent = t(pending ? 'weekly.resumeCopy' : claimed ? 'weekly.doneCopy' : 'weekly.intro');
@@ -168,6 +168,7 @@ $('import-save').onchange = async (event) => { const file = event.target.files[0
 catch (error) {
     $('backup-status').textContent = error.message || 'Your backup couldn’t be read. Your progress hasn’t changed.';
 } };
+$('save-controls').hidden = window.CARNIVAL_CONFIG?.saveTools !== true;
 $('test-tools').hidden = window.CARNIVAL_CONFIG?.testingTools !== true;
 $('test-reset').onclick = () => {
     open('Reset this testing save?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current browser/profile. Download a backup first.');
