@@ -18,28 +18,23 @@ for (const [x, y, w, h] of [[4, 3, 1, 6], [8, 1, 1, 5], [8, 8, 5, 1], [13, 3, 1,
 }
 const center = (x, y) => ({ x: (x + .5) * T, y: (y + .5) * T });
 const machines = [[3, 3], [21, 3], [14, 13]].map(([x, y]) => ({ ...center(x, y), progress: 0, nextCheck: randomBetween(5.5, 11.5) }));
-const bear = center(5, 15), gate = center(23, 16);
+const gate = center(23, 16);
+const exitUnlocked = () => machines.every(m => m.progress >= 40);
 const peanut = center(6, 6);
 const treasures = [[6, 10]].map(([x, y], index) => ({ ...center(x, y), index }));
 let checkpointAt = 0;
 function saveCheckpoint() {
     if (!['playing', 'paused', 'peanut'].includes(state))
         return;
-    window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, rescued, machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
+    window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
 }
 window.addEventListener('pagehide', saveCheckpoint);
 let peanutFound = false, peanutCount = 0, peanutSound = true, peanutAudio;
-try {
-    const saved = JSON.parse(localStorage.getItem('nayleen-manor-peanut'));
-    peanutFound = saved?.found === true;
-    peanutCount = Number.isSafeInteger(saved?.count) && saved.count >= 0 ? saved.count : 0;
-}
-catch { }
 const pallets = [[5, 9], [15, 8], [18, 15]].map(([x, y]) => ({ ...center(x, y), down: false }));
 const patrol = [[21, 3], [15, 2], [11, 5], [6, 3], [2, 7], [6, 10], [5, 15], [12, 17], [16, 12], [22, 16], [22, 8]].map(([x, y]) => center(x, y));
 const keys = new Set();
-let player, hunter, state = 'intro', elapsed = 0, hp = 3, stamina = 100, charges = 3, rescued = false;
-let repairing = null, rescueTime = 0, gateTime = 0, invincible = 0, stunned = 0, sprinting = false;
+let player, hunter, state = 'intro', elapsed = 0, hp = 3, stamina = 100, charges = 3;
+let repairing = null, gateTime = 0, invincible = 0, stunned = 0, sprinting = false;
 let calibration = null, noiseTime = 0, noiseTarget = null, chase = false;
 let lastSeen = null, searchTime = 0, calmTime = 6, patrolGoal = null;
 const effects = [];
@@ -92,17 +87,17 @@ async function reset() {
         modal('Your weekly adventure is resting.', 'This week’s run is finished. A new maze adventure opens next Wednesday. Your collected treasures are waiting in Espurr’s room.', 'Back to Espurr’s room');
         return;
     }
+    peanutFound = window.CarnivalManor?.peanut?.found === true;
+    peanutCount = window.CarnivalManor?.peanut?.count || 0;
     player = center(2, 9);
     hunter = center(21, 10);
     hp = 3;
     stamina = 100;
     charges = 3;
     elapsed = 0;
-    rescued = false;
     repairing = null;
     invincible = 0;
     stunned = 0;
-    rescueTime = 0;
     gateTime = 0;
     calibration = null;
     noiseTime = 0;
@@ -125,7 +120,6 @@ async function reset() {
         stamina = saved.stamina;
         charges = saved.charges;
         elapsed = saved.elapsed;
-        rescued = saved.rescued;
         machines.forEach((m, i) => { m.progress = saved.machines[i]; });
         pallets.forEach((p, i) => { p.down = saved.pallets[i]; });
     }
@@ -134,7 +128,7 @@ async function reset() {
     $('stick').style.transform = '';
     state = 'playing';
     overlay.close();
-    message(access.checkpoint ? 'Your weekly adventure is right where you left it.' : 'Find three machines and one hidden treasure. Ann wanders the whole garden; hedges hide you.');
+    message(access.checkpoint ? (exitUnlocked() ? 'All ciphers complete! The exit is unlocked. Follow the moon marker to the gate.' : 'Your weekly adventure is right where you left it.') : 'Find three machines and one hidden treasure. Ann wanders the whole garden; hedges hide you.');
     saveCheckpoint();
     canvas.focus();
     hud();
@@ -170,12 +164,7 @@ function finish(won) {
     const time = Math.floor(elapsed / 60) + ':' + String(Math.floor(elapsed % 60)).padStart(2, '0');
     if (won) {
         window.CarnivalManor?.finish(true);
-        try {
-            const k = 'nayleen-princess-arcade-stamps', saved = JSON.parse(localStorage.getItem(k)) || [];
-            localStorage.setItem(k, JSON.stringify([...new Set([...(Array.isArray(saved) ? saved : []), 2])]));
-        }
-        catch { }
-        modal('You escaped, princesa!', 'Three machines repaired, one plushie saved, and a very annoyed Ann. Escape time ' + time + '. Your maze outfit reward is earned, and your weekly treasure is waiting in your room. ♛', 'Back to Espurr’s room');
+        modal('You escaped, princesa!', 'Three ciphers repaired, the moon gate opened, and a very annoyed Ann. Escape time ' + time + '. Your maze outfit reward is earned, and your weekly treasure is waiting in your room. ♛', 'Back to Espurr’s room');
     }
     else {
         window.CarnivalManor?.finish(false);
@@ -194,8 +183,6 @@ function context() {
     const pallet = pallets.find(p => !p.down && distance(player, p) < 60);
     if (pallet)
         return { type: 'pallet', item: pallet, label: 'Drop pallet' };
-    if (!rescued && distance(player, bear) < 54)
-        return { type: 'bear', label: 'Rescue plushie' };
     if (distance(player, gate) < 60)
         return { type: 'gate', label: 'Open moon gate' };
     return null;
@@ -242,13 +229,9 @@ function interact() {
         pathClock = 0;
         message('Pallet dropped. Ann needs a new route.');
     }
-    if (c.type === 'bear') {
-        rescueTime = 3;
-        message('Rescuing the plushie. Stay close for three seconds.');
-    }
     if (c.type === 'gate') {
-        if (machines.some(m => m.progress < 40) || !rescued)
-            message('The gate needs three repaired machines and your plushie companion.');
+        if (!exitUnlocked())
+            message('Complete all three ciphers to unlock the exit.');
         else {
             gateTime = 5;
             message('Opening the gate. Stay close for five seconds!');
@@ -339,8 +322,7 @@ function update(dt) {
     if (mag > .1) {
         repairing = null;
         calibration = null;
-        rescueTime = 0;
-        gateTime = 0;
+            gateTime = 0;
     }
     if (repairing) {
         repairing.progress = Math.min(40, repairing.progress + dt * 3.0);
@@ -364,18 +346,11 @@ function update(dt) {
             repairing = null;
             calibration = null;
             charges = Math.min(3, charges + 1);
-            message('Cipher complete! Psychic charge restored. Find the next objective.');
-        }
-    }
-    if (rescueTime > 0) {
-        if (distance(player, bear) > 54)
-            rescueTime = 0;
-        else {
-            rescueTime -= dt;
-            if (rescueTime <= 0) {
-                rescued = true;
-                message('Plushie rescued! It’s coming with you.');
-            }
+            if (exitUnlocked()) {
+                calmTime = Math.max(calmTime, 6);
+                message('All ciphers complete! THE EXIT IS UNLOCKED. Follow the moon marker to the gate.');
+                effects.push({kind:'spark',x:gate.x,y:gate.y,life:2,duration:2});
+            } else message('Cipher complete! Psychic charge restored. Find the next cipher.');
         }
     }
     if (gateTime > 0) {
@@ -449,12 +424,13 @@ function hud() {
     const complete = machines.filter(m => m.progress === 40).length;
     $('health').textContent = '♥ '.repeat(hp) + '♡ '.repeat(3 - hp);
     $('health').setAttribute('aria-label', hp + ' of 3 hearts');
-    $('objectives').textContent = complete + ' / 3 machines · ' + (rescued ? 'Plushie safe' : 'Plushie waiting');
+    $('objectives').textContent = complete + ' / 3 ciphers · ' + (exitUnlocked() ? 'Exit unlocked' : 'Exit locked');
     $('peanut-bag').disabled = !peanutFound;
     $('peanut-bag').textContent = peanutFound ? '🥜 My peanut' : '🥜 Find peanut';
     $('peanut-bag').setAttribute('aria-label', peanutFound ? 'Open your crunchy peanut' : 'Find the crunchy peanut in the western garden');
     $('machine-count').textContent = '⚙ ' + complete + ' / 3';
-    $('bear-status').textContent = rescued ? 'Plushie safe' : 'Rescue plushie';
+    $('exit-status').textContent = exitUnlocked() ? '☾ Exit unlocked' : '☾ Exit locked';
+    $('exit-status').classList.toggle('exit-ready', exitUnlocked());
     $('loot-count').textContent = '✧ ' + (window.CarnivalManor?.loot?.filter(x => x.claimed).length || 0) + ' / 1';
     $('threat').textContent = stunned > 0 ? 'Ann is stunned' : chase ? 'Ann is searching' : 'Garden is quiet';
     $('threat').classList.toggle('danger', chase && stunned === 0);
@@ -466,12 +442,12 @@ function hud() {
     $('power').textContent = '✦ Psychic stun · ' + charges;
     $('power').disabled = charges === 0;
     const c = context(), active = calibration?.phase === 'active';
-    $('interact').textContent = repairing ? (active ? 'Calibrate · E' : 'Decoding…') : rescueTime > 0 ? 'Rescuing…' : gateTime > 0 ? 'Opening…' : c ? c.label : 'Find an objective';
-    $('interact').disabled = repairing ? !active : !c || rescueTime > 0 || gateTime > 0;
+    $('interact').textContent = repairing ? (active ? 'Calibrate · E' : 'Decoding…') : gateTime > 0 ? 'Opening…' : c ? c.label : 'Find an objective';
+    $('interact').disabled = repairing ? !active : !c || gateTime > 0;
     $('interact').classList.toggle('calibrate', active);
 }
 function draw() {
-    drawManor({ canvas, player, hunter, machines, pallets, walls, bear, gate, rescued, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
+    drawManor({ canvas, player, hunter, machines, pallets, walls, gate, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
 }
 function frame(now) {
     const dt = Math.min(.04, (now - last) / 1000 || 0);
@@ -480,12 +456,7 @@ function frame(now) {
     draw();
     requestAnimationFrame(frame);
 }
-function savePeanut() {
-    try {
-        localStorage.setItem('nayleen-manor-peanut', JSON.stringify({ found: peanutFound, count: peanutCount }));
-    }
-    catch { }
-}
+function savePeanut() { window.CarnivalManor?.savePeanut(peanutFound, peanutCount); }
 function openPeanut() {
     if (!peanutFound || state !== 'playing')
         return;

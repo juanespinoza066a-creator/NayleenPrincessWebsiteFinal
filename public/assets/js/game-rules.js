@@ -11,7 +11,8 @@ export const OUTFITS = [
     { id: 'sunday', name: 'Sunday’s little angel', hint: 'Reach a best card-table score of 200', icon: '☀', image: 'assets/images/outfits/sunday.webp' },
     { id: 'cozy', name: 'Peanut crunchy PJs', hint: 'Make 50 lifetime crunches', icon: '🥜', image: 'assets/images/outfits/cozy.webp' },
     { id: 'espeon', name: 'Espeon daydream', hint: 'Open your first weekly blind box', icon: '🔮', image: 'assets/images/outfits/espeon.webp' },
-    { id: 'akali', name: 'Akali’s little rogue', hint: 'Escape Ann’s weekly maze once', icon: '✦', image: 'assets/images/outfits/akali.webp' }
+    { id: 'akali', name: 'Akali’s little rogue', hint: 'Escape Ann’s weekly maze once', icon: '✦', image: 'assets/images/outfits/akali.webp' },
+    { id: 'kda', name: 'K/DA princess', hint: 'Win 10 hands of 21', icon: '♫', image: 'assets/images/outfits/kda.webp' }
 ];
 export const UPGRADES = [
     { id: 'fingers', name: 'Extra-squishy fingers', detail: '+1 crunch per tap', base: 15, icon: '☝' },
@@ -27,13 +28,14 @@ const integer = (v, max = 1e9) => Math.floor(number(v, max));
 const weeks = v => [...new Set(Array.isArray(v) ? v.filter(n => Number.isInteger(n) && n >= 1 && n <= 52) : [])];
 export const MAX_CRUNCHES = 1e12;
 export function freshState(now = Date.now()) {
-    return { version: 3, chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, stats: { rounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0 }, lastTick: now } };
+    return { version: 3, chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0 }, lastTick: now } };
 }
-export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 50 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1).map(o => o.id); }
+export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 50 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.cardWins >= 10).map(o => o.id); }
 export function normalizeState(raw, now = Date.now()) {
     const s = freshState(now);
     if (!raw || typeof raw !== 'object')
         return s;
+    s.manorPeanut = {found: raw.manorPeanut?.found === true, count: integer(raw.manorPeanut?.count)};
     s.chips = Number.isSafeInteger(raw.chips) ? integer(raw.chips, 1e6) : 100;
     s.prizes = [...new Set((Array.isArray(raw.prizes) ? raw.prizes : []).map(prizeID).filter(Boolean))];
     s.shelf = Array.from({ length: 4 }, (_, i) => { const id = prizeID(raw.shelf?.[i]); return s.prizes.includes(id) ? id : null; });
@@ -67,6 +69,7 @@ export function normalizeCheckpoint(c) {
 export function validState(raw) {
     if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > 19 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => PRIZES.some(p => p.id === id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
         return false;
+    if (raw.manorPeanut && (typeof raw.manorPeanut.found !== 'boolean' || !Number.isSafeInteger(raw.manorPeanut.count) || raw.manorPeanut.count < 0 || raw.manorPeanut.count > 1e9)) return false;
     if (![2, 3].includes(raw.version))
         return true;
     const statKeys = raw.version === 3 ? ['rounds', 'cardWins', 'boxes', 'manorWins', 'bestBank'] : ['rounds', 'cardWins', 'boxes', 'manorWins'];
@@ -115,4 +118,4 @@ export function claimMazePrize(s, index) { const loot = s.manorRun?.status === '
 export function handTotal(cards) { let n = cards.reduce((n, c) => n + Math.min(c.rank, 10), 0); if (cards.some(c => c.rank === 1) && n + 10 <= 21)
     n += 10; return n; }
 
-export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 250; s.stats.boxes = 1; s.stats.manorWins = 1; s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 1000; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }
+export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 250; s.stats.boxes = 1; s.stats.manorWins = 1; s.stats.cardWins = 10; s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 1000; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }

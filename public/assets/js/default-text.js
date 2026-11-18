@@ -49,6 +49,10 @@ export const DEFAULT_TEXT = {
     "akali": {
       "name": "Akali’s little rogue",
       "hint": "Escape Ann’s weekly maze once"
+    },
+    "kda": {
+      "name": "K/DA princess",
+      "hint": "Win 10 hands of 21"
     }
   },
   "weekly": {
@@ -111,7 +115,7 @@ export const DEFAULT_TEXT = {
     },
     "manor": {
       "title": "Ann is looking for you",
-      "intro": "A gentler weekly escape: repair three ciphers, rescue your plushie, and find one collectible. Hedges hide you from Ann.",
+      "intro": "Repair three ciphers to unlock the exit. Find one weekly collectible and a crunchy peanut while Ann wanders the garden.",
       "action": "Enter the weekly maze →"
     }
   },

@@ -41,7 +41,7 @@ Commit your file change in GitHub. After Pages finishes publishing, she can refr
 
 My little princess is the original portrait. Sunday, peanut PJs, and Espeon each have a complete painted costume portrait, replacing the whole image rather than adding a clothing layer.
 
-Akali now has a complete painted costume portrait too, at `assets/images/outfits/akali.webp`. Each of the four games earns one distinct outfit: cards → Sunday at best score 200; Peanut Factory → PJs at 50 lifetime crunches; first weekly blind box → Espeon; first maze escape → Akali. The normal little princess outfit is available from the start.
+Akali now has a complete painted costume portrait too, at `assets/images/outfits/akali.webp`. Each of the four games earns one distinct outfit: cards → Sunday at best score 200; Peanut Factory → PJs at 50 lifetime crunches; first weekly blind box → Espeon; first maze escape → Akali. The normal little princess outfit is available from the start. The bonus K/DA Akali outfit unlocks at 10 card wins and has its own complete portrait at `assets/images/outfits/kda.webp`.
 
 The inventory uses editable stylized SVG illustrations. Pocket Espurr and the crunchy companion use their original images. You can replace any collectible image while keeping its filename. Name changes belong in the JSON file, not inside the layout.
 

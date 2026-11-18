@@ -10,7 +10,7 @@ Uses ChatGPT sign-in and saves each visitor’s own account progress. Its existi
 
 ## Separate Vercel + Code Login ZIP
 
-Prepared with a code-entry screen, server-only code check, session cookies, cloud load/save, and a Supabase SQL setup file. Follow its root `START-HERE-VERCEL.md`. This edition runs one shared Nayleen profile: the same code on different devices opens the same save. Anyone knowing the code can change that progress. You choose the code in Vercel’s server environment variables; no code or database secret is embedded in the browser scripts.
+Prepared with a code-entry screen, server-only code check, session cookies, cloud load/save, and a Supabase SQL setup file. Follow its root `START-HERE-VERCEL.md`. The main code opens Nayleen’s profile across devices. An optional different CARNIVAL_TEST_CODE opens an independent testing profile, including separate browser caches and peanut progress. Arbitrary codes do not create accounts; rotating a configured code keeps that profile’s save. Anyone knowing a code can change that profile’s progress. You choose the code in Vercel’s server environment variables; no code or database secret is embedded in the browser scripts.
 
 You still need to create your Vercel and Supabase projects, run the included SQL, and set the three server variables. No external accounts or live database were configured for you. Backend handlers were checked against a simulated database; finish with a real two-device test after setup.
 

@@ -1,6 +1,6 @@
 /* Animated canvas actors and garden artwork. All motion follows the game clock. */
 function drawManor(v) {
-    const { canvas, player, hunter, machines, pallets, walls, bear, gate, rescued, elapsed: t, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures = [], T, COLS, ROWS } = v;
+    const { canvas, player, hunter, machines, pallets, walls, gate, elapsed: t, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures = [], T, COLS, ROWS } = v;
     const c = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect(), W = rect.width, H = rect.height;
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -215,8 +215,8 @@ function drawManor(v) {
     // The gate is a visible landmark, opening after the objectives are complete.
     c.save();
     c.translate(gate.x, gate.y);
-    glow(0, -8, 60, rescued && machines.every(m => m.progress >= 40) ? '#d8b0ff44' : '#9976be22');
-    const gateReady = rescued && machines.every(m => m.progress >= 40);
+    glow(0, -8, 60, machines.every(m => m.progress >= 40) ? '#d8b0ff44' : '#9976be22');
+    const gateReady = machines.every(m => m.progress >= 40);
     for (const side of [-1, 1]) {
         box(side * 23 - 4, -43, 8, 58, 3, '#7e688e', '#b49ac5');
         oval(side * 23, -44, 6, 4, '#c4a5d4');
@@ -229,7 +229,7 @@ function drawManor(v) {
     for (let j = -2; j <= 2; j++)
         line([[j * 8, -22], [j * 8, 13]], gateReady ? '#ccb1ed88' : '#8e779f', 2);
     text(0, -52, '☾', 23, '#e4d5fa');
-    text(0, 30, 'MOON GATE', 8);
+    text(0, 30, gateReady ? 'EXIT UNLOCKED' : 'MOON GATE', 8, gateReady ? '#d8f0c7' : '#e0c8ee');
     c.restore();
     pallets.forEach(p => {
         c.save();
@@ -273,16 +273,9 @@ function drawManor(v) {
         text(0, 25, 'TREASURE', 7, '#e0c8ee');
         c.restore();
     }
-    if (!rescued) {
-        glow(bear.x, bear.y, 35, '#d7b5ef28');
-        plush(bear.x, bear.y);
-        text(bear.x, bear.y - 25, 'RESCUE', 8);
-    }
     // Sort the actors by their feet so passing them has depth.
     const actors = [{ y: player.y, draw: () => { c.globalAlpha = invincible > 0 && Math.floor(t * 8) % 2 === 0 ? .5 : 1; espurrActor(player); c.globalAlpha = 1; } }, { y: hunter.y, draw: () => annActor(hunter) }];
     actors.sort((a, b) => a.y - b.y).forEach(a => a.draw());
-    if (rescued)
-        plush(player.x - 25, player.y + 18);
     for (const effect of effects) {
         const f = 1 - effect.life / effect.duration;
         c.globalAlpha = Math.max(0, 1 - f);
@@ -312,7 +305,7 @@ function drawManor(v) {
     vignette.addColorStop(1, chase ? '#632d4944' : '#100c1b88');
     c.fillStyle = vignette;
     c.fillRect(0, 0, W, H);
-    const goals = [...machines.filter(m => m.progress < 40).map((m, i) => ({ ...m, name: String(i + 1) })), ...(!rescued ? [{ ...bear, name: '◆' }] : []), ...(gateReady ? [{ ...gate, name: '☾' }] : [])];
+    const goals = [...machines.filter(m => m.progress < 40).map((m, i) => ({ ...m, name: String(i + 1) })), ...(gateReady ? [{ ...gate, name: '☾' }] : [])];
     goals.forEach(g => {
         const x = g.x - cameraX, y = g.y - cameraY;
         if (x > 30 && x < W - 30 && y > 35 && y < H - 35)

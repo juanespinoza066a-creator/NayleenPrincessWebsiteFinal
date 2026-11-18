@@ -26,7 +26,9 @@ export class CarnivalStore {
         this.ready = false;
         this.status = 'Opening your little carnival…';
         this.lastSync = Date.now();
+        this.storageKey = CODE_LOGIN ? null : SAVE_KEY;
         try {
+            if (CODE_LOGIN) return;
             this.state = normalizeState(JSON.parse(localStorage.getItem(SAVE_KEY) || localStorage.getItem('nayleen-carnival-room-v1') || 'null'));
             this.pending = JSON.parse(localStorage.getItem(SAVE_KEY + '-pending') || 'null');
             this.userId = this.pending?.userId;
@@ -38,8 +40,8 @@ export class CarnivalStore {
     emit(extra = {}) { for (const fn of this.listeners)
         fn(this.state, { status: this.status, ...extra }); }
     remember() { try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(this.state));
-        localStorage.setItem(SAVE_KEY + '-pending', JSON.stringify({ dirty: this.dirty, revision: this.revision, userId: this.userId }));
+        localStorage.setItem(this.storageKey, JSON.stringify(this.state));
+        localStorage.setItem(this.storageKey + '-pending', JSON.stringify({ dirty: this.dirty, revision: this.revision, userId: this.userId }));
         return true;
     }
     catch {
@@ -47,8 +49,22 @@ export class CarnivalStore {
         return false;
     } }
     async load() {
-        await ensureCodeLogin();
-        if (CODE_LOGIN) onCodeLogout(() => this.save());
+        const identity = await ensureCodeLogin();
+        if (CODE_LOGIN) {
+            this.storageKey = SAVE_KEY + '-code-' + identity.profile;
+            try {
+                let raw = localStorage.getItem(this.storageKey), pending = localStorage.getItem(this.storageKey + '-pending');
+                // Migrate only the identifiable old Nayleen cache; never copy it into testing.
+                if (!raw && identity.profile === 'nayleen') {
+                    const oldPending = JSON.parse(localStorage.getItem(SAVE_KEY + '-pending') || 'null');
+                    if (oldPending?.userId === 'nayleen-code-profile') { raw = localStorage.getItem(SAVE_KEY); pending = JSON.stringify(oldPending); }
+                }
+                this.state = normalizeState(JSON.parse(raw || 'null'));
+                this.pending = JSON.parse(pending || 'null');
+                this.userId = this.pending?.userId; this.revision = this.pending?.revision || 0;
+            } catch { this.state = freshState(); this.pending = null; }
+            onCodeLogout(() => this.save());
+        }
         if (STATIC) {
             this.status = 'Saved in this browser. Use a backup to move your progress to another device.';
         }
@@ -56,8 +72,7 @@ export class CarnivalStore {
             try {
                 const data = await api('api/player');
                 const pending = this.pending?.dirty && this.pending.userId === data.userId;
-                if (data.state && !pending)
-                    this.state = normalizeState(data.state);
+                if (!pending) this.state = normalizeState(data.state);
                 this.conflict = Boolean(pending && this.pending.revision !== data.revision);
                 this.userId = data.userId;
                 this.revision = data.revision;
@@ -128,10 +143,10 @@ export class CarnivalStore {
             return this.save();
         try {
             const data = await api('api/player');
-            if (data.state && validState(data.state)) {
+            if (!data.state || validState(data.state)) {
                 // Keep a recovery copy before the visitor explicitly reloads the account save.
                 try {
-                    localStorage.setItem(SAVE_KEY + '-before-reload', JSON.stringify(this.state));
+                    localStorage.setItem(this.storageKey + '-before-reload', JSON.stringify(this.state));
                 }
                 catch { }
                 this.state = normalizeState(data.state);

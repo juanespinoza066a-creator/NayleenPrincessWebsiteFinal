@@ -6,6 +6,8 @@ const store = new CarnivalStore(), images = new Map();
 PRIZES.forEach(item => { const image = new Image(); image.src = item.image; images.set(item.id, image); });
 const bridge = {
     outfit: 'royal', loot: [], images,
+    get peanut() { return store.state.manorPeanut; },
+    savePeanut(found, count) { store.change(s => { s.manorPeanut = {found, count}; }); },
     async begin() { await ready; let run; store.change(s => { run = beginMaze(s, weekNumber()); }); return run ? structuredClone(run) : null; },
     checkpoint(checkpoint) { if (store.state.manorRun?.status === 'active')
         store.change(s => { s.manorRun.checkpoint = checkpoint; }); },

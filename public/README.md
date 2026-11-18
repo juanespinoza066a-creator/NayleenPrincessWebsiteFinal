@@ -14,6 +14,6 @@ Game progress saves in the browser. Download save backup and Restore a backup mo
 
 The blind box is one fixed surprise each week. Shaking or reloading cannot reroll it. Duplicates give no currency or extra opening. Ann’s maze is one run per week, with one treasure find using the same collection. Closing the page saves the run; finishing or losing ends it for the week. New weekly play begins each Wednesday. Cards and the Peanut Factory can be played any day.
 
-The card score is shown only inside Nayleen’s Gambling Paradise. Reset starts a fresh 100 without taking away the best score or earned outfits. Sunday’s outfit unlocks at best score 200, peanut PJs at 50 lifetime crunches, Espeon after the first weekly blind box, and Akali’s reward after one maze escape. All five portraits are included. Temporary reset/unlock tools are on; set testingTools to false in settings.js before gifting.
+The card score is shown only inside Nayleen’s Gambling Paradise. Reset starts a fresh 100 without taking away the best score or earned outfits. Sunday’s outfit unlocks at best score 200, peanut PJs at 50 lifetime crunches, Espeon after the first weekly blind box, and Akali’s reward after one maze escape. All six portraits are included. The bonus K/DA Akali outfit unlocks after 10 card wins. Temporary reset/unlock tools are on; set testingTools to false in settings.js before gifting.
 
 Read BACKEND-OPTIONS.md for login and cross-device saving. Published GitHub Pages content, including notes, is readable by anyone who can access that site.

@@ -1,79 +1,115 @@
-# Put Nayleen’s carnival online with code login and cloud saves
+# Publish Nayleen’s carnival with cloud saves
 
-Use the **Vercel + Code Login ZIP** for this guide. This is a separate prepared edition from the GitHub Pages ZIP. It includes the login screen, server endpoints, database SQL, conflict handling, and automatic saves. You still need to create your own projects and enter the server settings. Nothing needs to be installed on her phone.
+Use the **Vercel + Code Login ZIP**. It includes the website, code-entry screen, server login/save endpoints, database SQL, profile isolation, and automatic saves. You still need to create your own projects and enter the server settings. No external Vercel or Supabase backend has been configured for you.
 
 ## What goes where
 
 | Service | Its job |
 | --- | --- |
-| GitHub, preferably a private repository | Stores your website files so you can edit them |
-| Vercel | Publishes the website and runs the small code-login/save backend |
-| Supabase | Stores the shared Nayleen save, login sessions, and attempt limits |
+| GitHub private repository | Stores the website files you edit |
+| Vercel | Publishes the website and runs login/save endpoints |
+| Supabase | Stores game saves, sessions, and login attempt limits |
 
-You are using a **shared code**, not separate email accounts. The same code on her phone and computer opens the same Nayleen profile. If you use that code too, you share her progress. Three digits are easy to guess; a longer private code is better. The code is checked on the server, with five attempts per network address per 15 minutes. Never use this little gift login for sensitive records.
-
-## 1. Create the GitHub repository
+## 1. Upload the files to GitHub
 
 1. Extract the Vercel ZIP on your computer.
 2. At github.com choose **New repository**, name it `nayleen-carnival`, and choose **Private**.
-3. Choose **Add file → Upload files**. Upload the extracted contents, not the ZIP itself. At the repository root you should see `api`, `server`, `database`, `public`, `package.json`, `build.mjs`, and `vercel.json`.
-4. Commit the upload. Your text is under `public/content/site-text.json`; weekly memories are under `public/content/weekly-notes.json`.
+3. Choose **Add file → Upload files**. Upload the extracted contents, not the ZIP itself.
+4. At the repository root you should see `api`, `server`, `database`, `public`, `package.json`, `build.mjs`, and `vercel.json`. Commit the upload.
 
-## 2. Create the database in Supabase
+Your wording is in `public/content/site-text.json`. The 52 read-only weekly memories are in `public/content/weekly-notes.json`.
 
-1. Sign in at https://supabase.com/dashboard and create a new project. Give its database a strong password and keep it in your password manager. The database password is **not** her carnival code.
-2. When the project is ready, open **SQL Editor → New query**.
-3. Open the included `database/setup.sql` file, copy its entire contents into the query, and click **Run**.
-4. This creates the save/session/attempt tables, enables Row Level Security, and only allows the server’s privileged role to use them. Do not add public read/write policies.
-5. Find the project’s **Project URL** and **Secret API key** in its project/API settings. The secret key normally begins `sb_secret_`. You need them for Vercel. Do not upload the key into GitHub, `settings.js`, or this chat.
+## 2. Create the Supabase database
 
-## 3. Publish through Vercel
+1. Sign in at https://supabase.com/dashboard and create a project. Save its database password in your password manager; this is not her carnival code.
+2. Open **SQL Editor → New query**.
+3. Open the included `database/setup.sql` file. Copy its entire contents into the query and click **Run**.
+4. The SQL creates the save/session/attempt tables, enables Row Level Security, and allows only the server’s privileged role to use them. Do not add public read/write policies.
+5. Find the **Project URL** and **Secret API key** in the project/API settings. The key normally starts `sb_secret_`. Keep it for Vercel; never upload it to GitHub, browser scripts, or chat.
 
-1. Go to https://vercel.com/new and choose **Import Git Repository**. Connect GitHub if needed and select `nayleen-carnival`.
-2. Set **Framework Preset: Other** and keep the **Root Directory** at the repository root.
-3. The included `vercel.json` sets the build to `node build.mjs` and output to `dist`. Leave those settings intact.
-4. Add these **Environment Variables** for Production (and Preview too if you want preview links to use the same save):
+If you already ran an older carnival setup, run this updated SQL on that same project. It upgrades the old single-profile tables without clearing existing Nayleen progress. Use the matching updated backend files too.
+
+## 3. Publish with Vercel
+
+1. Go to https://vercel.com/new and import your GitHub repository.
+2. Choose **Framework Preset: Other** and keep the **Root Directory** at the repository root.
+3. The included `vercel.json` sets build command `node build.mjs` and output directory `dist`. Leave those settings intact.
+4. Add these environment variables for Production. Also add them for Preview if you want preview deployments to connect to that database:
 
 | Name | Value |
 | --- | --- |
 | `SUPABASE_URL` | Your Supabase Project URL |
 | `SUPABASE_SECRET_KEY` | Your Supabase Secret API key |
-| `CARNIVAL_LOGIN_CODE` | Your chosen code, such as the three-digit code you suggested |
+| `CARNIVAL_LOGIN_CODE` | Her main private code |
+| `CARNIVAL_TEST_CODE` | Optional different private code for your testing profile |
 
-5. Click **Deploy**. Vercel installs/builds the files and provides your website URL.
-6. If you add/change environment variables after the deployment, redeploy to apply them.
+5. Click **Deploy**, open the resulting Vercel URL, and enter a code.
+6. Adding or changing environment variables requires a redeployment to apply them.
 
-No Supabase Auth user, email address, redirect URL, or password-reset flow is needed for this shared-code edition. The Vercel server checks the code and gives the browser a secure, HTTP-only session cookie for up to seven days. Supabase stores a hash of that random session token. Signing out invalidates that session; the save stays in the database.
+No Supabase Auth user, email address, or auth redirect URL is needed for this shared-code edition. The server checks the code and creates a secure, HTTP-only session cookie for up to seven days. Supabase stores a hash of the random session token, never the login code. Three digits are easy to guess; a longer private code is better.
 
-## 4. Test before gifting
+## Main code versus testing code
 
-1. Open the Vercel URL and enter your chosen code.
-2. For a clean start, use **Reset progress for testing**, then confirm in the website. This replaces the shared cloud save too.
-3. Play a little, leave the page open long enough to sync, and open the same URL on your phone with the same code. Check that the score/outfits/collection match.
-4. Test **Unlock everything for testing** if you want to inspect every outfit. Those changes also sync.
-5. If two devices play at once, a stale save is blocked instead of silently overwriting the newer one. Download a backup on the conflicting device, then choose **Reload account save** to use the database version.
-6. To move your older GitHub Pages progress, download its JSON backup first. Sign in on Vercel, then use **Restore a backup** there.
+- `CARNIVAL_LOGIN_CODE` always opens the **Nayleen** profile. Her phone and computer use the same code and get the same save.
+- `CARNIVAL_TEST_CODE` opens the separate **testing** profile. The page labels it “Testing profile · separate save”. Your scores, wardrobe, collectibles, weekly limits, and manor peanut progress stay separate from hers, including in the browser cache.
+- Sign out before switching codes in the same browser. Use the testing code for experiments and reset/unlock tools.
+- Both profiles use the same Supabase project, so you do not need two projects or two subscriptions.
+- An arbitrary new code does not create an account. Only the configured codes work. They must be different.
+- Changing her main code does not reset or create a save; it still opens Nayleen. Changing the testing code still opens the same testing profile.
+- Everyone using a given code shares that profile. These are two shared profiles, not email-based personal accounts.
 
-No production Vercel or Supabase project was created or connected by this download. Its handlers are locally tested with a simulated database; do the two-device test after your real setup. Weekly rewards are saved, but this is not a tamper-proof online game: deliberately editing the local save/clock or using testing buttons can bypass local game rules.
+To disable testing-code login later, remove `CARNIVAL_TEST_CODE` in Vercel and redeploy. Her progress is unaffected. To invalidate every active session immediately, run `delete from public.carnival_sessions;` in the SQL Editor; each device will need to enter a valid code again.
 
-## 5. Remove testing tools and give her the URL
+## 4. Test across devices
 
-In `public/settings.js`, change `testingTools: true` to `testingTools: false`. Commit. Vercel automatically redeploys connected GitHub changes. The reset and unlock-all buttons disappear. They are convenience tools, not an admin permission boundary.
+1. Enter the testing code and use **Unlock everything for testing** to inspect all six portraits, or **Reset progress for testing** for a fresh run.
+2. Play a little, wait for the save status, and open the same Vercel URL on another device with that testing code. Confirm the progress matches.
+3. Sign out and use her main code. It should have its own fresh or existing progress.
+4. To import an older browser save intentionally, download a backup from that old site first, sign into the desired profile, and use **Restore a backup**.
+5. Two devices saving at once can produce a conflict. Download a backup on the conflicting device, then use **Reload account save** to load the newer database version.
 
-Before that final change, reset once more if you want her to start fresh. Download a backup if you want to keep your test collection. Do not use the code yourself afterward unless you intend to play on her shared profile.
+Backend handlers and browser-cache separation are locally tested with a simulated database. Finish with the real two-device test after you create your projects. This is a personal game, not a tamper-proof multiplayer backend: editing the device clock/save or using testing tools can bypass local game rules.
 
-## Each week afterward
+## Reset her progress
 
-Edit `public/content/weekly-notes.json` in GitHub. Fill that week’s emoji, title and message; set `published` to `true`; commit. Vercel publishes the update. The database save is separate from the website files, so updating your words does not reset her games. Her scrapbook has no writing form.
+No reset has been performed on her real save for you.
 
-The notes JSON and website assets are public files on the deployed URL, even though your GitHub repository is private and the game has a code screen. The code protects the cloud save, not confidential letters. Keep private drafts out of the published JSON.
+1. Ask her to close the site on other devices so they cannot keep playing on an older save.
+2. Sign in with her **main code**. Confirm you are on Nayleen’s cloud save, not the testing profile.
+3. Download a backup if you may want to undo the reset.
+4. Click **Reset progress for testing**, then confirm **Reset my progress** inside the dialog.
+5. Wait for the cloud save status. Scores, outfits, collectibles, crunches, manor peanut progress, and used weekly games start fresh for that profile. Weekly love-note JSON is unaffected.
+6. Refresh or sign in again on her other devices. If a device has unsynced old changes, use **Reload account save**; do not restore its old backup over the reset unless you mean to.
 
-## If something does not work
+If the buttons have already been hidden, temporarily set `testingTools: true` in `public/settings.js`, commit, and wait for Vercel to redeploy. Reset as above, then set it back to `false` and commit. These buttons are testing conveniences, not secure owner-only admin controls; hide them before gifting.
 
-- Login service not configured: check all three Vercel variables and redeploy.
-- Database unavailable: confirm the full SQL ran successfully and the Project URL and Secret key belong to that same Supabase project.
-- Too many tries: wait 15 minutes; changing browser tabs does not reset the server limit.
-- Changed code: existing sessions can last seven days. To sign out every device, run `delete from public.carnival_sessions;` in Supabase SQL Editor, then use the new code.
-- GitHub Pages URL: that separate edition is browser-only. Use the Vercel URL for code login/cloud saving.
+## 5. Final handoff and weekly updates
 
-Official references: https://vercel.com/docs/deployments/git ; https://vercel.com/docs/environment-variables ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security
+Set `testingTools: false` in `public/settings.js` to hide reset/unlock controls. Commit; Vercel redeploys connected GitHub updates. Keep the testing code for your separate testing profile if desired, or remove it from Vercel.
+
+Send her the Vercel URL and her main code. She does not need a Vercel, GitHub, Supabase, or ChatGPT account to enter the code-login version.
+
+Each week, edit `public/content/weekly-notes.json` in GitHub, fill that week’s emoji/title/message, set `published` to `true`, and commit. Vercel publishes the update. The database is separate from those files, so text updates do not reset progress. Her scrapbook has no note-writing form.
+
+The published notes JSON and image files are public assets even though the GitHub repository is private. The code protects the save service, not confidential letters. Keep private drafts elsewhere.
+
+## Approximate costs, checked November 18, 2026
+
+- **Vercel Hobby:** $0/month, intended for personal non-commercial projects, subject to its usage limits.
+- **Supabase Free:** $0/month, including a 500 MB database. Two small game profiles should comfortably fit; that is an estimate, not a usage guarantee.
+- **Expected total for this gift:** $0/month within the free limits, using the included Vercel address.
+- **Free database caveat:** Supabase can pause a project after about a week of low activity. Restore it from the dashboard if needed. Keep save backups.
+- **Optional paid database:** Supabase Pro starts at $25/month; one small project is included in that base estimate. It avoids inactivity pausing. Vercel can remain on Hobby if eligible.
+- **Optional paid hosting:** Vercel Pro starts at $20/month plus applicable usage. Both paid base plans together start around $45/month before tax/extra usage. Neither upgrade is needed just to have separate main/testing saves.
+
+Check current allowances before upgrading. A custom domain is optional; the included Vercel address needs no domain purchase.
+
+Official references: https://vercel.com/pricing ; https://supabase.com/pricing ; https://supabase.com/docs/guides/platform/free-project-pausing ; https://vercel.com/docs/environment-variables ; https://supabase.com/docs/guides/getting-started/api-keys
+
+## Troubleshooting
+
+- Login unavailable: check the variables, confirm main/test codes are different, and redeploy.
+- Database unavailable: check the SQL completed and that the URL/key belong to that project. If upgrading, rerun the updated SQL.
+- Too many tries: wait one minute; the server limits attempts per network address.
+- Wrong progress: sign out, then use the intended profile’s code. Main and testing are labeled separately.
+- GitHub Pages URL: that separate ZIP is browser-only; use the Vercel edition and URL for code-based cloud saves.

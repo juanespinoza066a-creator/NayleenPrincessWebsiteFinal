@@ -22,7 +22,7 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
     }
     oval(0, -13, 14, 19, '#c8bad8');
     path([[-12, -22], [-18, -16], [-13, -14], [-18, -6], [-11, -7], [-14, 0], [-6, -2], [0, 4], [8, -2], [14, 0], [12, -8], [18, -6], [14, -15], [17, -17], [11, -23]], '#c8bad8');
-    const colors = { sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
+    const colors = { kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
     if (outfit !== 'royal' && colors[outfit]) {
         const [base, trim] = colors[outfit];
         if (outfit === 'cozy') {
@@ -123,6 +123,10 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
         c.ellipse(0, -77, 20, 6, 0, 0, Math.PI * 2);
         c.stroke();
     }
+    if (outfit === 'kda') {
+        path([[-22,-58],[-19,-68],[10,-70],[19,-62],[28,-58],[2,-57]], '#302a48', '#c8a868');
+        path([[9,-68],[2,-63],[9,-62]], '#e6e1ef');
+    }
     // Gold crown and lavender ribbon match her portrait.
     c.save();
     c.translate(0, -65 + Math.sin(time * 2) * .5);
@@ -133,8 +137,8 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
         oval(x, y, 2, 2, '#efcf8e');
     c.restore();
     c.restore();
-    if (outfit === 'akali')
-        path([[-13, -27], [13, -27], [9, -19], [-6, -21], [-16, -15], [-12, -23]], '#64a99e');
+    if (outfit === 'akali' || outfit === 'kda')
+        path([[-13, -27], [13, -27], [9, -19], [-6, -21], [-16, -15], [-12, -23]], outfit === 'kda' ? '#38314e' : '#64a99e');
     if (outfit === 'royal' || outfit === 'ribbon') {
         path([[-1, -24], [-11, -28], [-10, -18], [-1, -21], [0, -14], [3, -21], [11, -18], [11, -28], [2, -24]], outfit === 'ribbon' ? '#b67aca' : '#b18ac9');
         oval(1, -23, 3, 3, '#dfb8ee');
