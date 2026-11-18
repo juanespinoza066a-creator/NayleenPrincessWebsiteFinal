@@ -1,0 +1,1 @@
+Extract this ZIP. Upload its public folder to the root of your existing GitHub repository, keeping the folder paths. Replace game-rules.js when prompted. Commit to deploy. The Stitch collectible uses the supplied photo unchanged, including its background. Saved progress is preserved.
