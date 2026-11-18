@@ -1,1 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210"><defs><filter id="soft"><feDropShadow dx="0" dy="4" stdDeviation="2" flood-color="#806087" flood-opacity=".12"/></filter></defs><g filter="url(#soft)"><path d="M47 20h106v173H47Z" fill="#c9c0da" stroke="#8e83a5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 37h90v132H55Z" fill="#9fc9df" stroke="#bcd7e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="74" cy="61" rx="12" ry="12" fill="#e6d9f260" stroke="#f4e5f6" stroke-width="1.5"/><ellipse cx="128" cy="74" rx="9" ry="9" fill="#e6d9f260" stroke="#f4e5f6" stroke-width="1.5"/><ellipse cx="78" cy="144" rx="10" ry="10" fill="#e6d9f260" stroke="#f4e5f6" stroke-width="1.5"/><ellipse cx="131" cy="130" rx="14" ry="14" fill="#e6d9f260" stroke="#f4e5f6" stroke-width="1.5"/><ellipse cx="105" cy="54" rx="8" ry="8" fill="#e6d9f260" stroke="#f4e5f6" stroke-width="1.5"/><path d="M106 127q42 14 36-21-4-25-15-8" fill="none" stroke="#e1a6ce" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="100" cy="116" rx="14" ry="24" fill="#dfabd0" /><ellipse cx="99" cy="88" rx="22" ry="20" fill="#e8bbda" /><path d="M80 82l-3-18 15 9m16 0 13-9-2 20" fill="#e8bbda" stroke="#c18bb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="91" cy="86" rx="4" ry="7" fill="#709ebf" /><ellipse cx="109" cy="86" rx="4" ry="7" fill="#709ebf" /><ellipse cx="82" cy="134" rx="10" ry="5" fill="#e3b2d3" /><ellipse cx="116" cy="133" rx="10" ry="5" fill="#e3b2d3" /><text x="100" y="185" text-anchor="middle" font-size="10" fill="#7e648d">Mew ex</text></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600" role="img" aria-label="Bubble Mew holographic card">
+<defs>
+<linearGradient id="foil" x2="1" y2="1"><stop stop-color="#f9e9a6"/><stop offset=".2" stop-color="#9de2e6"/><stop offset=".4" stop-color="#e8b4e2"/><stop offset=".6" stop-color="#f9f0b7"/><stop offset=".8" stop-color="#b3d2f5"/><stop offset="1" stop-color="#d3a6df"/></linearGradient>
+<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#6369ae"/><stop offset=".48" stop-color="#99cfdf"/><stop offset="1" stop-color="#d8e8ee"/></linearGradient>
+<radialGradient id="bubble" cx=".36" cy=".3"><stop stop-color="#e9f5ff" stop-opacity=".12"/><stop offset=".65" stop-color="#d9b7ee" stop-opacity=".17"/><stop offset=".94" stop-color="#f8ddfd" stop-opacity=".58"/><stop offset="1" stop-color="#b9e9f3" stop-opacity=".9"/></radialGradient>
+<radialGradient id="pink" cx=".32" cy=".2"><stop stop-color="#ffe8f4"/><stop offset=".6" stop-color="#efb9d6"/><stop offset="1" stop-color="#cc84b3"/></radialGradient>
+<radialGradient id="eye"><stop stop-color="#b3e8f6"/><stop offset=".6" stop-color="#5c9fc1"/><stop offset="1" stop-color="#3f689d"/></radialGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#655379" flood-opacity=".24"/></filter>
+</defs>
+<g transform="translate(15 12) rotate(-4 225 285)" filter="url(#shadow)" stroke-linecap="round" stroke-linejoin="round">
+<rect x="61" y="35" width="330" height="495" rx="21" fill="url(#foil)" stroke="#d4b56b" stroke-width="3"/>
+<rect x="72" y="46" width="308" height="473" rx="13" fill="#e6e7ed" stroke="#fff6d8"/>
+<rect x="83" y="91" width="286" height="360" rx="8" fill="url(#sky)" stroke="#b1a1c9"/>
+<text x="93" y="77" font-family="Georgia,serif" font-size="28" font-weight="bold" fill="#48425f">Mew</text>
+<text x="350" y="75" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#675c80">♡</text>
+<path d="M84 391Q143 352 202 394T369 385V451H84Z" fill="#d8edf5" opacity=".7"/>
+<path d="M84 430Q161 386 229 418T369 420V451H84Z" fill="#eef5fa" opacity=".65"/>
+<circle cx="227" cy="262" r="117" fill="url(#bubble)" stroke="#f2e8ff" stroke-width="2.4"/>
+<path d="M135 222q12-51 60-64" fill="none" stroke="#fff5ff" stroke-width="5" opacity=".75"/>
+<path d="M305 310q-11 26-30 38" fill="none" stroke="#f4ecff" stroke-width="3"/>
+<g transform="translate(230 266) rotate(-12)">
+<path d="M7 44C75 113 107 61 93 18 83-12 63-8 65 12" fill="none" stroke="#b679ab" stroke-width="10"/>
+<path d="M7 44C75 113 107 61 93 18 83-12 63-8 65 12" fill="none" stroke="#e6afd1" stroke-width="7"/>
+<ellipse cx="0" cy="28" rx="27" ry="40" fill="url(#pink)" stroke="#bb80a6" stroke-width="1.8"/>
+<path d="M-24 13q-28-26-31-5 4 17 28 28m50-22q28-24 29-3-7 17-28 25" fill="url(#pink)" stroke="#c38bb1" stroke-width="2"/>
+<ellipse cx="-22" cy="64" rx="15" ry="10" transform="rotate(-23 -22 64)" fill="url(#pink)" stroke="#c38bb1" stroke-width="2"/>
+<ellipse cx="21" cy="64" rx="15" ry="10" transform="rotate(23 21 64)" fill="url(#pink)" stroke="#c38bb1" stroke-width="2"/>
+<path d="M-36-29-34-67-12-52Q0-57 17-50L39-63 35-24Q29-3 0 1-29-1-36-29Z" fill="url(#pink)" stroke="#bc80a9" stroke-width="2"/>
+<path d="m-30-56 13 8m38 0 13-6" stroke="#e7a4c8" stroke-width="5"/>
+<ellipse cx="-17" cy="-26" rx="10" ry="16" transform="rotate(-10 -17 -26)" fill="#fff7fc"/>
+<ellipse cx="18" cy="-26" rx="10" ry="16" transform="rotate(10 18 -26)" fill="#fff7fc"/>
+<ellipse cx="-15" cy="-26" rx="6" ry="12" fill="url(#eye)"/><ellipse cx="16" cy="-26" rx="6" ry="12" fill="url(#eye)"/>
+<ellipse cx="-15" cy="-26" rx="2.2" ry="8" fill="#47708f"/><ellipse cx="16" cy="-26" rx="2.2" ry="8" fill="#47708f"/>
+<circle cx="-17" cy="-31" r="2.5" fill="#fff"/><circle cx="14" cy="-31" r="2.5" fill="#fff"/>
+<path d="m-5-10q5 6 10 0" fill="none" stroke="#ae6e98" stroke-width="1.5"/>
+</g>
+<g fill="url(#bubble)" stroke="#eee8fd" stroke-width="1.5"><circle cx="123" cy="157" r="15"/><circle cx="334" cy="181" r="22"/><circle cx="122" cy="365" r="19"/><circle cx="325" cy="394" r="29"/><circle cx="290" cy="124" r="10"/></g>
+<g fill="none" stroke="#fff8ff" stroke-width="2" opacity=".8"><path d="m114 154 4-6m207 26 7-9m-220 195 5-6m201 30 6-7"/></g>
+<path d="m102 275 3 10 10 3-10 3-3 11-4-11-9-3 9-3zm234-20 3 9 9 3-9 3-3 10-3-10-9-3 9-3z" fill="#fff4bf"/>
+<text x="225" y="478" text-anchor="middle" font-family="Georgia,serif" font-size="14" letter-spacing="2" fill="#76648c">A BUBBLE OF WONDER</text>
+<path d="M100 492H351" stroke="#b7a3cd"/><text x="225" y="507" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" letter-spacing="3" fill="#9c86ac">HER LITTLE COLLECTION</text>
+</g></svg>

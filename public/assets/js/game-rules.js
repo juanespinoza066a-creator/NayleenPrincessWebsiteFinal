@@ -5,7 +5,7 @@ export const PRIZES = [
     ['sunday', 'Sunday plushie'], ['bunny', 'Sleepy bunny'], ['duck', 'Little duck'], ['akali', 'Akali plushie'], ['pokemon', 'Pokémon card pack'],
     ['pterodactyl', 'Pterodactyl plushie'], ['gambit', 'Maid Gambit figure'], ['lilies', 'Lily-of-the-valley bouquet'], ['mew', 'Bubble Mew card'], ['coach', 'Coach bag'],
     ['blondie', 'Blondie coffee'], ['rafayel', 'Rafayel plushie'], ['stitch', 'Stitch plushie'], ['mitski', 'Mitski record']
-].map(([id, name]) => ({ id, name, image: id === 'espurr' ? 'assets/images/espurr-princess.webp' : id === 'peanut' ? 'assets/images/crunchy-peanut.svg' : `assets/images/collectibles/${id}.svg` }));
+].map(([id, name]) => ({ id, name, image: id === 'espurr' ? 'assets/images/espurr-princess.webp' : `assets/images/collectibles/${id}.${['pokemon','gambit','mew','stitch'].includes(id) ? 'svg' : 'webp'}` }));
 export const OUTFITS = [
     { id: 'royal', name: 'My little princess', hint: 'Yours from the beginning', icon: '♛', image: 'assets/images/espurr-princess.webp' },
     { id: 'sunday', name: 'Sunday’s little angel', hint: 'Reach a best card-table score of 200', icon: '☀', image: 'assets/images/outfits/sunday.webp' },
