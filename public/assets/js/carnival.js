@@ -1,6 +1,6 @@
 import { openTable } from './table21.js';
 import { makeStudio, resetEstimate } from './room-studio.js';
-import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles } from './game-rules.js';
+import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus } from './game-rules.js';
 import { CarnivalStore, STATIC, downloadJSON } from './save-manager.js';
 import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
@@ -117,8 +117,10 @@ function cards(){
  open(t('games.cards.title'));p('A little luck, a little sparkle. Choose your table.');
  const seats=document.createElement('div');seats.className='casino-seats';body.append(seats);button('♠ 21 · Princess blackjack',()=>openTable(store,{open,body,result,t}),seats);
  const trade=button('✦ The wishing cabinet · Weekly 3-for-1',()=>{
-  open('The wishing cabinet');body.classList.add('wishing-cabinet');const cabinet=el('div',undefined,'wish-altar');cabinet.innerHTML='<span aria-hidden="true">✧ ♛ ✧</span><strong>Three little treasures, one little wish</strong><small>Choose your offerings below</small>';body.append(cabinet);p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
+  open('The wishing cabinet');body.classList.add('wishing-cabinet');const cabinet=el('div',undefined,'wish-altar');cabinet.innerHTML='<span aria-hidden="true">✧ ♛ ✧</span><strong>Sacrifice three collectibles, get one muahahah</strong><small>Choose your offerings below</small>';body.append(cabinet);p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
   const selected=new Set(),grid=el('div',undefined,'trade-grid');body.append(grid);
+  const available=cabinetStatus(store.state);
+  if(available.needed){const empty=el('div',undefined,'wish-empty');empty.append(el('span','✧ ♡ ✧'),el('strong',available.owned+' / 3 collectibles ready'),el('p','Find treasures in the weekly blind box or Ann’s garden. Your wish will be waiting here.'));grid.append(empty);}
   const go=button('Choose 3 treasures',()=>{
    if(selected.size!==3)return;
    if(!confirm('Exchange these 3 collectibles permanently for 1 random collectible? Duplicates are possible.'))return;
@@ -127,7 +129,12 @@ function cards(){
   });
   const refresh=()=>{cabinet.querySelector('small').textContent=selected.size+' / 3 offerings chosen · one surprise awaits';go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
   for(const item of PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh()};grid.append(b)}refresh();
- },seats);trade.disabled=(store.state.tradeWeeks||[]).includes(weekNumber())||store.state.prizes.length<3;
+ },seats);
+ const cabinetState=cabinetStatus(store.state);
+ trade.disabled=!store.ready||!cabinetState.canEnter;
+ trade.title=cabinetState.used?'Your next wish opens Monday.':cabinetState.needed?'Come peek inside! Collect '+cabinetState.needed+' more treasure'+(cabinetState.needed===1?'':'s')+' to make a wish.':'Choose three collectibles for your wish.';
+ if(cabinetState.used)p('This week’s wish is complete ♡ A fresh wish opens Monday.');
+ else if(cabinetState.needed)p('Your cabinet is open ♡ Find '+cabinetState.needed+' more collectible'+(cabinetState.needed===1?'':'s')+' before making a wish.');
  p('The wishing cabinet resets Monday at midnight Central Time.');
 }
 $('cards-open').onclick = cards;
@@ -158,7 +165,7 @@ $('test-reset').onclick = () => {
     if (!canUseTestingTools()) return;
     open('Reset this testing save?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current browser/profile. Download a backup first.');
     button('Download backup first', () => downloadJSON('nayleen-before-test-reset.json', {kind:'nayleen-carnival-backup', version:3, state:store.state}));
-    button('Reset my progress', async () => { store.change(s => (Object.keys(s).forEach(k=>delete s[k]),Object.assign(s, freshState()))); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='Fresh testing save. All four games are ready.'; close(); });
+    button('Reset my progress', async () => { store.change(s => (Object.keys(s).forEach(k=>delete s[k]),Object.assign(s, freshState()))); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='A fresh start ♡ Weekly games are ready. Find three collectibles to make a wish.'; close(); });
     button('Cancel', close).classList.add('soft');
 };
 $('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
