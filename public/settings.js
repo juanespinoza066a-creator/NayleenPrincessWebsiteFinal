@@ -3,5 +3,5 @@
 window.CARNIVAL_CONFIG = {
   mode: 'code',
   saveTools: false,
-  testingTools: false
+  testingTools: true
 };
