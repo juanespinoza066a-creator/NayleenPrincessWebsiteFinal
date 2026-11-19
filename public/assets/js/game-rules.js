@@ -6,17 +6,17 @@ export const ROOMS = [
  {id:'popmart',name:'Pop Mart date',hint:'Open 3 weekly blind boxes',wall:'#efd0e3',floor:'#c8a2b9',image:'assets/images/rooms/popmart.webp'},
  {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach a best table score of 1,000',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'}
 ];
-export function unlockedRooms(s){return ROOMS.filter(r=>r.id==='lavender'||r.id==='cafe'&&Object.values(s.clicker.upgrades).reduce((a,b)=>a+b,0)>=10||r.id==='garden'&&s.prizes.length>=10||r.id==='cards'&&s.stats.cardRounds>=10||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id)}
+export function unlockedRooms(s){return ROOMS.filter(r=>r.id==='lavender'||r.id==='cafe'&&Object.values(s.clicker.upgrades).reduce((a,b)=>a+b,0)>=10||r.id==='garden'&&(s.collectionHistory||s.prizes).length>=10||r.id==='cards'&&s.stats.cardRounds>=10||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id)}
 export const SQUISHIES = [
  {id:'peanut',name:'Peanut Crunchy',goal:0,image:'assets/images/crunchy-peanut.svg',color:'#bd8c52',sound:'crunch'},
- {id:'butter',name:'Butter Baby',goal:250,image:'assets/images/squishies/butter.webp',color:'#e9c963',sound:'butter'},
- {id:'cube',name:'Dream Cube',goal:1500,image:'assets/images/squishies/cube.webp',color:'#a68ad2',sound:'gel'},
- {id:'cat',name:'Mochi Kitty',goal:6000,image:'assets/images/squishies/cat.webp',color:'#bf8ac9',sound:'meep'},
- {id:'bunny',name:'Bunny Bun',goal:15000,image:'assets/images/squishies/bunny.webp',color:'#d6ac89',sound:'puff'},
- {id:'berry',name:'Berry Blush',goal:50000,image:'assets/images/squishies/berry.webp',color:'#e18ca9',sound:'pop'},
- {id:'cloud',name:'Cloud Nine',goal:125000,image:'assets/images/squishies/cloud.webp',color:'#8bb8dc',sound:'chime'}
+ {id:'butter',name:'Butter Baby',goal:250000,image:'assets/images/squishies/butter.webp',color:'#e9c963',sound:'butter'},
+ {id:'cube',name:'Dream Cube',goal:1500000,image:'assets/images/squishies/cube.webp',color:'#a68ad2',sound:'gel'},
+ {id:'cat',name:'Mochi Kitty',goal:6000000,image:'assets/images/squishies/cat.webp',color:'#bf8ac9',sound:'meep'},
+ {id:'bao',name:'Bao Bun',goal:15000000,image:'assets/images/squishies/bao.webp',color:'#d6ac89',sound:'puff'},
+ {id:'berry',name:'Berry Blush',goal:50000000,image:'assets/images/squishies/berry.webp',color:'#e18ca9',sound:'pop'},
+ {id:'cloud',name:'Cloud Nine',goal:125000000,image:'assets/images/squishies/cloud.webp',color:'#8bb8dc',sound:'chime'}
 ];
-export function unlockedSquishies(s){return SQUISHIES.filter(x=>s.clicker.lifetime>=x.goal).map(x=>x.id)}
+export function unlockedSquishies(s){return [...new Set(['peanut',...(s.clicker.ownedSkins||[])])]}
 
 // Game rules only. Edit display text in content/site-text.json.
 export const SAVE_KEY = 'nayleen-carnival-room-v2';
@@ -35,7 +35,7 @@ export const OUTFITS = [
     { id: 'kda', name: 'K/DA princess', hint: 'Escape Ann’s weekly maze 5 times', icon: '♫', image: 'assets/images/outfits/kda.webp' },
     { id: 'furina', name: 'Furina cosplay', hint: 'Play the card table at least once', icon: '♧', image: 'assets/images/outfits/furina.webp' },
     { id: 'rogue', name: 'Rogue cosplay', hint: 'Open 5 weekly blind boxes', icon: '✦', image: 'assets/images/outfits/rogue.webp' },
-    { id: 'ada', name: 'Ada Mesmer cosplay', hint: 'Make 100,000 lifetime crunches', icon: '♡', image: 'assets/images/outfits/ada.webp' }
+    { id: 'ada', name: 'Ada Mesmer cosplay', hint: 'Make 1,000,000 lifetime squishes', icon: '♡', image: 'assets/images/outfits/ada.webp' }
 ];
 export const UPGRADES = [
     { id: 'fingers', name: 'Extra-squishy fingers', detail: '+1 crunch per tap', base: 15, icon: '☝' },
@@ -58,9 +58,9 @@ const integer = (v, max = 1e9) => Math.floor(number(v, max));
 const weeks = v => [...new Set(Array.isArray(v) ? v.filter(n => Number.isInteger(n) && n >= 1 && n <= 52) : [])];
 export const MAX_CRUNCHES = 1e12;
 export function freshState(now = Date.now()) {
-    return { version: 3, room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
+    return { version: 3, room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
 }
-export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 100000).map(o => o.id); }
+export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 1000000).map(o => o.id); }
 export function normalizeState(raw, now = Date.now()) {
     const s = freshState(now);
     if (!raw || typeof raw !== 'object')
@@ -78,8 +78,10 @@ export function normalizeState(raw, now = Date.now()) {
         s.clicker[k] = number(raw.clicker?.[k], MAX_CRUNCHES);
     for (const u of UPGRADES)
         s.clicker.upgrades[u.id] = integer(raw.clicker?.upgrades?.[u.id], 50);
-    s.clicker.skin = unlockedSquishies(s).includes(raw.clicker?.skin) ? raw.clicker.skin : 'peanut';
+    s.clicker.ownedSkins = [...new Set(['peanut',...(Array.isArray(raw.clicker?.ownedSkins)?raw.clicker.ownedSkins: SQUISHIES.filter(x=>s.clicker.lifetime>=({butter:250,cube:1500,cat:6000,bao:15000,berry:50000,cloud:125000}[x.id]||0)).map(x=>x.id))].map(x=>x==='bunny'?'bao':x).filter(x=>SQUISHIES.some(y=>y.id===x)))];
+    s.clicker.skin = unlockedSquishies(s).includes(raw.clicker?.skin==='bunny'?'bao':raw.clicker?.skin) ? (raw.clicker.skin==='bunny'?'bao':raw.clicker.skin) : 'peanut';
     s.clicker.lastTick = Math.min(now, number(raw.clicker?.lastTick, now) || now);
+    s.tradeWeeks=weeks(raw.tradeWeeks);s.collectionHistory=[...new Set([...(raw.collectionHistory||[]),...s.prizes])].filter(knownPrize);
     s.weeklyClaims = weeks(raw.weeklyClaims);
     s.mazeWeeks = weeks(raw.mazeWeeks);
     if (raw.weeklyBox && weeks([raw.weeklyBox.week]).length && (prizeID(raw.weeklyBox.id) || retiredPrize(raw.weeklyBox.id)))
@@ -108,7 +110,10 @@ export function validState(raw) {
         return true;
     if (raw.stats?.cardRounds !== undefined && (!Number.isSafeInteger(raw.stats.cardRounds) || raw.stats.cardRounds < 0 || raw.stats.cardRounds > 1e9)) return false;
     if (raw.room !== undefined && !ROOMS.some(r => r.id === raw.room) && !['bestbuy','moon'].includes(raw.room)) return false;
-    if (raw.clicker?.skin !== undefined && !SQUISHIES.some(x=>x.id===raw.clicker.skin)) return false;
+    if (raw.clicker?.skin !== undefined && raw.clicker.skin!=='bunny' && !SQUISHIES.some(x=>x.id===raw.clicker.skin)) return false;
+    if(raw.clicker?.ownedSkins!==undefined&&(!Array.isArray(raw.clicker.ownedSkins)||raw.clicker.ownedSkins.length>7||raw.clicker.ownedSkins.some(x=>!SQUISHIES.some(y=>y.id===x))))return false;
+    if(raw.tradeWeeks!==undefined&&(!Array.isArray(raw.tradeWeeks)||raw.tradeWeeks.some(x=>!Number.isInteger(x)||x<1||x>52)))return false;
+    if(raw.collectionHistory!==undefined&&(!Array.isArray(raw.collectionHistory)||raw.collectionHistory.length>22||raw.collectionHistory.some(x=>!knownPrize(x))))return false;
     const statKeys = raw.version === 3 ? ['rounds', 'cardWins', 'boxes', 'manorWins', 'bestBank'] : ['rounds', 'cardWins', 'boxes', 'manorWins'];
     for (const k of statKeys)
         if (!Number.isSafeInteger(raw.stats?.[k]) || raw.stats[k] < 0 || raw.stats[k] > 1e9)
@@ -138,8 +143,13 @@ export function addCrunches(s, amount) { const n = Math.max(0, Math.min(amount, 
 export function tick(s, now = Date.now()) { const sec = Math.min(14400, Math.max(0, (now - s.clicker.lastTick) / 1000)); s.clicker.lastTick = now; return addCrunches(s, sec * passiveRate(s)); }
 export function buyUpgrade(s, id) { const cost = upgradeCost(s, id); if (s.clicker.balance < cost || s.clicker.upgrades[id] >= 50)
     return false; s.clicker.balance -= cost; s.clicker.upgrades[id]++; return true; }
-export function weekNumber(now = Date.now()) { const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(now)), p = t => Number(parts.find(p => p.type === t).value); return Math.max(1, Math.min(52, Math.floor((Date.UTC(p('year'), p('month') - 1, p('day')) - Date.UTC(2026, 10, 18)) / 604800000) + 1)); }
-export function awardPrize(s, id) { if (s.prizes.includes(id))
+export function centralDate(now=Date.now()){const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(now)),p=t=>Number(parts.find(x=>x.type===t).value);return Date.UTC(p('year'),p('month')-1,p('day'));}
+export function weekNumber(now=Date.now()){return Math.max(1,Math.min(52,2+Math.floor((centralDate(now)-Date.UTC(2026,10,23))/604800000)));}
+export function buySquishy(s,id){const toy=SQUISHIES.find(x=>x.id===id);if(!toy||unlockedSquishies(s).includes(id)||s.clicker.balance<toy.goal)return false;s.clicker.balance-=toy.goal;s.clicker.ownedSkins??=['peanut'];s.clicker.ownedSkins.push(id);s.clicker.skin=id;return true;}
+export function tradeCollectibles(s,ids,week=weekNumber(),random=Math.random){if((s.tradeWeeks||[]).includes(week)||ids.length!==3||new Set(ids).size!==3||!ids.every(x=>s.prizes.includes(x)))return null;
+ s.collectionHistory=[...new Set([...(s.collectionHistory||[]),...s.prizes])];s.prizes=s.prizes.filter(x=>!ids.includes(x));s.shelf=s.shelf.map(x=>ids.includes(x)?null:x);s.tradeWeeks??=[];s.tradeWeeks.push(week);const id=PRIZES[Math.min(PRIZES.length-1,Math.floor(random()*PRIZES.length))].id;const isNew=awardPrize(s,id);return {id,isNew};}
+
+export function awardPrize(s, id) { s.collectionHistory=[...new Set([...(s.collectionHistory||[]),id])];if (s.prizes.includes(id))
     return false; s.prizes.push(id); const slot = s.shelf.indexOf(null); if (slot >= 0)
     s.shelf[slot] = id; return true; }
 export function startBox(s, week, random = Math.random) { if (s.weeklyBox && !s.weeklyBox.revealed)
@@ -155,4 +165,4 @@ export function claimMazePrize(s, index) { const loot = s.manorRun?.status === '
 export function handTotal(cards) { let n = cards.reduce((n, c) => n + Math.min(c.rank, 10), 0); if (cards.some(c => c.rank === 1) && n + 10 <= 21)
     n += 10; return n; }
 
-export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 10; s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 125000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }
+export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 10; s.clicker.ownedSkins=SQUISHIES.map(x=>x.id); s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 250000000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }

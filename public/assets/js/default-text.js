@@ -58,11 +58,11 @@ export const DEFAULT_TEXT = {
   "weekly": {
     "eyebrow": "WEEK {{week}} · A LITTLE SURPRISE",
     "title": "One little surprise, every week.",
-    "intro": "A mystery box each Wednesday, using Texas time. One box, one fixed little surprise.",
+    "intro": "A mystery box each Monday, using Texas time. One box, one fixed little surprise.",
     "open": "Open my weekly box ♡",
     "resume": "Finish opening my box ♡",
     "done": "This week’s box is opened ♡",
-    "doneCopy": "Your next mystery box arrives next Wednesday. Come back for a new little friend.",
+    "doneCopy": "Your next mystery box arrives next Monday. Come back for a new little friend.",
     "resumeCopy": "Your little surprise is still tucked inside. Shaking never changes which collectible is waiting."
   },
   "games": {
@@ -106,7 +106,7 @@ export const DEFAULT_TEXT = {
       "ribbon": "The ribbon is loose. Time to meet what’s inside.",
       "new": "{{name}} is coming home to Espurr!",
       "duplicate": "You found another {{name}}. It’s already in your collection. No extra draw this time. ♡",
-      "locked": "This week’s box is already opened. A new box arrives next Wednesday."
+      "locked": "This week’s box is already opened. A new box arrives next Monday."
     },
     "peanut": {
       "title": "The Peanut Factory",
@@ -206,7 +206,7 @@ export const DEFAULT_TEXT = {
 };
 
 // New content falls back here without replacing your personalized site-text.json.
-DEFAULT_TEXT.outfits.ada = {name:'Ada Mesmer cosplay',hint:'Make 100,000 lifetime crunches'};
+DEFAULT_TEXT.outfits.ada = {name:'Ada Mesmer cosplay',hint:'Make 1,000,000 lifetime squishes'};
 DEFAULT_TEXT.collection.names.emil = 'Emil plushie';
 
 Object.assign(DEFAULT_TEXT.upgrades,{roaster:{name:'Midnight peanut roaster',detail:'+15 crunches per second'},caramel:{name:'Caramel-coated fingers',detail:'+8 crunches per tap'},delivery:{name:'Tiny delivery ducks',detail:'+60 crunches per second'},musicbox:{name:'Princess music box',detail:'+10% to all automatic production'}});

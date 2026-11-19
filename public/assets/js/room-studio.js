@@ -3,9 +3,9 @@ export {ROOMS, unlockedRooms};
 export function resetEstimate(now=Date.now()){
  const fmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',hourCycle:'h23',minute:'numeric',second:'numeric'});
  const parts=at=>{const a=fmt.formatToParts(at);return Object.fromEntries(a.filter(x=>x.type!=='literal').map(x=>[x.type,+x.value]))};
- const d=parts(now),day=new Date(Date.UTC(d.year,d.month-1,d.day)).getUTCDay(),days=(3-day+7)%7||7,utc=Date.UTC(d.year,d.month-1,d.day+days);
+ const d=parts(now),day=new Date(Date.UTC(d.year,d.month-1,d.day)).getUTCDay(),days=(1-day+7)%7||7,utc=Date.UTC(d.year,d.month-1,d.day+days);
  let target=utc;for(let i=0;i<3;i++){const p=parts(target);target=utc-(Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute,p.second)-target)}
- const hours=(target-now)/3600000;return hours>24?'About '+Math.ceil(hours/24)+' days until Wednesday’s reset':'About '+Math.max(1,Math.ceil(hours/4)*4)+' hours until reset';
+ const hours=(target-now)/3600000;return hours>24?'About '+Math.ceil(hours/24)+' days until Monday’s reset':'About '+Math.max(1,Math.ceil(hours/4)*4)+' hours until reset';
 }
 export function makeStudio(store){
  const wardrobe=document.getElementById('wardrobe'),collection=document.querySelector('.collection-panel'),studio=document.createElement('section');studio.className='room-studio';wardrobe.before(studio);
@@ -21,7 +21,7 @@ export function makeStudio(store){
  if(theme.image){const bg=new Image();bg.src=theme.image;await bg.decode();const k=Math.max(canvas.width/bg.naturalWidth,canvas.height/bg.naturalHeight);c.drawImage(bg,(canvas.width-bg.naturalWidth*k)/2,(canvas.height-bg.naturalHeight*k)/2,bg.naturalWidth*k,bg.naturalHeight*k)}else{c.fillStyle=theme.wall;c.fillRect(0,0,canvas.width,canvas.height);c.fillStyle=theme.floor;c.fillRect(0,canvas.height*.76,1000,canvas.height*.24);c.fillStyle='#f9efff';c.beginPath();c.ellipse(500,canvas.height*.84,290,40,0,0,Math.PI*2);c.fill();c.font='80px Georgia';c.fillText(theme.id==='garden'?'❀':theme.id==='cafe'?'♡':'☾',800,160);}
 
  // Paint the same grounded displays as the website, before their items and Espurr.
- for(const stand of room.querySelectorAll('.display-plinth')){
+ for(const stand of room.querySelectorAll('.display-plinth')){if(getComputedStyle(stand).display==='none')continue;
    const b=stand.getBoundingClientRect(),x=(b.left-rect.left)*sx,y=(b.top-rect.top)*sy,w=b.width*sx,h=b.height*sy;
    const fill=getComputedStyle(stand).getPropertyValue('--plinth-color').trim()||'#cfb4df';
    c.fillStyle='#3f245b25';c.beginPath();c.ellipse(x+w/2,y+h,w*.64,h*.19,0,0,Math.PI*2);c.fill();

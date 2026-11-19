@@ -85,7 +85,7 @@ async function reset() {
     const access = await window.CarnivalManor?.begin();
     if (!access) {
         state = 'locked';
-        modal('Your weekly adventure is resting.', 'This week’s run is finished. A new maze adventure opens next Wednesday. Your collected treasures are waiting in Espurr’s room.', 'Back to Espurr’s room');
+        modal('Your weekly adventure is resting.', 'This week’s run is finished. A new maze adventure opens next Monday. Your collected treasures are waiting in Espurr’s room.', 'Back to Espurr’s room');
         return;
     }
     peanutFound = window.CarnivalManor?.peanut?.found === true;
@@ -171,7 +171,7 @@ function finish(won) {
     }
     else {
         window.CarnivalManor?.finish(false);
-        modal('Ann caught up this time.', 'Use hedges to break sight, guard your sprint energy, and stun Ann when she gets close. Your found treasures stay in your room. A new weekly adventure opens next Wednesday.', 'Back to Espurr’s room');
+        modal('Ann caught up this time.', 'Use hedges to break sight, guard your sprint energy, and stun Ann when she gets close. Your found treasures stay in your room. A new weekly adventure opens next Monday.', 'Back to Espurr’s room');
     }
 }
 function context() {

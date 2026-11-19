@@ -1,0 +1,5 @@
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {session,reply} from '../server/common.js';
+import {weekNumber} from '../server/game-rules.js';
+export default async function handler(req,res){res.setHeader('Vary','Cookie');if(req.method!=='GET')return reply(res,405,{error:'Method not allowed.'});try{const auth=await session(req);if(!auth)return reply(res,401,{error:'Sign in.'});const data=JSON.parse(await readFile(new URL('../server/weekly-notes.json',import.meta.url),'utf8'));const release=JSON.parse(await readFile(new URL('../server/update-info.json',import.meta.url),'utf8'));const notes=data.notes.filter(n=>n.published&&n.week<=weekNumber());return reply(res,200,{releaseVersion:String(release.version||''),profile:auth.profile,week:weekNumber(),noteVersion:createHash('sha256').update(JSON.stringify(notes)).digest('hex')});}catch{return reply(res,503,{error:'Updates unavailable.'});}}

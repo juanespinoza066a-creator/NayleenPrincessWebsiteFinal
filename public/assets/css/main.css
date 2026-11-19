@@ -56,3 +56,58 @@ header nav{flex-wrap:wrap;justify-content:flex-end;max-width:45%}
 .espurr-room[data-room=sunday]{--plinth-color:#ded8bf}.espurr-room[data-room=sunday] .display-plinth{border:1px solid #d5b371}
 @media(max-width:700px){.espurr-room{min-height:285px;aspect-ratio:1.15}.espurr-room .stage-slot{width:16%;height:26%}.espurr-room .stage-slot:nth-child(2){left:17%}.espurr-room .stage-slot:nth-child(3){right:17%}.espurr-room .espurr-doll{width:47%}.espurr-room .outfit-caption{font-size:.65rem;left:20%;right:20%}}
 .espurr-room:has(.room-backdrop:not([hidden])) .stage-slot{background:transparent;backdrop-filter:none;border:0;box-shadow:none}
+
+/* Palace 3: collectibles belong to the room, not floating stands. */
+.espurr-room{aspect-ratio:1.45;height:auto;min-height:300px}.espurr-room .display-plinth{display:none!important}.espurr-room .stage-slot{width:13%;height:22%;background:transparent!important;backdrop-filter:none!important;border:0!important;box-shadow:none!important}.espurr-room .stage-slot img{bottom:0;left:0;width:100%;height:100%}.espurr-room .espurr-doll{width:39%;height:65%;bottom:9%}.espurr-room .room-label{top:3%;left:18%;right:18%;font-size:.55rem;padding:5px;opacity:.92}.espurr-room .outfit-caption{display:none}
+.espurr-room[data-room=lavender] .stage-slot:nth-child(1){left:5%;right:auto;bottom:10%;width:15%;height:24%}
+.espurr-room[data-room=lavender] .stage-slot:nth-child(2){left:23%;right:auto;bottom:7%;width:13%;height:20%}
+.espurr-room[data-room=lavender] .stage-slot:nth-child(3){left:68%;right:auto;bottom:7%;width:13%;height:20%}
+.espurr-room[data-room=lavender] .stage-slot:nth-child(4){left:83%;right:auto;bottom:10%;width:13%;height:24%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(1){left:8%;right:auto;bottom:21%;width:12%;height:22%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(2){left:22%;right:auto;bottom:6%;width:13%;height:22%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(3){left:72%;right:auto;bottom:7%;width:13%;height:23%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(4){left:85%;right:auto;bottom:5%;width:11%;height:20%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(1){left:8%;right:auto;bottom:36%;width:11%;height:20%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(2){left:25%;right:auto;bottom:6%;width:13%;height:20%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(3){left:72%;right:auto;bottom:8%;width:13%;height:22%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(4){left:84%;right:auto;bottom:35%;width:10%;height:18%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(1){left:6%;right:auto;bottom:32%;width:11%;height:20%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(2){left:21%;right:auto;bottom:6%;width:13%;height:22%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(3){left:73%;right:auto;bottom:6%;width:12%;height:21%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(4){left:85%;right:auto;bottom:32%;width:10%;height:20%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(1){left:4%;right:auto;bottom:36%;width:12%;height:21%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(2){left:23%;right:auto;bottom:5%;width:12%;height:22%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(3){left:71%;right:auto;bottom:6%;width:13%;height:23%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(4){left:84%;right:auto;bottom:37%;width:11%;height:20%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(1){left:7%;right:auto;bottom:39%;width:12%;height:20%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(2){left:22%;right:auto;bottom:5%;width:13%;height:22%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(3){left:72%;right:auto;bottom:5%;width:12%;height:21%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(4){left:82%;right:auto;bottom:35%;width:11%;height:20%}
+@media(max-width:700px){.espurr-room{aspect-ratio:1.3;min-height:280px}.espurr-room .espurr-doll{width:40%;height:64%}}
+
+.board-bank{display:block;position:sticky;top:0;z-index:8;background:#382849ee;color:#ffe7b9;border:1px solid #cba975;border-radius:16px;padding:10px;text-align:center}.trade-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}.trade-choice{border:1px solid #cdb6dc;background:#f5eafa;border-radius:15px;padding:10px;display:grid;justify-items:center;gap:8px}.trade-choice img{width:100%;height:85px;object-fit:contain}.trade-choice[aria-pressed=true]{outline:3px solid #9160af;background:#e5d1f1}.trade-grid>img{width:180px;height:180px;object-fit:contain;grid-column:1/-1;justify-self:center}
+/* Match the 4:3 painted rooms at every width so furniture anchors stay aligned. */
+.espurr-room{aspect-ratio:4/3;height:auto;min-height:0}@media(max-width:700px){.espurr-room{aspect-ratio:4/3;height:auto;min-height:0}}
+
+.espurr-room .espurr-doll{height:55%;bottom:2%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(1){left:10%;right:auto;bottom:53%;width:10%;height:15%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(2){left:23%;right:auto;bottom:5%;width:13%;height:22%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(3){left:72%;right:auto;bottom:6%;width:13%;height:23%}
+.espurr-room[data-room=garden] .stage-slot:nth-child(4){left:85%;right:auto;bottom:5%;width:11%;height:20%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(1){left:16%;right:auto;bottom:55%;width:10%;height:15%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(2){left:25%;right:auto;bottom:6%;width:13%;height:20%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(3){left:72%;right:auto;bottom:8%;width:13%;height:22%}
+.espurr-room[data-room=cafe] .stage-slot:nth-child(4){left:86%;right:auto;bottom:45%;width:9%;height:15%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(1){left:5%;right:auto;bottom:56%;width:10%;height:16%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(2){left:21%;right:auto;bottom:6%;width:13%;height:22%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(3){left:73%;right:auto;bottom:6%;width:12%;height:21%}
+.espurr-room[data-room=cards] .stage-slot:nth-child(4){left:86%;right:auto;bottom:56%;width:10%;height:16%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(1){left:25%;right:auto;bottom:50%;width:9%;height:16%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(2){left:23%;right:auto;bottom:5%;width:12%;height:22%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(3){left:71%;right:auto;bottom:6%;width:13%;height:23%}
+.espurr-room[data-room=popmart] .stage-slot:nth-child(4){left:83%;right:auto;bottom:48%;width:10%;height:17%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(1){left:20%;right:auto;bottom:57%;width:10%;height:16%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(2){left:5%;right:auto;bottom:26%;width:12%;height:20%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(3){left:83%;right:auto;bottom:26%;width:12%;height:20%}
+.espurr-room[data-room=sunday] .stage-slot:nth-child(4){left:74%;right:auto;bottom:60%;width:8%;height:15%}
+.espurr-room .espurr-doll{position:absolute;left:50%;top:auto;bottom:2%;height:55%;width:39%;margin:0}

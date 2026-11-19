@@ -15,7 +15,7 @@
       "hint": "Make 500 lifetime squishes"
     },
     "ada": {
-      "hint": "Make 100,000 lifetime squishes"
+      "hint": "Make 1,000,000 lifetime squishes"
     }
   },
   "peanut": {
@@ -67,5 +67,8 @@
       "name": "Princess music box",
       "detail": "+10% to all automatic production"
     }
+  },
+  "weekly": {
+    "intro": "A mystery box each Monday."
   }
 }

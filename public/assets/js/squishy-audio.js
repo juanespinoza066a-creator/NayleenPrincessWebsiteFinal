@@ -9,15 +9,13 @@ export function playSquish(kind,enabled=true,celebrate=false){
   if(kind==='crunch'){
    crunch??=createCrunchBuffer(audio);const src=audio.createBufferSource();src.buffer=crunch;src.playbackRate.value=.94+Math.random()*.12;src.connect(output);src.start(at);src.onended=()=>{src.disconnect();output.disconnect()};return;
   }
-  const recipes={butter:[130,55,.30,'triangle'],gel:[400,110,.24,'sine'],meep:[520,760,.15,'triangle'],puff:[180,65,.25,'sine'],pop:[800,90,.12,'sine'],chime:[880,1320,.30,'sine']};
-  const [from,to,duration,wave]=recipes[kind]||recipes.gel;
-  tone(from,to,at,duration,wave,output);
-  if(kind==='meep')tone(700,350,at+.12,.12,'sine',output);
-  if(kind==='chime')tone(1320,1760,at+.10,.32,'sine',output);
-  if(['butter','puff'].includes(kind)){
-   const b=audio.createBuffer(1,Math.floor(audio.sampleRate*.18),audio.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2)*.3;
-   const src=audio.createBufferSource(),filter=audio.createBiquadFilter();filter.type='lowpass';filter.frequency.value=kind==='puff'?800:380;src.buffer=b;src.connect(filter);filter.connect(output);src.start(at);src.onended=()=>{src.disconnect();filter.disconnect()};
-  }
+  // Wet filtered air, rubber friction and release pops instead of melodic beeps.
+  const recipes={butter:[280,700,.42],gel:[1600,350,.36],meep:[950,2800,.28],puff:[380,1200,.55],pop:[2400,500,.24],chime:[500,1700,.46]};
+  const [start,end,duration]=recipes[kind]||recipes.gel;
+  const buffer=audio.createBuffer(1,Math.floor(audio.sampleRate*duration),audio.sampleRate),data=buffer.getChannelData(0);
+  let smooth=0;for(let i=0;i<data.length;i++){smooth=.78*smooth+.22*(Math.random()*2-1);const phase=i/data.length;data[i]=smooth*Math.sin(Math.PI*phase)*(kind==='puff'?.9:1.8)*(1+.35*Math.sin(phase*65));}
+  const src=audio.createBufferSource(),filter=audio.createBiquadFilter();src.buffer=buffer;filter.type='bandpass';filter.Q.value=kind==='gel'?5:1.5;filter.frequency.setValueAtTime(start,at);filter.frequency.exponentialRampToValueAtTime(end,at+duration);src.connect(filter);filter.connect(output);src.start(at);src.onended=()=>{src.disconnect();filter.disconnect()};
+  if(['gel','pop','meep'].includes(kind))tone(kind==='meep'?290:160,45,at+duration*.65,.10,'sine',output);
   setTimeout(()=>output.disconnect(),900);
  }catch{}
 }
