@@ -34,7 +34,9 @@ function render(s, event = {}) {
     $('weekly-box').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'weekly.open');
     $('blind-action').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'games.blind.action');
     $('cards-open').disabled = !store.ready;
-    $('test-reset').disabled = $('test-unlock').disabled = !store.ready;
+    const canTest = store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true);
+    $('test-tools').hidden = !canTest;
+    $('test-reset').disabled = $('test-unlock').disabled = !store.ready || !canTest;
     const mazeActive = s.manorRun?.status === 'active';
     const mazeUnavailable = !mazeActive && s.mazeWeeks.includes(week);
     $('manor-open').disabled = !store.ready || mazeUnavailable;
@@ -50,7 +52,7 @@ function render(s, event = {}) {
         $('outfit-count').textContent = t('wardrobe.count', { owned: unlocked.length, total: OUTFITS.length });
         $('prize-count').textContent = t('collection.count', { count: s.prizes.length });
         $('collection-total').textContent = `${s.prizes.length} / ${PRIZES.length}`;
-        $('stage-shelves').replaceChildren(...s.shelf.map((id, index) => { const b = el('button', id ? undefined : '+', 'stage-slot'); if (id)
+        $('stage-shelves').replaceChildren(...s.shelf.map((id, index) => { const b = el('button', id ? undefined : '+', 'stage-slot'); const plinth=el('span',undefined,'display-plinth');plinth.setAttribute('aria-hidden','true');b.append(plinth); if (id)
             b.append(image(prize(id))); b.setAttribute('aria-label', `Decorate shelf ${index + 1}${id ? `, ${prize(id).name}` : ''}`); b.disabled = !store.ready; b.onclick = () => decorate(index); return b; }));
         $('outfits').replaceChildren(...OUTFITS.map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
         $('collection').replaceChildren(...PRIZES.map(item => { const card = el('div', undefined, `inventory-item${s.prizes.includes(item.id) ? '' : ' locked'}`); card.append(image(item), el('span', item.name)); if (!s.prizes.includes(item.id)) {
@@ -134,14 +136,16 @@ catch (error) {
     $('backup-status').textContent = error.message || 'Your backup couldn’t be read. Your progress hasn’t changed.';
 } };
 $('save-controls').hidden = window.CARNIVAL_CONFIG?.saveTools !== true;
-$('test-tools').hidden = window.CARNIVAL_CONFIG?.testingTools !== true;
+$('test-tools').hidden = true;
+const canUseTestingTools = () => store.ready && (store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true));
 $('test-reset').onclick = () => {
+    if (!canUseTestingTools()) return;
     open('Reset this testing save?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current browser/profile. Download a backup first.');
     button('Download backup first', () => downloadJSON('nayleen-before-test-reset.json', {kind:'nayleen-carnival-backup', version:3, state:store.state}));
     button('Reset my progress', async () => { store.change(s => Object.assign(s, freshState())); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='Fresh testing save. All four games are ready.'; close(); });
     button('Cancel', close).classList.add('soft');
 };
-$('test-unlock').onclick = () => { open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
+$('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
 await loadContent();
 store.subscribe(render);
 await store.load();

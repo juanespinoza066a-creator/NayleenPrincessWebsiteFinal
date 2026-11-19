@@ -1,0 +1,71 @@
+{
+  "site": {
+    "title": "Nayleen’s Palace",
+    "brand": "Nayleen’s Palace"
+  },
+  "games": {
+    "peanut": {
+      "title": "Squishy Clicker",
+      "intro": "Seven soft little friends. Squish, collect new textures, and build your cozy workshop.",
+      "action": "Start squishing ♡"
+    }
+  },
+  "outfits": {
+    "cozy": {
+      "hint": "Make 500 lifetime squishes"
+    },
+    "ada": {
+      "hint": "Make 100,000 lifetime squishes"
+    }
+  },
+  "peanut": {
+    "eyebrow": "A LITTLE SQUISH, A LOT OF LOVE",
+    "title": "The Squishy Workshop.",
+    "intro": "A crunchy peanut, a buttery little block, a jelly cube… seven tiny textures to fall in love with. Every squishy shares your progress and upgrades.",
+    "shopTitle": "Make a little more softness",
+    "shopIntro": "Spend squishes on helpers and upgrades. Your helpers keep working while you’re away, for up to four hours.",
+    "goalTitle": "A little something to wear",
+    "cozyGoal": "500 lifetime squishes · Peanut crunchy PJs",
+    "cozyDone": "Peanut crunchy PJs unlocked ♡",
+    "combo": "{{count}} in a row · {{left}} more for a heart burst",
+    "bonus": "A perfect little squish streak! Bonus squishes ♡",
+    "proud": "Espurr is so proud of your soft little empire.",
+    "working": "Your tiny helpers are making squishies for the princess.",
+    "encouragement": "One soft little squish at a time. Espurr believes in you.",
+    "footer": "A very squishy little love letter, for Nayleen. ♡"
+  },
+  "upgrades": {
+    "fingers": {
+      "name": "Soft touch",
+      "detail": "+1 squish per tap"
+    },
+    "helpers": {
+      "name": "Tiny workshop helper",
+      "detail": "+1 squish every second"
+    },
+    "press": {
+      "name": "Cloud-soft press",
+      "detail": "+7 squishes every second"
+    },
+    "factory": {
+      "name": "The squishy atelier",
+      "detail": "+40 squishes every second"
+    },
+    "roaster": {
+      "name": "Cozy warming tray",
+      "detail": "+15 squishes every second"
+    },
+    "caramel": {
+      "name": "Velvet fingertips",
+      "detail": "+8 squishes per tap"
+    },
+    "delivery": {
+      "name": "Tiny delivery ducks",
+      "detail": "+60 squishes every second"
+    },
+    "musicbox": {
+      "name": "Princess music box",
+      "detail": "+10% to all automatic production"
+    }
+  }
+}

@@ -16,6 +16,7 @@ export async function loadContent() {
         document.documentElement.dataset.copyError = 'true';
         content = DEFAULT_TEXT;
     }
+    try { const r = await fetch('content/palace-update.json', {cache:'no-store'}); if(r.ok) { const merge=(a,b)=>{for(const [k,v] of Object.entries(b)){if(v&&typeof v==='object'&&!Array.isArray(v)){a[k]={...(a[k]||{})};merge(a[k],v)}else a[k]=v}return a}; content=merge(structuredClone(content),await r.json()); } } catch {}
     document.querySelectorAll('[data-copy]').forEach(node => { const value = text(node.dataset.copy); if (value !== node.dataset.copy)
         node.textContent = value; });
     PRIZES.forEach(p => { p.name = text('collection.names.' + p.id); });

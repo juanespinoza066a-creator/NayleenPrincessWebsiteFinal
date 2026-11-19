@@ -50,6 +50,7 @@ export class CarnivalStore {
     } }
     async load() {
         const identity = await ensureCodeLogin();
+        this.profile = CODE_LOGIN ? identity.profile : 'local';
         if (CODE_LOGIN) {
             this.storageKey = SAVE_KEY + '-code-' + identity.profile;
             try {
@@ -78,7 +79,7 @@ export class CarnivalStore {
                 this.revision = data.revision;
                 this.online = true;
                 this.dirty = Boolean(pending || !data.state);
-                this.status = this.conflict ? 'Another window saved newer progress. Download a backup before reloading the account save.' : 'Room, outfits, and crunches are saved to your account.';
+                this.status = this.conflict ? 'Another window saved newer progress. Download a backup before reloading the account save.' : 'Room, outfits, and squishes are saved to your account.';
             }
             catch (error) {
                 this.status = error.status === 401 ? 'Saved in this browser. Account sync needs sign-in.' : 'Account save couldn’t load. Playing on this device until you retry.';
@@ -124,7 +125,7 @@ export class CarnivalStore {
                 const data = await api('api/player', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: snapshot, revision: this.revision }) });
                 this.revision = data.revision;
                 this.lastSync = Date.now();
-                this.status = 'Room, outfits, and crunches are saved to your account.';
+                this.status = 'Room, outfits, and squishes are saved to your account.';
                 this.remember();
             }
             catch (error) {

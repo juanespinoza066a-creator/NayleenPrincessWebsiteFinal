@@ -1,13 +1,22 @@
 export const ROOMS = [
  {id:'lavender',name:'Lavender daydream',hint:'Your first little room',wall:'#e5cef1',floor:'#c3a1d8'},
- {id:'cafe',name:'7 Brew coffee stop',hint:'Buy 10 peanut upgrades in total',wall:'#c2d6eb',floor:'#b2b2c8',image:'assets/images/rooms/brew.webp'},
+ {id:'cafe',name:'7 Brew coffee stop',hint:'Buy 10 squishy upgrades in total',wall:'#c2d6eb',floor:'#b2b2c8',image:'assets/images/rooms/brew.webp'},
  {id:'garden',name:'Lily-of-the-valley garden',hint:'Collect 10 different treasures',wall:'#d1e7dc',floor:'#8cb6a0',image:'assets/images/rooms/lilies.webp'},
- {id:'moon',name:'Under our stars',hint:'Find the garden peanut',wall:'#35355e',floor:'#79759e',image:'assets/images/rooms/stars.webp'},
  {id:'cards',name:'Pokémon card shop',hint:'Play 10 hands at the card table',wall:'#dbc8ed',floor:'#af8dbd',image:'assets/images/rooms/cards.webp'},
- {id:'bestbuy',name:'Best Buy card campers',hint:'Reach a best card-table score of 500',wall:'#b3c9f1',floor:'#afb4c2',image:'assets/images/rooms/bestbuy.webp'},
- {id:'popmart',name:'Pop Mart date',hint:'Open 3 weekly blind boxes',wall:'#efd0e3',floor:'#c8a2b9',image:'assets/images/rooms/popmart.webp'}
+ {id:'popmart',name:'Pop Mart date',hint:'Open 3 weekly blind boxes',wall:'#efd0e3',floor:'#c8a2b9',image:'assets/images/rooms/popmart.webp'},
+ {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach a best table score of 1,000',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'}
 ];
-export function unlockedRooms(s){return ROOMS.filter(r=>r.id==='lavender'||r.id==='moon'&&s.manorPeanut.found||r.id==='cafe'&&Object.values(s.clicker.upgrades).reduce((a,b)=>a+b,0)>=10||r.id==='garden'&&s.prizes.length>=10||r.id==='cards'&&s.stats.cardRounds>=10||r.id==='bestbuy'&&s.stats.bestBank>=500||r.id==='popmart'&&s.stats.boxes>=3).map(r=>r.id)}
+export function unlockedRooms(s){return ROOMS.filter(r=>r.id==='lavender'||r.id==='cafe'&&Object.values(s.clicker.upgrades).reduce((a,b)=>a+b,0)>=10||r.id==='garden'&&s.prizes.length>=10||r.id==='cards'&&s.stats.cardRounds>=10||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id)}
+export const SQUISHIES = [
+ {id:'peanut',name:'Peanut Crunchy',goal:0,image:'assets/images/crunchy-peanut.svg',color:'#bd8c52',sound:'crunch'},
+ {id:'butter',name:'Butter Baby',goal:250,image:'assets/images/squishies/butter.webp',color:'#e9c963',sound:'butter'},
+ {id:'cube',name:'Dream Cube',goal:1500,image:'assets/images/squishies/cube.webp',color:'#a68ad2',sound:'gel'},
+ {id:'cat',name:'Mochi Kitty',goal:6000,image:'assets/images/squishies/cat.webp',color:'#bf8ac9',sound:'meep'},
+ {id:'bunny',name:'Bunny Bun',goal:15000,image:'assets/images/squishies/bunny.webp',color:'#d6ac89',sound:'puff'},
+ {id:'berry',name:'Berry Blush',goal:50000,image:'assets/images/squishies/berry.webp',color:'#e18ca9',sound:'pop'},
+ {id:'cloud',name:'Cloud Nine',goal:125000,image:'assets/images/squishies/cloud.webp',color:'#8bb8dc',sound:'chime'}
+];
+export function unlockedSquishies(s){return SQUISHIES.filter(x=>s.clicker.lifetime>=x.goal).map(x=>x.id)}
 
 // Game rules only. Edit display text in content/site-text.json.
 export const SAVE_KEY = 'nayleen-carnival-room-v2';
@@ -49,7 +58,7 @@ const integer = (v, max = 1e9) => Math.floor(number(v, max));
 const weeks = v => [...new Set(Array.isArray(v) ? v.filter(n => Number.isInteger(n) && n >= 1 && n <= 52) : [])];
 export const MAX_CRUNCHES = 1e12;
 export function freshState(now = Date.now()) {
-    return { version: 3, room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
+    return { version: 3, room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
 }
 export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 100000).map(o => o.id); }
 export function normalizeState(raw, now = Date.now()) {
@@ -69,6 +78,7 @@ export function normalizeState(raw, now = Date.now()) {
         s.clicker[k] = number(raw.clicker?.[k], MAX_CRUNCHES);
     for (const u of UPGRADES)
         s.clicker.upgrades[u.id] = integer(raw.clicker?.upgrades?.[u.id], 50);
+    s.clicker.skin = unlockedSquishies(s).includes(raw.clicker?.skin) ? raw.clicker.skin : 'peanut';
     s.clicker.lastTick = Math.min(now, number(raw.clicker?.lastTick, now) || now);
     s.weeklyClaims = weeks(raw.weeklyClaims);
     s.mazeWeeks = weeks(raw.mazeWeeks);
@@ -97,7 +107,8 @@ export function validState(raw) {
     if (![2, 3].includes(raw.version))
         return true;
     if (raw.stats?.cardRounds !== undefined && (!Number.isSafeInteger(raw.stats.cardRounds) || raw.stats.cardRounds < 0 || raw.stats.cardRounds > 1e9)) return false;
-    if (raw.room !== undefined && !ROOMS.some(r => r.id === raw.room)) return false;
+    if (raw.room !== undefined && !ROOMS.some(r => r.id === raw.room) && !['bestbuy','moon'].includes(raw.room)) return false;
+    if (raw.clicker?.skin !== undefined && !SQUISHIES.some(x=>x.id===raw.clicker.skin)) return false;
     const statKeys = raw.version === 3 ? ['rounds', 'cardWins', 'boxes', 'manorWins', 'bestBank'] : ['rounds', 'cardWins', 'boxes', 'manorWins'];
     for (const k of statKeys)
         if (!Number.isSafeInteger(raw.stats?.[k]) || raw.stats[k] < 0 || raw.stats[k] > 1e9)
@@ -144,4 +155,4 @@ export function claimMazePrize(s, index) { const loot = s.manorRun?.status === '
 export function handTotal(cards) { let n = cards.reduce((n, c) => n + Math.min(c.rank, 10), 0); if (cards.some(c => c.rank === 1) && n + 10 <= 21)
     n += 10; return n; }
 
-export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 500; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 10; s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 100000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }
+export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 10; s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 125000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }
