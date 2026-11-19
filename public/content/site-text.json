@@ -8,7 +8,7 @@
     "play": "Play",
     "dress": "Dress up",
     "weeks": "Weekly notes ♡",
-    "back": "Back to the carnival"
+    "back": "Back to the princess palace"
   },
   "home": {
     "eyebrow": "FOR MY FAVORITE GIRL, ALWAYS",
@@ -40,7 +40,7 @@
     },
     "cozy": {
       "name": "Peanut crunchy PJs",
-      "hint": "Make 50 lifetime crunches"
+      "hint": "Make 500 lifetime crunches"
     },
     "espeon": {
       "name": "Espeon cosplay",
@@ -52,7 +52,15 @@
     },
     "kda": {
       "name": "K/DA Akali cosplay",
-      "hint": "Win 10 hands of 21"
+      "hint": "Escape Ann’s weekly maze 5 times"
+    },
+    "furina": {
+      "name": "Furina cosplay",
+      "hint": "Play the card table at least once"
+    },
+    "rogue": {
+      "name": "Rogue cosplay",
+      "hint": "Open 5 weekly blind boxes"
     }
   },
   "weekly": {
@@ -158,7 +166,9 @@
       "blondie": "Blondie coffee",
       "rafayel": "Rafayel plushie",
       "stitch": "Stitch plushie",
-      "mitski": "Mitski record"
+      "mitski": "Mitski record",
+      "rogue": "Pocket Rogue Espurr",
+      "furina": "Furina plushie"
     }
   },
   "backup": {
@@ -178,7 +188,7 @@
     "encouragement": "Espurr has appointed you chief peanut officer. She believes in you.",
     "working": "Your helpers have clocked in. Espurr says you deserve a little break whenever you want one.",
     "proud": "A whole peanut empire. Espurr is wearing her proudest little crown.",
-    "cozyGoal": "50 lifetime crunches → Peanut crunchy PJs",
+    "cozyGoal": "500 lifetime crunches → Peanut crunchy PJs",
     "cozyDone": "Peanut crunchy PJs unlocked ♡",
     "goalTitle": "A little something to wear",
     "mastery": "1,000 lifetime crunches → Peanut master",

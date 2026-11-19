@@ -73,9 +73,9 @@ store.subscribe((s, event) => {
     $('factory-save-status').textContent = event.status || store.status;
     $('crunch-button').disabled = !store.ready;
     UPGRADES.forEach(u => { const { b, cost, owned } = upgradeButtons.get(u.id), price = upgradeCost(s, u.id); cost.textContent = s.clicker.upgrades[u.id] >= 50 ? 'Maxed out ♡' : `${format(price)} crunches`; owned.textContent = `${s.clicker.upgrades[u.id]} owned`; b.disabled = !store.ready || s.clicker.balance < price || s.clicker.upgrades[u.id] >= 50; });
-    $('cozy-progress').value = Math.min(50, s.clicker.lifetime);
+    $('cozy-progress').value = Math.min(500, s.clicker.lifetime);
     $('star-progress').value = Math.min(1000, s.clicker.lifetime);
-    $('cozy-goal').textContent = t(s.clicker.lifetime >= 50 ? 'peanut.cozyDone' : 'peanut.cozyGoal');
+    $('cozy-goal').textContent = t(s.clicker.lifetime >= 500 ? 'peanut.cozyDone' : 'peanut.cozyGoal');
     $('star-goal').textContent = t(s.clicker.lifetime >= 1000 ? 'peanut.masteryDone' : 'peanut.mastery');
     if (event.offlineEarnings >= 1) {
         $('offline-earnings').hidden = false;

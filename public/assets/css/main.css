@@ -24,3 +24,6 @@
 header .brand{flex:0 1 auto;max-width:60%}
 .brand span{min-width:0;overflow-wrap:anywhere}
 header nav{flex-wrap:wrap;justify-content:flex-end;max-width:45%}
+
+/* Completed weekly adventures use the same disabled card treatment as boxes. */
+.manor-game:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}.manor-game:disabled .game-picture{filter:grayscale(1)}

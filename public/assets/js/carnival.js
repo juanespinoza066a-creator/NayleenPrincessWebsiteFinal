@@ -27,6 +27,10 @@ function render(s, event = {}) {
     $('blind-action').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'games.blind.action');
     $('cards-open').disabled = !store.ready;
     $('test-reset').disabled = $('test-unlock').disabled = !store.ready;
+    const mazeActive = s.manorRun?.status === 'active';
+    const mazeUnavailable = !mazeActive && s.mazeWeeks.includes(week);
+    $('manor-open').disabled = !store.ready || mazeUnavailable;
+    $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Wednesday.' : '';
     $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : s.mazeWeeks.includes(week) ? 'This week’s run is complete ♡' : t('games.manor.action');
     const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready]);
     if (signature !== roomSignature) {
@@ -126,7 +130,7 @@ function cards() {
     } deck = Array.from({ length: 52 }, (_, i) => ({ rank: i % 13 + 1, suit: ['♠', '♥', '♣', '♦'][Math.floor(i / 13)] })); for (let i = 51; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
-    } hand = [deck.pop(), deck.pop()]; dealer = [deck.pop(), deck.pop()]; active = true; result.textContent = ''; paint(); if (handTotal(hand) === 21 || handTotal(dealer) === 21)
+    } hand = [deck.pop(), deck.pop()]; dealer = [deck.pop(), deck.pop()]; active = true; store.change(s => { s.stats.cardRounds = (s.stats.cardRounds || 0) + 1; }); result.textContent = ''; paint(); if (handTotal(hand) === 21 || handTotal(dealer) === 21)
         dealerTurn(); }, row);
     const hit = button(t('games.cards.hit'), () => { if (!active)
         return; hand.push(deck.pop()); if (handTotal(hand) > 21)
@@ -182,3 +186,5 @@ store.subscribe(render);
 await store.load();
 readNotes().then(data => { const latest = data.notes.filter(n => n.published).sort((a, b) => a.week - b.week).at(-1); if (latest)
     $('latest-note').textContent = `${latest.emoji} Week ${latest.week} · ${latest.title} — ${latest.message.slice(0, 160)}`; }).catch(() => { });
+
+$('manor-open').onclick = () => { if (!$('manor-open').disabled) location.href = 'escape.html'; };

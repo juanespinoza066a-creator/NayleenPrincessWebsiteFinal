@@ -8,12 +8,13 @@
 <script src="settings.js"></script>
 <script src="assets/js/espurr-renderer.js" defer></script>
 <script src="assets/js/manor-art.js" defer></script>
+<script src="assets/js/manor-audio.js" defer></script>
 <script src="assets/js/manor-game.js" defer></script>
 <script type="module" src="assets/js/manor-progress.js"></script>
 <script type="module" src="assets/js/code-login.js"></script><link rel="stylesheet" href="assets/css/code-login.css"></head>
 <body>
 <main>
-<header><a href="./">← Nayleen’s carnival</a><div class="top-actions"><button id="peanut-bag" disabled aria-label="Find the crunchy peanut in the western garden">🥜 Find peanut</button><button id="help" aria-label="How to play">?</button><button id="pause">Ⅱ Pause</button></div></header>
+<header><a href="./">← Nayleen’s carnival</a><div class="top-actions"><button id="peanut-bag" disabled aria-label="Find the crunchy peanut in the western garden">🥜 Find peanut</button><button id="maze-music" aria-pressed="true">♫ Music on</button><button id="maze-sfx" aria-pressed="true">♪ Effects on</button><button id="help" aria-label="How to play">?</button><button id="pause">Ⅱ Pause</button></div></header>
 <section class="heading"><div><p>AN ADVENTURE FOR MY PRINCESS</p><h1>The Moonlit Manor</h1></div><div class="clock"><span>ESCAPE TIME</span><strong id="clock">0:00</strong></div></section>
 <div class="game-shell">
   <div class="mission-bar">
@@ -41,7 +42,7 @@
 <h2 id="overlay-title">The gate is locked, princesa.</h2>
 <div id="overlay-copy">
 <p>Ann is prowling the moonlit gardens. Complete three ciphers to unlock the moon gate, then reach it to escape. One treasure is hidden along the paths. Your first escape earns Akali’s outfit reward. This adventure is one run each week; closing the page saves your place.</p>
-<div class="tutorial-steps"><p><strong>Explore</strong> Move with the thumb stick or WASD. Follow the glowing compass markers.</p><p><strong>Decode</strong> Tap Interact near a machine. It repairs automatically. Occasionally a calibration ring appears tap when the needle crosses the bright zone. Moving saves your progress.</p><p><strong>Escape</strong> Break Ann’s line of sight, sprint, drop pallets, or use a psychic stun. Watch your three hearts.</p></div>
+<div class="tutorial-steps"><p><strong>Explore</strong> Move with the thumb stick or WASD. Follow the glowing compass markers.</p><p><strong>Decode</strong> Tap Interact near a machine. It repairs automatically. Occasionally a calibration ring appears tap when the needle crosses the bright zone. Moving saves your progress.</p><p><strong>Psychic stun</strong> Tap Psychic stun or press Space when Ann is close (about four garden tiles). She freezes for five seconds. You begin with three charges; completing a cipher restores one, up to three.</p><p><strong>Actions</strong> Tap Interact, then stay still while the progress bar fills to collect treasure or the peanut, drop a pallet, or open the gate. Moving or taking a hit cancels the action. A missed calibration locks decoding on that cipher for three seconds. Music and effects can be switched off separately.</p><p><strong>Escape</strong> Break Ann’s line of sight, sprint, drop pallets, or use a psychic stun. Watch your three hearts.</p></div>
 </div>
 <button id="start" disabled>Enter the gardens <span aria-hidden="true">→</span></button>
 </dialog>
