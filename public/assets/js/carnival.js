@@ -1,6 +1,6 @@
 import { openTable } from './table21.js';
 import { makeStudio, resetEstimate } from './room-studio.js';
-import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus } from './game-rules.js';
+import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus, outfitProgress, journeyCounts } from './game-rules.js';
 import { CarnivalStore, STATIC, downloadJSON } from './save-manager.js';
 import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
@@ -42,7 +42,7 @@ function render(s, event = {}) {
     $('manor-open').disabled = !store.ready || mazeUnavailable;
     $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Monday.' : '';
     $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : s.mazeWeeks.includes(week) ? 'This week’s run is complete ♡' : t('games.manor.action');
-    const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready]);
+    const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready,journeyCounts(s)]);
     if (signature !== roomSignature) {
         roomSignature = signature;
         const outfit = OUTFITS.find(o => o.id === s.outfit) || OUTFITS[0];
@@ -54,7 +54,7 @@ function render(s, event = {}) {
         $('collection-total').textContent = `${s.prizes.length} / ${PRIZES.length}`;
         $('stage-shelves').replaceChildren(...s.shelf.map((id, index) => { const b = el('button', id ? undefined : '+', 'stage-slot'); const plinth=el('span',undefined,'display-plinth');plinth.setAttribute('aria-hidden','true');b.append(plinth); if (id)
             b.append(image(prize(id))); b.setAttribute('aria-label', `Decorate shelf ${index + 1}${id ? `, ${prize(id).name}` : ''}`); b.disabled = !store.ready; b.onclick = () => decorate(index); return b; }));
-        $('outfits').replaceChildren(...OUTFITS.map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
+        $('outfits').replaceChildren(...OUTFITS.map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); if(!owned){const goals=outfitProgress(s,o.id);if(goals.length){const list=el('span',undefined,'outfit-goals');for(const goal of goals){const key='journey.labels.'+goal.metric,label=t(key)===key?goal.label:t(key),line=el('span',label+' · '+goal.value+' / '+goal.goal),meter=el('progress');meter.max=goal.goal;meter.value=goal.value;meter.setAttribute('aria-label',label);list.append(line,meter);}b.append(list);}} b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
         $('collection').replaceChildren(...PRIZES.map(item => { const card = el('div', undefined, `inventory-item${s.prizes.includes(item.id) ? '' : ' locked'}`); card.append(image(item), el('span', item.name)); if (!s.prizes.includes(item.id)) {
             const lock = el('small', 'Not found yet');
             card.append(lock);
@@ -170,6 +170,7 @@ $('test-reset').onclick = () => {
 };
 $('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
 await loadContent();
+const journeyIntro=el('p',t('wardrobe.journeyIntro'),'section-copy journey-intro');$('outfits').before(journeyIntro);
 store.subscribe(render);
 await store.load();
 setInterval(() => render(store.state), 60000);

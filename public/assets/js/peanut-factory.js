@@ -1,4 +1,4 @@
-import {UPGRADES,OUTFITS,SQUISHIES,unlockedSquishies,buySquishy,passiveRate,tapPower,upgradeCost,buyUpgrade,addCrunches} from './game-rules.js';
+import {UPGRADES,OUTFITS,SQUISHIES,unlockedSquishies,buySquishy,passiveRate,tapPower,upgradeCost,buyUpgrade,addCrunches,recordJourney} from './game-rules.js';
 import {loadContent,text as t} from './content-loader.js';
 import {playSquish} from './squishy-audio.js';
 import {CarnivalStore} from './save-manager.js';
@@ -39,7 +39,7 @@ store.subscribe((s,event)=>{
 $('crunch-button').onclick=()=>{
  if(!store.ready)return;const now=performance.now();combo=now-lastTap<800?combo+1:1;lastTap=now;
  const bonus=combo%10===0?10+(store.state.clicker.upgrades.musicbox||0)*2:0,amount=tapPower(store.state)+bonus;
- store.change(s=>{s.clicker.manual++;addCrunches(s,amount)});$('combo-heat').value=combo%10||10;vibrate(bonus?[12,24,12]:8);
+ store.change(s=>{s.clicker.manual++;addCrunches(s,amount);recordJourney(s,'squish')});$('combo-heat').value=combo%10||10;vibrate(bonus?[12,24,12]:8);
  if(store.state.clicker.manual%25===0){clearTimeout(goldenTimer);$('golden-peanut').hidden=false;goldenTimer=setTimeout(()=>$('golden-peanut').hidden=true,10000)}
  particles(!!bonus);$('combo-copy').textContent=t(bonus?'peanut.bonus':'peanut.combo',{count:combo,left:10-combo%10});
  if(!reduced)$('crunch-button').animate([{transform:'scale(1.18,.78) rotate(-3deg)'},{transform:'scale(.94,1.06)'},{transform:'scale(1)'}],{duration:260});

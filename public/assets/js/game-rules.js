@@ -35,7 +35,14 @@ export const OUTFITS = [
     { id: 'kda', name: 'K/DA princess', hint: 'Escape Ann’s weekly maze 5 times', icon: '♫', image: 'assets/images/outfits/kda.webp' },
     { id: 'furina', name: 'Furina cosplay', hint: 'Play the card table at least once', icon: '♧', image: 'assets/images/outfits/furina.webp' },
     { id: 'rogue', name: 'Rogue cosplay', hint: 'Open 5 weekly blind boxes', icon: '✦', image: 'assets/images/outfits/rogue.webp' },
-    { id: 'ada', name: 'Ada Mesmer cosplay', hint: 'Make 1,000,000 lifetime squishes', icon: '♡', image: 'assets/images/outfits/ada.webp' }
+    { id: 'ada', name: 'Ada Mesmer cosplay', hint: 'Make 1,000,000 lifetime squishes', icon: '♡', image: 'assets/images/outfits/ada.webp' },
+    {"id": "jubilee", "name": "Jubilee · Sparkle princess", "hint": "Finish 5 hands on 7 different days", "icon": "✧", "image": "assets/images/outfits/jubilee.webp"},
+    {"id": "jubilee-midnight", "name": "Jubilee · Midnight Mutant", "hint": "Escape in 8 different weeks, enjoy 21 play days & earn Jubilee", "icon": "☾", "image": "assets/images/outfits/jubilee-midnight.webp"},
+    {"id": "rafayel", "name": "Rafayel’s little artist", "hint": "Enjoy 14 play days and 6 cozy squishy days", "icon": "🎨", "image": "assets/images/outfits/rafayel.webp"},
+    {"id": "pokemon-pack", "name": "Princess booster pack", "hint": "Open boxes in 4 different weeks & enjoy 14 play days", "icon": "◇", "image": "assets/images/outfits/pokemon-pack.webp"},
+    {"id": "firestarter", "name": "K/DA Firestarter", "hint": "Finish 5 hands in each of 5 weeks & win 30 hands", "icon": "🔥", "image": "assets/images/outfits/firestarter.webp"},
+    {"id": "reze", "name": "Reze · Rainy-day ribbon", "hint": "Enjoy 10 cozy squishy days & visit Ann in 2 weeks", "icon": "☂", "image": "assets/images/outfits/reze.webp"},
+    {"id": "cissia", "name": "Cissia · Little case specialist", "hint": "Visit Ann in 4 different weeks & enjoy 12 play days", "icon": "✦", "image": "assets/images/outfits/cissia.webp"}
 ];
 export const UPGRADES = [
     { id: 'fingers', name: 'Extra-squishy fingers', detail: '+1 crunch per tap', base: 15, icon: '☝' },
@@ -58,9 +65,9 @@ const integer = (v, max = 1e9) => Math.floor(number(v, max));
 const weeks = v => [...new Set(Array.isArray(v) ? v.filter(n => Number.isInteger(n) && n >= 1 && n <= 52) : [])];
 export const MAX_CRUNCHES = 1e12;
 export function freshState(now = Date.now()) {
-    return { version: 3, room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', tradeWeeks: [], collectionHistory: [], weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
+    return { version: 3, journey: freshJourney(), room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', tradeWeeks: [], collectionHistory: [], weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
 }
-export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 1000000).map(o => o.id); }
+export function unlockedOutfits(s) { return OUTFITS.filter(o => o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 1000000 || OUTFIT_CHALLENGES[o.id] && ((s.journey?.earnedOutfits||[]).includes(o.id) || outfitProgress(s,o.id).every(g=>g.value>=g.goal))).map(o => o.id); }
 export function normalizeState(raw, now = Date.now()) {
     const s = freshState(now);
     if (!raw || typeof raw !== 'object')
@@ -91,6 +98,8 @@ export function normalizeState(raw, now = Date.now()) {
     }
     if (s.weeklyBox && !s.weeklyClaims.includes(s.weeklyBox.week)) s.weeklyClaims.push(s.weeklyBox.week);
     if (s.manorRun && !s.mazeWeeks.includes(s.manorRun.week)) s.mazeWeeks.push(s.manorRun.week);
+    s.journey = normalizeJourney(raw.journey,now);
+    claimJourneyRewards(s);
     const oldOutfit = { ribbon: 'sunday', hearts: 'sunday', garden: 'espeon', moon: 'akali', starlight: 'cozy' }[raw.outfit] || raw.outfit;
     s.outfit = unlockedOutfits(s).includes(oldOutfit) && OUTFITS.find(o => o.id === oldOutfit)?.image ? oldOutfit : 'royal';
     s.room = unlockedRooms(s).includes(raw.room) ? raw.room : 'lavender';
@@ -105,6 +114,7 @@ export function normalizeCheckpoint(c) {
 export function validState(raw) {
     if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > PRIZES.length + 1 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => knownPrize(id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
         return false;
+    if (raw.journey !== undefined && !validJourney(raw.journey)) return false;
     if (raw.manorPeanut && (typeof raw.manorPeanut.found !== 'boolean' || !Number.isSafeInteger(raw.manorPeanut.count) || raw.manorPeanut.count < 0 || raw.manorPeanut.count > 1e9)) return false;
     if (![2, 3].includes(raw.version))
         return true;
@@ -147,7 +157,7 @@ export function centralDate(now=Date.now()){const parts=new Intl.DateTimeFormat(
 export function weekNumber(now=Date.now()){return Math.max(1,Math.min(52,2+Math.floor((centralDate(now)-Date.UTC(2026,10,23))/604800000)));}
 export function buySquishy(s,id){const toy=SQUISHIES.find(x=>x.id===id);if(!toy||unlockedSquishies(s).includes(id)||s.clicker.balance<toy.goal)return false;s.clicker.balance-=toy.goal;s.clicker.ownedSkins??=['peanut'];s.clicker.ownedSkins.push(id);s.clicker.skin=id;return true;}
 export function tradeCollectibles(s,ids,week=weekNumber(),random=Math.random){if((s.tradeWeeks||[]).includes(week)||ids.length!==3||new Set(ids).size!==3||!ids.every(x=>s.prizes.includes(x)))return null;
- s.collectionHistory=[...new Set([...(s.collectionHistory||[]),...s.prizes])];s.prizes=s.prizes.filter(x=>!ids.includes(x));s.shelf=s.shelf.map(x=>ids.includes(x)?null:x);s.tradeWeeks??=[];s.tradeWeeks.push(week);const id=PRIZES[Math.min(PRIZES.length-1,Math.floor(random()*PRIZES.length))].id;const isNew=awardPrize(s,id);return {id,isNew};}
+ s.collectionHistory=[...new Set([...(s.collectionHistory||[]),...s.prizes])];s.prizes=s.prizes.filter(x=>!ids.includes(x));s.shelf=s.shelf.map(x=>ids.includes(x)?null:x);s.tradeWeeks??=[];s.tradeWeeks.push(week);const id=PRIZES[Math.min(PRIZES.length-1,Math.floor(random()*PRIZES.length))].id;const isNew=awardPrize(s,id);recordJourney(s,'wish');return {id,isNew};}
 
 export function awardPrize(s, id) { s.collectionHistory=[...new Set([...(s.collectionHistory||[]),id])];if (s.prizes.includes(id))
     return false; s.prizes.push(id); const slot = s.shelf.indexOf(null); if (slot >= 0)
@@ -156,19 +166,54 @@ export function startBox(s, week, random = Math.random) { if (s.weeklyBox && !s.
     return s.weeklyBox; if (s.weeklyClaims.includes(week))
     return null; s.weeklyClaims.push(week); s.weeklyBox = { week, id: PRIZES[Math.min(PRIZES.length - 1, Math.floor(random() * PRIZES.length))].id, revealed: false }; return s.weeklyBox; }
 export function revealBox(s) { const box = s.weeklyBox; if (!box || box.revealed)
-    return null; box.revealed = true; s.stats.boxes++; s.stats.rounds++; return { id: box.id, isNew: awardPrize(s, box.id) }; }
+    return null; box.revealed = true; s.stats.boxes++; s.stats.rounds++; recordJourney(s,'box'); return { id: box.id, isNew: awardPrize(s, box.id) }; }
 export function beginMaze(s, week, random = Math.random) { if (s.manorRun?.status === 'active')
     return s.manorRun; if (s.mazeWeeks.includes(week))
-    return null; s.mazeWeeks.push(week); s.manorRun = { week, status: 'active', loot: Array.from({ length: 1 }, () => ({ id: PRIZES[Math.min(PRIZES.length - 1, Math.floor(random() * PRIZES.length))].id, claimed: false })), checkpoint: null }; return s.manorRun; }
+    return null; s.mazeWeeks.push(week); s.manorRun = { week, status: 'active', loot: Array.from({ length: 1 }, () => ({ id: PRIZES[Math.min(PRIZES.length - 1, Math.floor(random() * PRIZES.length))].id, claimed: false })), checkpoint: null }; recordJourney(s,'maze-start'); return s.manorRun; }
 export function claimMazePrize(s, index) { const loot = s.manorRun?.status === 'active' && s.manorRun.loot[index]; if (!loot || loot.claimed || s.manorRun.loot.some(x => x.claimed))
     return null; loot.claimed = true; return { id: loot.id, isNew: awardPrize(s, loot.id) }; }
 export function handTotal(cards) { let n = cards.reduce((n, c) => n + Math.min(c.rank, 10), 0); if (cards.some(c => c.rank === 1) && n + 10 <= 21)
     n += 10; return n; }
 
-export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 10; s.clicker.ownedSkins=SQUISHIES.map(x=>x.id); s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 250000000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); return s; }
+export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 30; s.clicker.ownedSkins=SQUISHIES.map(x=>x.id); s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 250000000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); for(let i=55;i>=0;i--){const at=centralDate(now)-i*86400000,day=dayKey(at+43200000);s.journey.cardDays[day]=5;s.journey.squishDays[day]=100;s.journey.playDays.push(day);if(i%7===0){const week=mondayKey(at+43200000);for(const key of ['boxWeeks','mazeWeeks','escapeWeeks'])s.journey[key].push(week)}}claimJourneyRewards(s);return s; }
 
 // A new collection may enter the cabinet, but needs three different treasures to wish.
 export function cabinetStatus(s,week=weekNumber()) {
  const used=(s.tradeWeeks||[]).includes(week),owned=new Set((s.prizes||[]).filter(id=>PRIZES.some(p=>p.id===id))).size;
  return {used,owned,canEnter:!used,canExchange:!used&&owned>=3,needed:Math.max(0,3-owned)};
+}
+
+// Long-term rewards use non-consecutive Central-time days and Monday weeks.
+// Future outfits/rooms can reuse challengeProgress with their own requirement list.
+export const OUTFIT_CHALLENGES = {
+ 'jubilee': [['sparkleDays',7]],
+ 'jubilee-midnight': [['escapeWeeks',8],['playDays',21],['jubilee',1]],
+ 'rafayel': [['playDays',14],['cozyDays',6]],
+ 'pokemon-pack': [['boxWeeks',4],['playDays',14]],
+ 'firestarter': [['tableWeeks',5],['wins',30]],
+ 'reze': [['cozyDays',10],['mazeWeeks',2]],
+ 'cissia': [['mazeWeeks',4],['playDays',12]]
+};
+export const JOURNEY_LABELS = {sparkleDays:'Sparkle days · finish 5 hands',cozyDays:'Cozy days · 100 hands-on squishes',playDays:'Play days',escapeWeeks:'Weeks with an escape',boxWeeks:'Weeks with a box opened',mazeWeeks:'Weeks visiting Ann',tableWeeks:'Weeks with 5 finished hands',wins:'Hands won',jubilee:'Jubilee outfit earned'};
+export function freshJourney(){return {version:1,cardDays:{},squishDays:{},playDays:[],boxWeeks:[],mazeWeeks:[],escapeWeeks:[],earnedOutfits:[]};}
+export function dayKey(now=Date.now()){return new Date(centralDate(now)).toISOString().slice(0,10);}
+export function mondayKey(now=Date.now()){const day=centralDate(now),dow=new Date(day).getUTCDay();return new Date(day-((dow+6)%7)*86400000).toISOString().slice(0,10);}
+const dateKey=value=>typeof value==='string'&&/^20\d\d-\d\d-\d\d$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().slice(0,10)===value;
+function validJourney(j){if(!j||typeof j!=='object'||Array.isArray(j)||j.version!==1)return false;for(const [key,max] of [['cardDays',5],['squishDays',100]]){const map=j[key];if(!map||typeof map!=='object'||Array.isArray(map)||Object.keys(map).length>400||Object.entries(map).some(([d,n])=>!dateKey(d)||!Number.isInteger(n)||n<0||n>max))return false;}for(const key of ['playDays','boxWeeks','mazeWeeks','escapeWeeks'])if(!Array.isArray(j[key])||j[key].length>400||j[key].some(d=>!dateKey(d)))return false;return Array.isArray(j.earnedOutfits)&&j.earnedOutfits.length<=Object.keys(OUTFIT_CHALLENGES).length&&j.earnedOutfits.every(id=>Object.hasOwn(OUTFIT_CHALLENGES,id));}
+function normalizeJourney(raw,now){const j=freshJourney();if(!raw||typeof raw!=='object')return j;const today=dayKey(now),clean=list=>[...new Set((Array.isArray(list)?list:[]).filter(d=>dateKey(d)&&d<=today))].sort().slice(-400);for(const [key,max] of [['cardDays',5],['squishDays',100]]){const input=raw[key];if(input&&typeof input==='object'&&!Array.isArray(input))for(const day of Object.keys(input).filter(d=>dateKey(d)&&d<=today).sort().slice(-400))j[key][day]=integer(input[day],max);}j.playDays=clean(raw.playDays);for(const key of ['boxWeeks','mazeWeeks','escapeWeeks'])j[key]=clean(raw[key]).filter(d=>new Date(d).getUTCDay()===1);j.earnedOutfits=[...new Set((Array.isArray(raw.earnedOutfits)?raw.earnedOutfits:[]).filter(id=>Object.hasOwn(OUTFIT_CHALLENGES,id)))];return j;}
+export function journeyCounts(s){const j=s.journey||freshJourney(),cards=Object.values(j.cardDays),weekly={};for(const [day,count] of Object.entries(j.cardDays)) {const week=mondayKey(Date.parse(day)+43200000);weekly[week]=(weekly[week]||0)+count;}const sparkleDays=cards.filter(n=>n>=5).length;return {sparkleDays,cozyDays:Object.values(j.squishDays).filter(n=>n>=100).length,playDays:j.playDays.length,tableWeeks:Object.values(weekly).filter(n=>n>=5).length,boxWeeks:j.boxWeeks.length,mazeWeeks:j.mazeWeeks.length,escapeWeeks:j.escapeWeeks.length,wins:s.stats.cardWins,jubilee:sparkleDays>=7||j.earnedOutfits.includes('jubilee')?1:0};}
+export function challengeProgress(s,requirements){const counts=journeyCounts(s);return requirements.map(([metric,goal])=>({metric,goal,value:Math.min(goal,counts[metric]||0),label:JOURNEY_LABELS[metric]}));}
+export function outfitProgress(s,id){return challengeProgress(s,OUTFIT_CHALLENGES[id]||[]);}
+function claimJourneyRewards(s){s.journey??=freshJourney();for(const [id,requirements] of Object.entries(OUTFIT_CHALLENGES))if(!s.journey.earnedOutfits.includes(id)&&challengeProgress(s,requirements).every(g=>g.value>=g.goal))s.journey.earnedOutfits.push(id);}
+export function recordJourney(s,event,now=Date.now()){
+ if(!['card','squish','box','maze-start','maze-win','maze-loss','wish'].includes(event))return;
+ s.journey??=freshJourney();const j=s.journey,day=dayKey(now),week=mondayKey(now),mark=(key,value)=>{if(!j[key].includes(value)){j[key].push(value);j[key].sort();if(j[key].length>400)j[key].shift();}};
+ if(event==='card'){j.cardDays[day]=Math.min(5,(j.cardDays[day]||0)+1);if(j.cardDays[day]>=3)mark('playDays',day);}
+ if(event==='squish'){if(j.squishDays[day]>=100)return;j.squishDays[day]=Math.min(100,(j.squishDays[day]||0)+1);if(j.squishDays[day]>=100)mark('playDays',day);}
+ if(event==='box'){mark('boxWeeks',week);mark('playDays',day);}
+ if(event==='maze-start')mark('mazeWeeks',week);
+ if(event==='maze-win'){mark('escapeWeeks',week);mark('playDays',day);}
+ if(event==='maze-loss'||event==='wish')mark('playDays',day);
+ for(const key of ['cardDays','squishDays']){const dates=Object.keys(j[key]).sort();for(const old of dates.slice(0,Math.max(0,dates.length-400)))delete j[key][old];}
+ claimJourneyRewards(s);
 }

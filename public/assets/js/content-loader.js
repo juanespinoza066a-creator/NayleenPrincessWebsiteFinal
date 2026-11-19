@@ -18,11 +18,12 @@ export async function loadContent() {
         content = DEFAULT_TEXT;
     }
     try { const r = await fetch('content/palace-update.json', {cache:'no-store'}); if(r.ok) { const merge=(a,b)=>{for(const [k,v] of Object.entries(b)){if(v&&typeof v==='object'&&!Array.isArray(v)){a[k]={...(a[k]||{})};merge(a[k],v)}else a[k]=v}return a}; content=merge(structuredClone(content),await r.json()); } } catch {}
+    try {const r=await fetch('content/wardrobe-update.json',{cache:'no-store'});if(r.ok){const extra=await r.json();content={...content,wardrobe:{...content.wardrobe,...extra.wardrobe},outfits:{...content.outfits,...extra.outfits},journey:extra.journey||{}};}} catch {}
     const mondayCopy=v=>typeof v==='string'?v.replaceAll('Wednesday','Monday'):Array.isArray(v)?v.map(mondayCopy):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mondayCopy(x)])):v;content=mondayCopy(content);
     document.querySelectorAll('[data-copy]').forEach(node => { const value = text(node.dataset.copy); if (value !== node.dataset.copy)
         node.textContent = value; });
     PRIZES.forEach(p => { p.name = text('collection.names.' + p.id); });
-    OUTFITS.forEach(o => { o.name = text('outfits.' + o.id + '.name'); o.hint = text('outfits.' + o.id + '.hint'); });
+    OUTFITS.forEach(o => { const nameKey='outfits.'+o.id+'.name',hintKey='outfits.'+o.id+'.hint';if(text(nameKey)!==nameKey)o.name=text(nameKey);if(text(hintKey)!==hintKey)o.hint=text(hintKey); });
     UPGRADES.forEach(u => { u.name = text('upgrades.' + u.id + '.name'); u.detail = text('upgrades.' + u.id + '.detail'); });
     return true;
 }

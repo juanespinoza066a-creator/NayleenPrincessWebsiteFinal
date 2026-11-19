@@ -1,5 +1,5 @@
 import { CarnivalStore } from './save-manager.js';
-import { PRIZES, weekNumber, beginMaze, claimMazePrize } from './game-rules.js';
+import { PRIZES, weekNumber, beginMaze,recordJourney, claimMazePrize } from './game-rules.js';
 import { loadContent, text } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
 const store = new CarnivalStore(), images = new Map();
@@ -14,7 +14,7 @@ const bridge = {
     claim(index) { let reward; store.change(s => { reward = claimMazePrize(s, index); }); if (reward) playBoxSound(); return reward ? { ...reward, name: PRIZES.find(p => p.id === reward.id).name } : null; },
     finish(won) { if (store.state.manorRun?.status !== 'active')
         return; store.change(s => { s.manorRun.status = won ? 'won' : 'lost'; s.manorRun.checkpoint = null; s.stats.rounds++; if (won)
-        s.stats.manorWins++; }); }
+        s.stats.manorWins++; recordJourney(s,won?'maze-win':'maze-loss'); }); }
 };
 window.CarnivalManor = bridge;
 store.subscribe(s => { bridge.outfit = s.outfit; bridge.loot = s.manorRun?.loot || []; });
