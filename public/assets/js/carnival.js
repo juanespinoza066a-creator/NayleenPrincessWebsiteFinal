@@ -115,7 +115,7 @@ $('blind-open').onclick = blind;
 $('weekly-box').onclick = blind;
 function cards(){
  open(t('games.cards.title'));p('A little luck, a little sparkle. Choose your table.');
- button('♠ 21 · Princess blackjack',()=>openTable(store,{open,body,result,t}));
+ const seats=document.createElement('div');seats.className='casino-seats';body.append(seats);button('♠ 21 · Princess blackjack',()=>openTable(store,{open,body,result,t}),seats);
  const trade=button('✦ The wishing cabinet · Weekly 3-for-1',()=>{
   open('The wishing cabinet');p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
   const selected=new Set(),grid=el('div',undefined,'trade-grid');body.append(grid);
@@ -127,7 +127,7 @@ function cards(){
   });
   const refresh=()=>{go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
   for(const item of PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh()};grid.append(b)}refresh();
- });trade.disabled=(store.state.tradeWeeks||[]).includes(weekNumber())||store.state.prizes.length<3;
+ },seats);trade.disabled=(store.state.tradeWeeks||[]).includes(weekNumber())||store.state.prizes.length<3;
  p('The wishing cabinet resets Monday at midnight Central Time.');
 }
 $('cards-open').onclick = cards;
