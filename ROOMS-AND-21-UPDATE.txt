@@ -1,0 +1,13 @@
+ROOM STUDIO + 21 UPDATE
+
+Extract this ZIP. On GitHub select testing, open the repository root and upload BOTH public and server folders, preserving paths. Commit all files together. Vercel will build the preview. Test with 123 before merging into main. No new SQL, secrets or environment variables required. Room choice is part of the existing JSON save and requires the included server/game-rules.js. Update all included files together.
+
+Added Outfits/Collectibles/Rooms tabs beneath the room; three unlockable room color themes with different item positions; Save room PNG (a clean illustrated portrait with her outfit, arranged items and room colors, not an exact screenshot of decorative UI); black silhouettes for locked items; Ada at 100,000 lifetime crunches; Emil in weekly collectible pool; approximate days/hours until Wednesday Central-time resets; a new violet velvet 21 table with current Espurr outfit, card fan, dealing animation, paced house draws, sound switch and winning sparkles. Blackjack rules and scoring are unchanged. Finish a hand before closing the table.
+
+Rooms: Lavender starts unlocked. Moonlit reading nook: find the garden peanut. Princess cafe: purchase 10 peanut upgrades in total. Flower conservatory: collect 10 distinct treasures. All room quests count existing progress. There are now 9 outfits and 21 collectibles.
+
+The weekly estimate uses rounded-up days, or rounded-up four-hour blocks within the final 24 hours; it refreshes each minute and follows America/Chicago including daylight saving. The existing 52-week limit remains.
+
+Personalized content/site-text.json, content/weekly-notes.json and code-login.js are NOT included in this patch. Your current GitHub wording stays intact. New Ada/Emil text falls back to assets/js/default-text.js, so no JSON text replacement is needed. Room names/quests are in room-studio.js (display) and game-rules.js (shared validation); table decoration and sound code is table21.js.
+
+Existing save IDs and outfit requirements remain unchanged. Room choice defaults to Lavender on old saves; no reset is needed. Update all pages/server together and refresh open tabs after deploying so older code does not overwrite room choice.

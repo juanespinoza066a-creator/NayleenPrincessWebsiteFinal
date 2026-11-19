@@ -204,3 +204,9 @@ export const DEFAULT_TEXT = {
     }
   }
 };
+
+// New content falls back here without replacing your personalized site-text.json.
+DEFAULT_TEXT.outfits.ada = {name:'Ada Mesmer cosplay',hint:'Make 100,000 lifetime crunches'};
+DEFAULT_TEXT.collection.names.emil = 'Emil plushie';
+
+Object.assign(DEFAULT_TEXT.upgrades,{roaster:{name:'Midnight peanut roaster',detail:'+15 crunches per second'},caramel:{name:'Caramel-coated fingers',detail:'+8 crunches per tap'},delivery:{name:'Tiny delivery ducks',detail:'+60 crunches per second'},musicbox:{name:'Princess music box',detail:'+10% to all automatic production'}});

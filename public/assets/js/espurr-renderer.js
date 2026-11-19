@@ -22,7 +22,7 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
     }
     oval(0, -13, 14, 19, '#c8bad8');
     path([[-12, -22], [-18, -16], [-13, -14], [-18, -6], [-11, -7], [-14, 0], [-6, -2], [0, 4], [8, -2], [14, 0], [12, -8], [18, -6], [14, -15], [17, -17], [11, -23]], '#c8bad8');
-    const colors = { rogue: ['#36875b', '#f3d063'], furina: ['#46598d', '#d9e4ff'], kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
+    const colors = { ada: ['#ded1b9', '#796044'], rogue: ['#36875b', '#f3d063'], furina: ['#46598d', '#d9e4ff'], kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
     if (outfit !== 'royal' && colors[outfit]) {
         const [base, trim] = colors[outfit];
         if (outfit === 'cozy') {

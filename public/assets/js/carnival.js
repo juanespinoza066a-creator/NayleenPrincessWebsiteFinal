@@ -1,3 +1,5 @@
+import { openTable } from './table21.js';
+import { makeStudio, resetEstimate } from './room-studio.js';
 import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState } from './game-rules.js';
 import { CarnivalStore, STATIC, downloadJSON } from './save-manager.js';
 import { loadContent, text as t, readNotes } from './content-loader.js';
@@ -5,6 +7,9 @@ import { playBoxSound } from './box-audio.js';
 const $ = id => document.getElementById(id), store = new CarnivalStore(), prize = id => PRIZES.find(p => p.id === id);
 const dialog = $('game-dialog'), body = $('game-body'), result = $('game-result');
 let roomSignature = '', toastTimer;
+const renderStudio = makeStudio(store);
+const resetNote = document.createElement('p'); resetNote.className='section-copy'; resetNote.id='weekly-reset-estimate'; $('weekly-box').parentElement.append(resetNote);
+const mazeReset = document.createElement('small'); mazeReset.id='maze-reset-estimate'; $('manor-open').append(mazeReset);
 function el(tag, text, className) { const n = document.createElement(tag); if (text !== undefined)
     n.textContent = text; if (className)
     n.className = className; return n; }
@@ -19,6 +24,9 @@ $('game-close').onclick = close;
 function render(s, event = {}) {
     $('save-status').textContent = event.status || store.status;
     $('sync-retry').hidden = window.CARNIVAL_CONFIG?.saveTools !== true || STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
+    renderStudio(s);
+    const estimate = weekNumber() >= 52 ? 'The final week of this year’s carnival ♡' : resetEstimate();
+    resetNote.textContent = estimate; mazeReset.textContent = estimate;
     const week = weekNumber(), pending = s.weeklyBox && !s.weeklyBox.revealed, claimed = s.weeklyClaims.includes(week);
     $('weekly-label').textContent = t('weekly.eyebrow', { week: String(pending ? s.weeklyBox.week : week).padStart(2, '0') });
     $('weekly-copy').textContent = t(pending ? 'weekly.resumeCopy' : claimed ? 'weekly.doneCopy' : 'weekly.intro');
@@ -103,54 +111,7 @@ function blind() {
 }
 $('blind-open').onclick = blind;
 $('weekly-box').onclick = blind;
-function cards() {
-    open(t('games.cards.title'));
-    p(t('games.cards.rules'));
-    const score = p('');
-    score.classList.add('table-bank');
-    const select = el('select');
-    select.setAttribute('aria-label', t('games.cards.bet'));
-    [5, 10, 20, 50].forEach(n => { const o = el('option', `${n} pretend chips`); o.value = n; select.append(o); });
-    body.append(select);
-    const table = el('div', undefined, 'card-table');
-    body.append(table);
-    const dealerTitle = el('h3', t('games.cards.dealer')), dealerRow = el('div', undefined, 'card-hand'), dealerScore = el('p', '', 'card-score'), yourTitle = el('h3', t('games.cards.player')), yourRow = el('div', undefined, 'card-hand'), yourScore = el('p', '', 'card-score');
-    table.append(dealerTitle, dealerRow, dealerScore, yourTitle, yourRow, yourScore);
-    const row = actions();
-    let deck = [], hand = [], dealer = [], active = false, wager = 0;
-    function paint() { const card = (c, hidden = false) => el('span', hidden ? '♛' : `${({ 1: 'A', 11: 'J', 12: 'Q', 13: 'K' })[c.rank] || c.rank}${c.suit}`, 'playing-card' + (hidden ? ' back' : ['♥', '♦'].includes(c.suit) ? ' red' : '')); dealerRow.replaceChildren(...dealer.map((c, i) => card(c, active && i > 0))); yourRow.replaceChildren(...hand.map(c => card(c))); dealerScore.textContent = dealer.length ? (active ? 'One card is still a secret' : `${handTotal(dealer)} points`) : ''; yourScore.textContent = hand.length ? `${handTotal(hand)} points · ${wager} on the table` : ''; score.textContent = t('games.cards.bank', { score: store.state.chips, best: store.state.stats.bestBank }); deal.disabled = active || store.state.chips < Number(select.value); select.disabled = active; hit.disabled = stand.disabled = !active; double.disabled = !active || hand.length !== 2 || store.state.chips < wager * 2; reset.disabled = active; }
-    function finish() { if (!active)
-        return; active = false; const yours = handTotal(hand), theirs = handTotal(dealer), win = yours <= 21 && (theirs > 21 || yours > theirs), tie = yours <= 21 && yours === theirs; store.change(s => { s.chips = Math.max(0, Math.min(1e6, s.chips + (win ? wager : tie ? 0 : -wager))); s.stats.bestBank = Math.max(s.stats.bestBank, s.chips); s.stats.rounds++; if (win)
-        s.stats.cardWins++; }); result.textContent = t(win ? 'games.cards.win' : tie ? 'games.cards.tie' : yours > 21 ? 'games.cards.bust' : 'games.cards.lose'); deal.textContent = t('games.cards.again'); paint(); }
-    function dealerTurn() { while (handTotal(dealer) < 17)
-        dealer.push(deck.pop()); finish(); }
-    const deal = button(t('games.cards.deal'), () => { wager = Number(select.value); if (store.state.chips < wager) {
-        result.textContent = t('games.cards.low');
-        return;
-    } deck = Array.from({ length: 52 }, (_, i) => ({ rank: i % 13 + 1, suit: ['♠', '♥', '♣', '♦'][Math.floor(i / 13)] })); for (let i = 51; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-    } hand = [deck.pop(), deck.pop()]; dealer = [deck.pop(), deck.pop()]; active = true; store.change(s => { s.stats.cardRounds = (s.stats.cardRounds || 0) + 1; }); result.textContent = ''; paint(); if (handTotal(hand) === 21 || handTotal(dealer) === 21)
-        dealerTurn(); }, row);
-    const hit = button(t('games.cards.hit'), () => { if (!active)
-        return; hand.push(deck.pop()); if (handTotal(hand) > 21)
-        finish();
-    else if (handTotal(hand) === 21)
-        dealerTurn();
-    else
-        paint(); }, row), stand = button(t('games.cards.stay'), () => { if (active)
-        dealerTurn(); }, row), double = button(t('games.cards.double'), () => { if (!active || hand.length !== 2 || store.state.chips < wager * 2)
-        return; wager *= 2; hand.push(deck.pop()); if (handTotal(hand) > 21)
-        finish();
-    else
-        dealerTurn(); }, row);
-    const reset = button(t('games.cards.reset'), () => { if (active)
-        return; store.change(s => { s.chips = 100; }); hand = []; dealer = []; wager = 0; deal.textContent = t('games.cards.deal'); result.textContent = 'A fresh little start. Your best score and outfits are safe. ♡'; paint(); });
-    reset.classList.add('soft');
-    p(t('games.cards.resetHint'));
-    select.onchange = paint;
-    paint();
-}
+function cards() { openTable(store, {open,body,result,t}); }
 $('cards-open').onclick = cards;
 $('sync-retry').onclick = () => store.retry();
 $('export-save').onclick = () => { downloadJSON('nayleen-carnival-save.json', { kind: 'nayleen-carnival-backup', version: 3, exportedAt: new Date().toISOString(), state: store.state }); $('backup-status').textContent = t('backup.downloaded'); };
@@ -180,10 +141,11 @@ $('test-reset').onclick = () => {
     button('Reset my progress', async () => { store.change(s => Object.assign(s, freshState())); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='Fresh testing save. All four games are ready.'; close(); });
     button('Cancel', close).classList.add('soft');
 };
-$('test-unlock').onclick = () => { open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all 19 collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
+$('test-unlock').onclick = () => { open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
 await loadContent();
 store.subscribe(render);
 await store.load();
+setInterval(() => render(store.state), 60000);
 readNotes().then(data => { const latest = data.notes.filter(n => n.published).sort((a, b) => a.week - b.week).at(-1); if (latest)
     $('latest-note').textContent = `${latest.emoji} Week ${latest.week} · ${latest.title} — ${latest.message.slice(0, 160)}`; }).catch(() => { });
 
