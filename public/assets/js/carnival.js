@@ -17,7 +17,7 @@ function image(item, className = 'collectible-image') { const img = el('img', un
 function button(text, fn, parent = body) { const b = el('button', text, 'button'); b.onclick = fn; parent.append(b); return b; }
 function p(text) { const n = el('p', text, 'rules'); body.append(n); return n; }
 function actions() { const n = el('div', undefined, 'game-actions'); body.append(n); return n; }
-function open(title) { $('game-title').textContent = title; body.replaceChildren(); result.textContent = ''; if (!dialog.open)
+function open(title) { $('game-title').textContent = title; body.classList.remove('wishing-cabinet');body.replaceChildren(); result.textContent = ''; if (!dialog.open)
     dialog.showModal(); }
 function close() { dialog.close(); }
 $('game-close').onclick = close;
@@ -117,15 +117,15 @@ function cards(){
  open(t('games.cards.title'));p('A little luck, a little sparkle. Choose your table.');
  const seats=document.createElement('div');seats.className='casino-seats';body.append(seats);button('♠ 21 · Princess blackjack',()=>openTable(store,{open,body,result,t}),seats);
  const trade=button('✦ The wishing cabinet · Weekly 3-for-1',()=>{
-  open('The wishing cabinet');p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
+  open('The wishing cabinet');body.classList.add('wishing-cabinet');const cabinet=el('div',undefined,'wish-altar');cabinet.innerHTML='<span aria-hidden="true">✧ ♛ ✧</span><strong>Three little treasures, one little wish</strong><small>Choose your offerings below</small>';body.append(cabinet);p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
   const selected=new Set(),grid=el('div',undefined,'trade-grid');body.append(grid);
   const go=button('Choose 3 treasures',()=>{
    if(selected.size!==3)return;
    if(!confirm('Exchange these 3 collectibles permanently for 1 random collectible? Duplicates are possible.'))return;
    let reward;store.change(s=>reward=tradeCollectibles(s,[...selected]));if(!reward)return;
-   grid.replaceChildren();go.disabled=true;go.textContent='This week’s wish is complete ♡';const item=prize(reward.id);grid.append(image(item));p(item.name+(reward.isNew?' · A new treasure!':' · A duplicate, no extra roll.'));playBoxSound('reveal');
+   grid.replaceChildren();cabinet.classList.add('wish-granted');cabinet.querySelector('small').textContent='Your wish has arrived ♡';go.disabled=true;go.textContent='This week’s wish is complete ♡';const item=prize(reward.id);grid.append(image(item));p(item.name+(reward.isNew?' · A new treasure!':' · A duplicate, no extra roll.'));playBoxSound('reveal');
   });
-  const refresh=()=>{go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
+  const refresh=()=>{cabinet.querySelector('small').textContent=selected.size+' / 3 offerings chosen · one surprise awaits';go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
   for(const item of PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh()};grid.append(b)}refresh();
  },seats);trade.disabled=(store.state.tradeWeeks||[]).includes(weekNumber())||store.state.prizes.length<3;
  p('The wishing cabinet resets Monday at midnight Central Time.');
@@ -158,7 +158,7 @@ $('test-reset').onclick = () => {
     if (!canUseTestingTools()) return;
     open('Reset this testing save?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current browser/profile. Download a backup first.');
     button('Download backup first', () => downloadJSON('nayleen-before-test-reset.json', {kind:'nayleen-carnival-backup', version:3, state:store.state}));
-    button('Reset my progress', async () => { store.change(s => Object.assign(s, freshState())); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='Fresh testing save. All four games are ready.'; close(); });
+    button('Reset my progress', async () => { store.change(s => (Object.keys(s).forEach(k=>delete s[k]),Object.assign(s, freshState()))); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='Fresh testing save. All four games are ready.'; close(); });
     button('Cancel', close).classList.add('soft');
 };
 $('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
