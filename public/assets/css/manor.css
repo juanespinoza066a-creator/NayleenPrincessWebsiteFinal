@@ -19,3 +19,6 @@
 @media(prefers-reduced-motion:reduce){#squish-peanut.squeezed .peanut-shell{animation:none}}
 
 .objective-chips .exit-ready{background:#34513f;color:#d8f0c7;border-color:#9bc9a2}
+/* Maze action and audio feedback */
+.top-actions{flex-wrap:wrap;justify-content:flex-end}#maze-music,#maze-sfx{font-size:.72rem;min-height:40px}.repair-note.jammed{border-color:#e4a096}.repair-note.jammed progress{accent-color:#e4a096}.repair-note{max-width:calc(100% - 28px)}#repair-label{display:block;overflow-wrap:anywhere}
+@media(max-width:540px){header{align-items:flex-start;gap:8px}.top-actions{gap:5px;max-width:70%}.top-actions button{padding:7px 9px}.repair-note{font-size:.65rem}}

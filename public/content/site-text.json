@@ -1,28 +1,28 @@
 {
   "site": {
-    "title": "Nayleen’s Princess Carnival",
-    "brand": "Nayleen’s carnival",
+    "title": "Nayleen’s Princess Palace",
+    "brand": "Nayleen’s Palace",
     "footer": "For Nayleen. A little place I made because I love you. ♡"
   },
   "nav": {
     "play": "Play",
     "dress": "Dress up",
-    "weeks": "Our weeks ♡",
+    "weeks": "Weekly notes ♡",
     "back": "Back to the carnival"
   },
   "home": {
     "eyebrow": "FOR MY FAVORITE GIRL, ALWAYS",
-    "title": "A little carnival.",
+    "title": "A special place.",
     "subtitle": "All for Nayleen.",
-    "intro": "Games you love. Tiny treasures. A princess Espurr to dress up. And a whole year of the moments I love sharing with you.",
-    "play": "Come play with me ↓",
-    "signature": "Con amor, Juan ♡",
+    "intro": "Filled with games to play. Collectibles of our shared memories. A princess Epurr to dress up. And a whole year of the moments I love sharing with you.",
+    "play": "Click to play games ↓",
+    "signature": "Te amo mi florecita, Juan ♡",
     "room": "NAYLEEN’S ROOM"
   },
   "wardrobe": {
-    "eyebrow": "A DRESS-UP STORY",
-    "title": "Little outfits, earned with love",
-    "intro": "Play, collect, and try on something new. Every outfit belongs to the same little princess.",
+    "eyebrow": "Outfits",
+    "title": "Select to change your espurrs outfits unlock new ones by playing games",
+    "intro": "Play, collect, and try on something new. Every outfit belongs to my princess.",
     "wearing": "Wearing this ♡",
     "wear": "Tap to wear",
     "pending": "Reward unlocked · portrait awaiting artwork",
@@ -35,7 +35,7 @@
       "hint": "Yours from the beginning"
     },
     "sunday": {
-      "name": "Sunday’s little angel",
+      "name": "Sunday cosplay",
       "hint": "Reach a best card-table score of 200"
     },
     "cozy": {
@@ -43,22 +43,22 @@
       "hint": "Make 50 lifetime crunches"
     },
     "espeon": {
-      "name": "Espeon daydream",
+      "name": "Espeon cosplay",
       "hint": "Open your first weekly blind box"
     },
     "akali": {
-      "name": "Akali’s little rogue",
+      "name": "Akali cosplay",
       "hint": "Escape Ann’s weekly maze once"
     },
     "kda": {
-      "name": "K/DA princess",
+      "name": "K/DA Akali cosplay",
       "hint": "Win 10 hands of 21"
     }
   },
   "weekly": {
     "eyebrow": "WEEK {{week}} · A LITTLE SURPRISE",
     "title": "One little surprise, every week.",
-    "intro": "A mystery box each Wednesday, using Texas time. One box, one fixed little surprise.",
+    "intro": "A mystery box each Wednesday.",
     "open": "Open my weekly box ♡",
     "resume": "Finish opening my box ♡",
     "done": "This week’s box is opened ♡",
@@ -93,16 +93,16 @@
       "player": "MY PRINCESS"
     },
     "blind": {
-      "title": "Her weekly blind box",
-      "intro": "Shake, guess, unwrap. One collectible each week, with no rerolls.",
+      "title": "Weekly blind box",
+      "intro": "One collectible each week, with no rerolls just how a gambler likes it.",
       "action": "Open this week’s box →",
-      "rules": "Your collectible is chosen once and saved inside this box. Shake it as much as you like. You get one opening each week. A duplicate is still your surprise for the week.",
+      "rules": "Your collectible is chosen once and saved inside this box. Shake it as much as you like. You get one opening each week.",
       "shake": "Give it a little shake",
       "shakeAgain": "Shake it again",
       "unwrap": "Untie the ribbon ♡",
-      "reveal": "Meet my collectible",
-      "initial": "A tiny friend is tucked inside. What do you think it is?",
-      "shaken": "A little rattle… your surprise is still the same little friend.",
+      "reveal": "Your collectible",
+      "initial": "What could it be?",
+      "shaken": "A little rattle…",
       "ribbon": "The ribbon is loose. Time to meet what’s inside.",
       "new": "{{name}} is coming home to Espurr!",
       "duplicate": "You found another {{name}}. It’s already in your collection. No extra draw this time. ♡",
@@ -120,21 +120,21 @@
     }
   },
   "scrapbook": {
-    "eyebrow": "52 WEEKS OF US",
+    "eyebrow": "",
     "title": "My favorite moments have you in them.",
-    "intro": "A little highlight from each week together. The first page is waiting for Juan’s words.",
+    "intro": "A little highlight from each week together.",
     "open": "Read our scrapbook ♡",
     "pageTitle": "52 weeks of us.",
-    "pageIntro": "Little highlights, the things that made me smile, and the moments I want to keep with you.",
+    "pageIntro": "Each week I'll upload this page with little highlights, the things that made me smile, and the moments I want to keep with you.",
     "heading": "Our weeks together",
     "empty": "A little moment still to come",
-    "signature": "Con amor, Juan ♡",
+    "signature": "For my special princess ♡",
     "footer": "Collected with love, one week at a time. ♡"
   },
   "collection": {
-    "title": "Her little collection",
+    "title": "Princess collection",
     "intro": "Tap one of the four shelves beside Espurr to arrange your favorites.",
-    "count": "{{count}} little treasures",
+    "count": "{{count}} collectibles unlocked",
     "choose": "A little treasure beside Espurr",
     "chooseIntro": "Choose one of your collectibles for this shelf. You can rearrange it whenever you like.",
     "empty": "Your weekly box and the maze are where little friends can be found.",

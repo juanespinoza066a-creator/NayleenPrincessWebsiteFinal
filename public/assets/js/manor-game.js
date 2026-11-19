@@ -34,7 +34,8 @@ const pallets = [[5, 9], [15, 8], [18, 15]].map(([x, y]) => ({ ...center(x, y), 
 const patrol = [[21, 3], [15, 2], [11, 5], [6, 3], [2, 7], [6, 10], [5, 15], [12, 17], [16, 12], [22, 16], [22, 8]].map(([x, y]) => center(x, y));
 const keys = new Set();
 let player, hunter, state = 'intro', elapsed = 0, hp = 3, stamina = 100, charges = 3;
-let repairing = null, gateTime = 0, invincible = 0, stunned = 0, sprinting = false;
+let action = null;
+let repairing = null, invincible = 0, stunned = 0, sprinting = false;
 let calibration = null, noiseTime = 0, noiseTarget = null, chase = false;
 let lastSeen = null, searchTime = 0, calmTime = 6, patrolGoal = null;
 const effects = [];
@@ -96,9 +97,9 @@ async function reset() {
     charges = 3;
     elapsed = 0;
     repairing = null;
+    action = null;
     invincible = 0;
     stunned = 0;
-    gateTime = 0;
     calibration = null;
     noiseTime = 0;
     noiseTarget = null;
@@ -110,7 +111,7 @@ async function reset() {
     patrolIndex = 0;
     joy = { x: 0, y: 0 };
     sprinting = false;
-    machines.forEach(m => { m.progress = 0; m.nextCheck = randomBetween(5.5, 11.5); });
+    machines.forEach(m => { m.progress = 0; m.lockRemaining = 0; m.nextCheck = randomBetween(5.5, 11.5); });
     pallets.forEach(p => p.down = false);
     if (access.checkpoint) {
         const saved = access.checkpoint;
@@ -155,6 +156,8 @@ function pause() {
     modal('Take a little breather.', 'Your garden is paused. Espurr and Ann will wait for you.', 'Resume adventure');
 }
 function finish(won) {
+    window.ManorAudio?.effect(won ? 'win' : 'lose');
+    action = null;
     state = won ? 'won' : 'lost';
     repairing = null;
     calibration = null;
@@ -197,11 +200,27 @@ function interact() {
         }
         return;
     }
+    if (action) return;
     const c = context();
-    if (!c)
+    if (!c) return;
+    if (c.type === 'machine') {
+        repairing = c.item;
+        message(repairing.lockRemaining > 0 ? 'Cipher jammed. Wait for the countdown, or move away.' : 'Decoding automatically. Watch for occasional calibration rings. Move any time to run.');
         return;
+    }
+    if (c.type === 'gate' && !exitUnlocked()) {
+        message('Complete all three ciphers to unlock the exit.');
+        return;
+    }
+    const durations = {treasure: 1.2, peanut: .9, pallet: .55, gate: 5};
+    action = {...c, elapsed: 0, duration: durations[c.type]};
+    message(c.label + '… Stay still; moving cancels this action.');
+    hud();
+}
+function completeInteraction(c) {
     if (c.type === 'treasure') {
         const reward = window.CarnivalManor?.claim(c.item.index);
+        if (reward) window.ManorAudio?.effect('collect');
         if (reward) {
             message(reward.isNew ? reward.name + ' is coming home to Espurr!' : 'Another ' + reward.name + '. It is already in your collection. No extra draw this time.');
             effects.push({ kind: 'spark', x: c.item.x, y: c.item.y, life: .8, duration: .8 });
@@ -210,11 +229,8 @@ function interact() {
         }
         return;
     }
-    if (c.type === 'machine') {
-        repairing = c.item;
-        message('Decoding automatically. Watch for occasional calibration rings. Move any time to run.');
-    }
     if (c.type === 'peanut') {
+        window.ManorAudio?.effect('collect');
         peanutFound = true;
         savePeanut();
         hud();
@@ -222,6 +238,7 @@ function interact() {
         openPeanut();
     }
     if (c.type === 'pallet') {
+        window.ManorAudio?.effect('pallet');
         c.item.down = true;
         if (distance(hunter, c.item) < 95)
             stunned = 4;
@@ -229,15 +246,9 @@ function interact() {
         pathClock = 0;
         message('Pallet dropped. Ann needs a new route.');
     }
-    if (c.type === 'gate') {
-        if (!exitUnlocked())
-            message('Complete all three ciphers to unlock the exit.');
-        else {
-            gateTime = 5;
-            message('Opening the gate. Stay close for five seconds!');
-        }
-    }
+    if (c.type === 'gate') finish(true);
 }
+
 function power() {
     if (state !== 'playing' || charges < 1)
         return;
@@ -245,6 +256,7 @@ function power() {
         message('Ann is too far away. Save the psychic stun for a close chase.');
         return;
     }
+    window.ManorAudio?.effect('stun');
     charges--;
     stunned = 5;
     effects.push({ kind: 'stun', x: player.x, y: player.y, life: .7, duration: .7 });
@@ -260,6 +272,7 @@ function clearSight() {
     return true;
 }
 function beginCalibration() {
+    window.ManorAudio?.effect('warning');
     calibration = {
         phase: 'warning', elapsed: 0, warningDuration: randomBetween(.65, .9),
         duration: randomBetween(1.65, 2.45), zoneStart: randomBetween(.18, .73),
@@ -272,16 +285,19 @@ function resolveCalibration(success) {
     if (!calibration || !repairing)
         return;
     if (success) {
+        window.ManorAudio?.effect('success');
         repairing.progress = Math.min(40, repairing.progress + 3);
         effects.push({ kind: 'spark', x: repairing.x, y: repairing.y, life: .6, duration: .6 });
         message('Perfect calibration! The cipher gained a boost.');
     }
     else {
+        window.ManorAudio?.effect('miss');
+        repairing.lockRemaining = 3;
         repairing.progress = Math.max(0, repairing.progress - 2.5);
         noiseTime = 2;
         noiseTarget = { x: player.x, y: player.y };
         pathClock = 0;
-        message('Calibration missed. Ann heard the clatter!');
+        message('Calibration missed! Decoding locked for 3 seconds. Ann heard the clatter!');
     }
     calibration = null;
 }
@@ -296,6 +312,7 @@ function update(dt) {
     invincible = Math.max(0, invincible - dt);
     stunned = Math.max(0, stunned - dt);
     noiseTime = Math.max(0, noiseTime - dt);
+    for (const machine of machines) machine.lockRemaining = Math.max(0, (machine.lockRemaining || 0) - dt);
     for (let i = effects.length - 1; i >= 0; i--) {
         effects[i].life -= dt;
         if (effects[i].life <= 0)
@@ -320,11 +337,20 @@ function update(dt) {
             player.facing = Math.sign(dx);
     }
     if (mag > .1) {
+        if (action) message('Action cancelled. Stay still to finish interacting.');
+        action = null;
         repairing = null;
         calibration = null;
-            gateTime = 0;
+            }
+    if (action) {
+        action.elapsed += dt;
+        if (action.elapsed >= action.duration) {
+            const finished = action; action = null;
+            completeInteraction(finished);
+            if (state !== 'playing') { hud(); return; }
+        }
     }
-    if (repairing) {
+    if (repairing && !(repairing.lockRemaining > 0)) {
         repairing.progress = Math.min(40, repairing.progress + dt * 3.0);
         if (calibration) {
             calibration.elapsed += dt;
@@ -345,20 +371,13 @@ function update(dt) {
             effects.push({ kind: 'spark', x: repairing.x, y: repairing.y, life: .8, duration: .8 });
             repairing = null;
             calibration = null;
+            window.ManorAudio?.effect('complete');
             charges = Math.min(3, charges + 1);
             if (exitUnlocked()) {
                 calmTime = Math.max(calmTime, 6);
                 message('All ciphers complete! THE EXIT IS UNLOCKED. Follow the moon marker to the gate.');
                 effects.push({kind:'spark',x:gate.x,y:gate.y,life:2,duration:2});
             } else message('Cipher complete! Psychic charge restored. Find the next cipher.');
-        }
-    }
-    if (gateTime > 0) {
-        gateTime -= dt;
-        if (gateTime <= 0) {
-            finish(true);
-            hud();
-            return;
         }
     }
     // Hedges really hide you. Decoding never reveals the player's position.
@@ -406,6 +425,8 @@ function update(dt) {
             }
         }
         if (distance(player, hunter) < 27 && invincible === 0) {
+            window.ManorAudio?.effect('hit');
+            action = null; repairing = null; calibration = null;
             hp--;
             invincible = 7;
             stunned = 2.5;
@@ -436,14 +457,17 @@ function hud() {
     $('threat').classList.toggle('danger', chase && stunned === 0);
     $('clock').textContent = Math.floor(elapsed / 60) + ':' + String(Math.floor(elapsed % 60)).padStart(2, '0');
     $('stamina').value = stamina;
-    $('repair').value = repairing ? repairing.progress : 0;
-    $('repair-note').hidden = !repairing;
-    $('repair-label').textContent = calibration ? 'CALIBRATION ' + (calibration.phase === 'warning' ? 'INCOMING' : 'ACTIVE') : 'DECODING · ' + Math.floor((repairing?.progress || 0) / 40 * 100) + '%';
+    const jammed = repairing?.lockRemaining > 0;
+    $('repair').max = action ? action.duration : jammed ? 3 : 40;
+    $('repair').value = action ? action.elapsed : jammed ? 3 - repairing.lockRemaining : repairing?.progress || 0;
+    $('repair-note').hidden = !repairing && !action;
+    $('repair-note').classList.toggle('jammed', Boolean(jammed));
+    $('repair-label').textContent = action ? action.label.toUpperCase() + ' · ' + Math.floor(action.elapsed / action.duration * 100) + '%' : jammed ? 'CIPHER LOCKED · ' + repairing.lockRemaining.toFixed(1) + 's' : calibration ? 'CALIBRATION ' + (calibration.phase === 'warning' ? 'INCOMING' : 'ACTIVE') : 'DECODING · ' + Math.floor((repairing?.progress || 0) / 40 * 100) + '%';
     $('power').textContent = '✦ Psychic stun · ' + charges;
     $('power').disabled = charges === 0;
     const c = context(), active = calibration?.phase === 'active';
-    $('interact').textContent = repairing ? (active ? 'Calibrate · E' : 'Decoding…') : gateTime > 0 ? 'Opening…' : c ? c.label : 'Find an objective';
-    $('interact').disabled = repairing ? !active : !c || gateTime > 0;
+    $('interact').textContent = action ? 'Working…' : jammed ? 'Cipher locked…' : repairing ? (active ? 'Calibrate · E' : 'Decoding…') : c ? c.label : 'Find an objective';
+    $('interact').disabled = action || jammed ? true : repairing ? !active : !c;
     $('interact').classList.toggle('calibrate', active);
 }
 function draw() {
@@ -453,6 +477,7 @@ function frame(now) {
     const dt = Math.min(.04, (now - last) / 1000 || 0);
     last = now;
     update(dt);
+    window.ManorAudio?.update(dt, {playing: state === 'playing', chase: chase && stunned === 0, moving: player.moving, decoding: Boolean(repairing && !(repairing.lockRemaining > 0))});
     draw();
     requestAnimationFrame(frame);
 }
@@ -545,6 +570,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden)
     pause(); });
 overlay.addEventListener('cancel', e => e.preventDefault());
 $('start').addEventListener('click', () => {
+    window.ManorAudio?.unlock();
     if (['locked', 'won', 'lost'].includes(state)) {
         location.href = 'carnival.html';
         return;
@@ -562,7 +588,7 @@ $('help').addEventListener('click', () => {
     if (state !== 'playing')
         return;
     pause();
-    modal('A few garden tips', 'Move with the thumb stick or WASD. E starts repairs and hits calibration checks. The ring only appears occasionally — wait for it, then tap in the gold arc. Space stuns Ann when she is close. Hold Sprint or Shift to run. Break line of sight behind hedges.', 'Resume adventure');
+    modal('A few garden tips', 'Move with the thumb stick or WASD. E starts repairs and hits calibration checks. The ring only appears occasionally — wait for it, then tap in the gold arc. Press Space or tap Psychic stun when Ann is within about four garden tiles. It freezes her for five seconds and uses one of three charges. Completing a cipher restores one charge, up to three. A failed calibration locks that cipher for three seconds. Stay still to collect treasure, pick up the peanut, drop a pallet, or open the gate; moving or taking a hit cancels the action. Hold Sprint or Shift to run. Break line of sight behind hedges.', 'Resume adventure');
 });
 $('interact').addEventListener('click', interact);
 $('power').addEventListener('click', power);
