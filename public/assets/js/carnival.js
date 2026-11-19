@@ -126,7 +126,7 @@ function cards() {
     } deck = Array.from({ length: 52 }, (_, i) => ({ rank: i % 13 + 1, suit: ['♠', '♥', '♣', '♦'][Math.floor(i / 13)] })); for (let i = 51; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
-    } hand = [deck.pop(), deck.pop()]; dealer = [deck.pop(), deck.pop()]; active = true; result.textContent = ''; paint(); if (handTotal(hand) === 21 || handTotal(dealer) === 21)
+    } hand = [deck.pop(), deck.pop()]; dealer = [deck.pop(), deck.pop()]; active = true; store.change(s => { s.stats.cardRounds = (s.stats.cardRounds || 0) + 1; }); result.textContent = ''; paint(); if (handTotal(hand) === 21 || handTotal(dealer) === 21)
         dealerTurn(); }, row);
     const hit = button(t('games.cards.hit'), () => { if (!active)
         return; hand.push(deck.pop()); if (handTotal(hand) > 21)

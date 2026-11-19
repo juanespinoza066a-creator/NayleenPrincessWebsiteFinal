@@ -22,7 +22,7 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
     }
     oval(0, -13, 14, 19, '#c8bad8');
     path([[-12, -22], [-18, -16], [-13, -14], [-18, -6], [-11, -7], [-14, 0], [-6, -2], [0, 4], [8, -2], [14, 0], [12, -8], [18, -6], [14, -15], [17, -17], [11, -23]], '#c8bad8');
-    const colors = { kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
+    const colors = { rogue: ['#36875b', '#f3d063'], furina: ['#46598d', '#d9e4ff'], kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
     if (outfit !== 'royal' && colors[outfit]) {
         const [base, trim] = colors[outfit];
         if (outfit === 'cozy') {
@@ -123,6 +123,15 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
         c.ellipse(0, -77, 20, 6, 0, 0, Math.PI * 2);
         c.stroke();
     }
+    if (outfit === 'rogue') {
+        line([[-22,-55],[0,-58],[22,-55]], '#328250', 5);
+        path([[-5,-61],[-10,-52],[0,-56],[3,-48],[8,-61]], '#fcf2e4');
+    }
+    if (outfit === 'furina') {
+        path([[3,-64],[0,-79],[19,-80],[23,-64]], '#364774', '#e4d4ab');
+        line([[-2,-64],[27,-64]], '#92bfe7', 3);
+        oval(15,-69,2,3,'#84c8f0');
+    }
     if (outfit === 'kda') {
         path([[-22,-58],[-19,-68],[10,-70],[19,-62],[28,-58],[2,-57]], '#302a48', '#c8a868');
         c.save();c.translate(0,-62);c.scale(.55,.55);c.fillStyle='#e4c17c';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('K/DA',0,0);c.restore();
@@ -139,6 +148,11 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
     c.restore();
     if (outfit === 'akali' || outfit === 'kda')
         path([[-13, -27], [13, -27], [9, -19], [-6, -21], [-16, -15], [-12, -23]], outfit === 'kda' ? '#38314e' : '#64a99e');
+    if (outfit === 'rogue') {
+        path([[-14,-25],[-5,-24],[-7,-8],[-15,-8]], '#97623f');
+        path([[14,-25],[5,-24],[7,-8],[15,-8]], '#97623f');
+        oval(-13,-16,4,5,'#e8c958'); oval(13,-16,4,5,'#e8c958');
+    }
     if (outfit === 'royal' || outfit === 'ribbon') {
         path([[-1, -24], [-11, -28], [-10, -18], [-1, -21], [0, -14], [3, -21], [11, -18], [11, -28], [2, -24]], outfit === 'ribbon' ? '#b67aca' : '#b18ac9');
         oval(1, -23, 3, 3, '#dfb8ee');
