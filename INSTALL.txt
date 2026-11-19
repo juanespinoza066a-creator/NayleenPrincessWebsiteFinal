@@ -1,11 +1,1 @@
-ROGUE & FURINA UPDATE
-
-Extract this ZIP. On your testing GitHub branch, upload BOTH public and server folders at the repository root. Keep all paths. Commit together. Preview with code 123, then merge into main when ready. No SQL/environment changes.
-
-Outfits: Royal unchanged; Sunday best bank 200 unchanged; Peanut PJs 500 lifetime crunches; Espeon first weekly box unchanged; normal Akali one maze escape unchanged; K/DA Akali five maze escapes; Furina deal one card-table hand; Rogue five opened weekly boxes.
-
-Two weekly collectibles added: Furina plushie, Pocket Rogue Espurr. Rogue plush generation was rejected, so its collectible uses a miniature of the successful Rogue Espurr costume artwork. IDs remain stable, prizes now total 20, outfits total eight. New gifts use the same once-weekly box/maze pools.
-
-Existing progress is retained. Raised Peanut/KDA thresholds apply immediately, so those outfits may relock until their new requirement is met. Existing recorded card wins count toward Furina; older saves have no separate record of losing hands, so deal one new hand if needed.
-
-The included site-text.json retains the personalized wording from your last uploaded ZIP while updating outfit hints and adding new names. If you edited that JSON in GitHub AFTER sending that ZIP, merge just outfits.cozy.hint, outfits.kda.hint, outfits.furina, outfits.rogue, collection.names.rogue, collection.names.furina and peanut.cozyGoal rather than replacing your newer text file. Weekly notes and login text are not in this patch.
+Extract this ZIP. From the root of your existing GitHub repository, upload BOTH public and server folders, keeping the paths. Commit the three files together. The website now has 18 collectibles; old saves still load. No SQL or environment changes required. Old stitch.jpg / stitch.svg images may be deleted from public/assets/images/collectibles, or left unused.

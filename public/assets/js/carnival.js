@@ -27,6 +27,10 @@ function render(s, event = {}) {
     $('blind-action').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'games.blind.action');
     $('cards-open').disabled = !store.ready;
     $('test-reset').disabled = $('test-unlock').disabled = !store.ready;
+    const mazeActive = s.manorRun?.status === 'active';
+    const mazeUnavailable = !mazeActive && s.mazeWeeks.includes(week);
+    $('manor-open').disabled = !store.ready || mazeUnavailable;
+    $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Wednesday.' : '';
     $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : s.mazeWeeks.includes(week) ? 'This week’s run is complete ♡' : t('games.manor.action');
     const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready]);
     if (signature !== roomSignature) {
@@ -182,3 +186,5 @@ store.subscribe(render);
 await store.load();
 readNotes().then(data => { const latest = data.notes.filter(n => n.published).sort((a, b) => a.week - b.week).at(-1); if (latest)
     $('latest-note').textContent = `${latest.emoji} Week ${latest.week} · ${latest.title} — ${latest.message.slice(0, 160)}`; }).catch(() => { });
+
+$('manor-open').onclick = () => { if (!$('manor-open').disabled) location.href = 'escape.html'; };
