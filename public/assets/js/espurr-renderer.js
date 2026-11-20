@@ -22,7 +22,7 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
     }
     oval(0, -13, 14, 19, '#c8bad8');
     path([[-12, -22], [-18, -16], [-13, -14], [-18, -6], [-11, -7], [-14, 0], [-6, -2], [0, 4], [8, -2], [14, 0], [12, -8], [18, -6], [14, -15], [17, -17], [11, -23]], '#c8bad8');
-    const colors = { ada: ['#ded1b9', '#796044'], rogue: ['#36875b', '#f3d063'], furina: ['#46598d', '#d9e4ff'], kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
+    const colors = { jubilee:['#e9c44f','#dd70ab'],'jubilee-midnight':['#343142','#b3a8ca'],rafayel:['#e8e4e9','#83b9d6'],'pokemon-pack':['#90afd7','#e8ca77'],firestarter:['#ae3949','#e5b5cd'],reze:['#e6e6ed','#6b4b7e'],cissia:['#34344b','#d95174'],ada: ['#9ca4b7', '#525569'], rogue: ['#36875b', '#f3d063'], furina: ['#46598d', '#d9e4ff'], kda: ['#55417b', '#d8b36b'], sunday: ['#8d9dc1', '#e9d6a2'], espeon: ['#b89bd0', '#ddc7ed'], akali: ['#6a526e', '#8bc7b7'], ribbon: ['#d6a0de', '#f6d2ee'], cozy: ['#d2ad7e', '#f0d6b0'], hearts: ['#794467', '#efbdcd'], garden: ['#d8accd', '#a28b9c'], moon: ['#6e5a96', '#d1b6ec'], starlight: ['#bb9bdf', '#eed9b1'] };
     if (outfit !== 'royal' && colors[outfit]) {
         const [base, trim] = colors[outfit];
         if (outfit === 'cozy') {
@@ -136,6 +136,12 @@ function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
         path([[-22,-58],[-19,-68],[10,-70],[19,-62],[28,-58],[2,-57]], '#302a48', '#c8a868');
         c.save();c.translate(0,-62);c.scale(.55,.55);c.fillStyle='#e4c17c';c.font='bold 11px sans-serif';c.textAlign='center';c.fillText('K/DA',0,0);c.restore();
     }
+    if(outfit==='jubilee'){oval(-9,-60,8,4,'#dc70af');oval(8,-60,8,4,'#d06cab');line([[-15,-59],[15,-59]],'#f4cfe6',1);}
+    if(outfit==='jubilee-midnight')line([[-15,-23],[0,-19],[15,-23]],'#dad6ed',3);
+    if(outfit==='firestarter'){path([[-19,-61],[-17,-70],[16,-70],[20,-61]],'#423743');line([[-18,-61],[20,-61]],'#e873b2',3);}
+    if(outfit==='pokemon-pack'){path([[-13,-23],[13,-23],[13,2],[-13,2]],'#94aedb','#ead181');oval(0,-11,7,7,'#e1c5ed');line([[-10,-20],[10,-20]],'#ecdaa9',2);}
+    if(outfit==='reze'){path([[-6,-24],[6,-24],[1,-14],[-1,-14]],'#514066');}
+    if(outfit==='cissia')oval(0,-21,3,4,'#d09f64');
     // Gold crown and lavender ribbon match her portrait.
     c.save();
     c.translate(0, -65 + Math.sin(time * 2) * .5);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#191126">
-<title>Princess Espurr · The Moonlit Manor</title>
+<title>Princess Espurr · IDV Hunt</title>
 <link rel="stylesheet" href="assets/css/manor.css">
 <script src="settings.js"></script>
 <script src="assets/js/espurr-renderer.js" defer></script>
@@ -15,14 +15,14 @@
 <body>
 <main>
 <header><a href="./">← Nayleen’s carnival</a><div class="top-actions"><button id="peanut-bag" disabled aria-label="Find the crunchy peanut in the western garden">🥜 Find peanut</button><button id="maze-music" aria-pressed="true">♫ Music on</button><button id="maze-sfx" aria-pressed="true">♪ Effects on</button><button id="help" aria-label="How to play">?</button><button id="pause">Ⅱ Pause</button></div></header>
-<section class="heading"><div><p>AN ADVENTURE FOR MY PRINCESS</p><h1>The Moonlit Manor</h1></div><div class="clock"><span>ESCAPE TIME</span><strong id="clock">0:00</strong></div></section>
+<section class="heading"><div><p>AN ADVENTURE FOR MY PRINCESS</p><h1>IDV Hunt</h1></div><div class="clock"><span>ESCAPE TIME</span><strong id="clock">0:00</strong></div></section>
 <div class="game-shell">
   <div class="mission-bar">
     <div class="player-card"><img src="assets/images/espurr-princess.webp" alt=""><div><strong>Princess Espurr</strong><span id="health" aria-label="Health">♥ ♥ ♥</span></div></div>
     <div class="objective-chips"><span id="machine-count">⚙ 0 / 3</span><span id="exit-status">☾ Exit locked</span><span id="loot-count">✧ 0 / 1</span><span id="threat" role="status">Garden is quiet</span></div>
   </div>
   <div class="viewport">
-    <canvas id="world" tabindex="0" aria-label="Animated manor garden. WASD or arrows move, E interacts, Space stuns Ann, Shift sprints."></canvas>
+    <canvas id="world" tabindex="0" aria-label="Animated manor garden. WASD or arrows move, E interacts, Space uses your outfit power, Shift sprints."></canvas>
     <div class="location-tag"><span class="location-light"></span>THE LAVENDER GARDENS</div>
     <div class="legend">⚙ Machines <span>✧</span> Treasure <span>☾</span> Exit</div>
     <div id="repair-note" class="repair-note" hidden><span id="repair-label">DECODING</span><progress id="repair" max="40" value="0"></progress></div>
@@ -33,7 +33,7 @@
     <div class="buttons"><button id="interact" class="interact">Interact · E</button><button id="power"><span aria-hidden="true">✦</span> Psychic stun · 3</button><button id="sprint">Hold to sprint</button></div>
   </div>
 </div>
-<p class="keys">WASD / arrows to move · E to interact · Space to stun · Shift to sprint</p>
+<p class="keys">WASD / arrows to move · E to interact · Space for outfit power · Shift to sprint</p>
 <p id="objectives" class="sr-only">0 / 3 ciphers · Exit locked</p>
 </main>
 <dialog id="overlay" aria-labelledby="overlay-title">

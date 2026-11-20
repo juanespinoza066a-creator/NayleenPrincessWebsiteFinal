@@ -152,6 +152,19 @@ function drawManor(v) {
         text(0, 25, 'CIPHER ' + (i + 1), 8, '#c3afce');
         c.restore();
     }
+    function hunterActor(p){
+      const kind=v.huntConfig?.hunter||'ann';if(kind==='ann'){annActor(p);return;}
+      c.save();c.translate(p.x,p.y);shadow(0,10,17);const swing=Math.sin((p.walk||0))*5;
+      const coat=kind==='antonio'?'#502c46':kind==='joseph'?'#d4deeb':'#5a9fa4';
+      line([[-7,5],[-9,19+swing]],'#303245',5);line([[7,5],[9,19-swing]],'#303245',5);
+      c.fillStyle=coat;c.beginPath();c.moveTo(-10,-25);c.lineTo(10,-25);c.lineTo(17,12);c.lineTo(-17,12);c.closePath();c.fill();
+      oval(0,-31,10,12,kind==='grace'?'#cce7df':'#ead9d9');oval(0,-41,13,6,kind==='antonio'?'#292030':kind==='joseph'?'#f1edf0':'#2c5660');
+      oval(-4,-31,1.3,1.5,'#39314d');oval(4,-31,1.3,1.5,'#39314d');
+      if(kind==='antonio'){for(let i=0;i<3;i++)line([[-11+i*4,-40],[-18+i*2,8]],'#292030',3);oval(13,-12,5,10,'#a57560');line([[7,-22],[23,0]],'#e0c3a5',2);text(22,-35,'♫',17,'#e8c3d6');}
+      if(kind==='joseph'){box(8,-19,16,11,2,'#637387','#c9d5e6');oval(16,-14,4,4,'#3e4e68');line([[-10,-20],[-19,5]],'#dee6ef',5);text(0,-54,'✧',17,'#cfe2fa');}
+      if(kind==='grace'){line([[15,-38],[22,19]],'#b6d7cd',3);line([[15,-38],[8,-26]],'#b6d7cd',2);line([[15,-38],[21,-26]],'#b6d7cd',2);oval(0,-4,12,4,'#78b5bb');text(-18,-40,'◌',18,'#a3d4d3');}
+      if(stunned>0)text(0,-57,'✦',19,'#ead0ff');c.restore();
+    }
     c.save();
     c.translate(-cameraX, -cameraY);
     c.fillStyle = '#2a2538';
@@ -160,7 +173,7 @@ function drawManor(v) {
         for (let x = 0; x < COLS; x++) {
             const hash = (x * 17 + y * 31) % 11;
             if (!walls.has(x + ',' + y)) {
-                c.fillStyle = ['#353040', '#383242', '#3a3444'][hash % 3];
+                c.fillStyle = v.huntConfig?.hunter==='grace'?['#294d57','#305660','#365c63'][hash%3]:v.huntConfig?.hunter==='joseph'?['#394353','#3c485a','#404d60'][hash%3]:v.huntConfig?.hunter==='antonio'?['#49313e','#4e3445','#54374a'][hash%3]:['#353040','#383242','#3a3444'][hash%3];
                 c.fillRect(x * T + 1, y * T + 1, T - 2, T - 2);
                 line([[x * T + 3, y * T + T - 3], [x * T + T - 4, y * T + T - 3]], '#494052', .6);
                 if (hash < 3) {
@@ -273,8 +286,9 @@ function drawManor(v) {
         text(0, 25, 'TREASURE', 7, '#e0c8ee');
         c.restore();
     }
+    for(const h of v.hazards||[]){c.save();c.globalAlpha=h.t<2?.3:.6;c.strokeStyle=h.kind==='grace'?'#a2e1e9':h.kind==='antonio'?'#efa1bb':'#e4c9fa';c.fillStyle=h.kind==='grace'?'#60bbce55':'#dd9dcd33';c.lineWidth=3;c.beginPath();if(h.kind==='joseph')c.rect(h.x-h.r,h.y-h.r,h.r*2,h.r*2);else c.arc(h.x,h.y,h.r,0,Math.PI*2);c.fill();c.stroke();if(h.kind==='antonio')line([[h.x-h.r,h.y],[h.x+h.r,h.y]],'#edb8d2',3);text(h.x,h.y-10,h.kind==='ann'?'♣':h.kind==='antonio'?'♫':h.kind==='joseph'?'✧':'≈',24,'#e8d9ff');c.restore();}
     // Sort the actors by their feet so passing them has depth.
-    const actors = [{ y: player.y, draw: () => { c.globalAlpha = invincible > 0 && Math.floor(t * 8) % 2 === 0 ? .5 : 1; espurrActor(player); c.globalAlpha = 1; } }, { y: hunter.y, draw: () => annActor(hunter) }];
+    const actors = [{ y: player.y, draw: () => { c.globalAlpha = invincible > 0 && Math.floor(t * 8) % 2 === 0 ? .5 : 1; espurrActor(player); c.globalAlpha = 1; } }, { y: hunter.y, draw: () => hunterActor(hunter) }];
     actors.sort((a, b) => a.y - b.y).forEach(a => a.draw());
     for (const effect of effects) {
         const f = 1 - effect.life / effect.duration;

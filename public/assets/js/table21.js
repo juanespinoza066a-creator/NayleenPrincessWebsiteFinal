@@ -7,7 +7,7 @@ function sound(kind, enabled) {
  notes.forEach((hz,i)=>{const o=audio.createOscillator(),g=audio.createGain(),at=audio.currentTime+i*.075;o.type=kind==='deal'?'triangle':'sine';o.frequency.setValueAtTime(hz,at);g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(.07,at+.01);g.gain.exponentialRampToValueAtTime(.0001,at+.16);o.connect(g);g.connect(audio.destination);o.start(at);o.stop(at+.18);o.onended=()=>{o.disconnect();g.disconnect()};});}catch{}
 }
 export function openTable(store,{open,body,result,t}){
- open(t('games.cards.title'));body.classList.add('royal-table-body');
+ open(t('games.cards.title'));body.querySelector('.game-host')?.remove();body.classList.add('royal-table-body');
  const node=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text!==undefined)e.textContent=text;return e};
  const rules=node('p','rules',t('games.cards.rules'));body.append(rules);
  const tools=node('div','table-toolbar'),bank=node('strong','table-bank'),mute=node('button','text-button');

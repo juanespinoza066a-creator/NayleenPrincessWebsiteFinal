@@ -4,6 +4,7 @@ import {playSquish} from './squishy-audio.js';
 import {CarnivalStore} from './save-manager.js';
 const $=id=>document.getElementById(id),store=new CarnivalStore(),format=n=>Math.floor(n).toLocaleString();
 await loadContent();
+let espurrLines=null;
 let sound=true,haptics=false,combo=0,lastTap=0,goldenTimer,toastTimer,lastShelf='',baseline=null;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,vibrationSupported=typeof navigator.vibrate==='function';
 try{sound=localStorage.getItem('nayleen-peanut-sound')!=='off';haptics=localStorage.getItem('nayleen-peanut-haptics')==='on'}catch{}
@@ -32,7 +33,7 @@ store.subscribe((s,event)=>{
  $('cozy-progress').value=Math.min(500,s.clicker.lifetime);$('star-progress').value=Math.min(1000000,s.clicker.lifetime);$('cozy-goal').textContent=t(s.clicker.lifetime>=500?'peanut.cozyDone':'peanut.cozyGoal');$('star-goal').textContent=s.clicker.lifetime>=1000000?'Ada Mesmer cosplay unlocked ♡':format(s.clicker.lifetime)+' / 1,000,000 squishes · Ada Mesmer cosplay';
  document.querySelector('.crunch-workshop').classList.toggle('factory-running',passiveRate(s)>0);$('factory-activity').textContent=passiveRate(s)>0?'Your tiny workshop is making softness, even between taps.':'Wake up the workshop with a little squish.';
  if(event.offlineEarnings>=1){$('offline-earnings').hidden=false;$('offline-earnings').textContent='Your helpers made '+format(event.offlineEarnings)+' squishes while you were away!'}
- $('espurr-encouragement').textContent=t(s.clicker.lifetime>=1000?'peanut.proud':passiveRate(s)>0?'peanut.working':'peanut.encouragement');shelf(s);
+ const speechKey=s.clicker.lifetime>=1000?'proud':passiveRate(s)>0?'working':'encouragement';$('espurr-encouragement').textContent=espurrLines?.squishy?.[speechKey]||t('peanut.'+speechKey);shelf(s);
  if(store.ready){if(baseline===null)baseline=s.clicker.lifetime;else{const crossed=[100,500,1000,10000,250000,1000000,1500000,6000000,15000000,50000000,125000000].filter(n=>baseline<n&&s.clicker.lifetime>=n);if(crossed.length){toast(format(crossed.at(-1))+' lifetime squishes! A little celebration for my princess ♡');particles(true);playSquish(skin().sound,sound,true);vibrate([12,30,12]);}baseline=s.clicker.lifetime;}}
  if(event.unlocked?.length)toast('New outfit! '+event.unlocked.map(id=>OUTFITS.find(o=>o.id===id).name).join(' · ')+' ♡');
 });
@@ -47,4 +48,4 @@ $('crunch-button').onclick=()=>{
 };
 $('golden-peanut').onclick=()=>{if(!store.ready||$('golden-peanut').hidden)return;$('golden-peanut').hidden=true;clearTimeout(goldenTimer);const amount=Math.max(25,tapPower(store.state)*5);store.change(s=>addCrunches(s,amount));$('combo-copy').textContent='Golden peanut! +'+format(amount)+' bonus squishes ♡';particles(true);playSquish('chime',sound);vibrate([15,30,15])};
 setInterval(()=>{if(combo&&performance.now()-lastTap>800){combo=0;$('combo-heat').value=0}},500);
-void store.load();
+void store.load().then(async()=>{try{const r=await fetch('api/updates',{cache:'no-store'});if(r.ok){espurrLines=(await r.json()).espurrLines;store.emit();}}catch{}});
