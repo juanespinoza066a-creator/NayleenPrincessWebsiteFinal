@@ -1,9 +1,24 @@
 {
   "version": 1,
   "tracks": [
-    {"id":"espurr-welcome","title":"Espurr’s little welcome mix","artist":"DJ Espurr","file":"tracks/espurr-welcome.wav"}
+    {
+      "id": "espurr-welcome",
+      "title": "Espurr’s little welcome mix",
+      "artist": "DJ Espurr",
+      "file": "tracks/espurr-welcome.wav"
+    },
+    {
+      "id": "a-pearl",
+      "title": "A Pearl",
+      "artist": "Mitski",
+      "file": "tracks/a-pearl.mp3"
+    }
   ],
   "playlists": [
-    {"id":"palace-mix","name":"Palace mix","trackIds":["espurr-welcome"]}
+    {
+      "id": "palace-mix",
+      "name": "Palace mix",
+      "trackIds": ["espurr-welcome", "a-pearl"]
+    }
   ]
 }
