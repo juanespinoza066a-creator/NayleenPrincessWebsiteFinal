@@ -32,11 +32,12 @@
     },
     {
       "id": "rgv-comicon",
-      "title": "RGV Comicon",
+      "title": "RGV ComicCon",
       "month": 4,
       "day": 23,
       "endDay": 25,
-      "notify": true
+      "notify": true,
+      "year": 2027
     }
   ]
 }

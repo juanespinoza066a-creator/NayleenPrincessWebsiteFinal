@@ -23,7 +23,7 @@ export function openTable(store,{open,body,result,t}){
  princess.append(portrait,playerTitle,yourRow,yourScore);table.append(deck,mark,dealerTitle,dealerRow,dealerScore,princess);
  const controls=node('div','table-toolbar'),select=node('select','table-wager');select.setAttribute('aria-label',t('games.cards.bet'));
  [5,10,20,50].forEach(n=>{const o=node('option','',n+' pretend chips');o.value=n;select.append(o)});controls.append(node('label','', 'Your wager '),select);body.append(controls);
- const actions=node('div','game-actions royal-actions');body.append(actions);
+ const actions=node('div','game-actions royal-actions');body.insertBefore(actions,table);
  const btn=(label,fn)=>{const b=node('button','button',label);b.onclick=fn;actions.append(b);return b};
  let deckCards=[],hand=[],dealer=[],active=false,busy=false,wager=0,revealed=false,hands=0,streak=0;
  const badge=node('p','table-session','Your royal seat is ready.');tools.after(badge);

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "tracks": [
+    {"id":"espurr-welcome","title":"Espurr’s little welcome mix","artist":"DJ Espurr","file":"tracks/espurr-welcome.wav"}
+  ],
+  "playlists": [
+    {"id":"palace-mix","name":"Palace mix","trackIds":["espurr-welcome"]}
+  ]
+}
