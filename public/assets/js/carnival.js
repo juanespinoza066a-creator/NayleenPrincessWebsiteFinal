@@ -1,10 +1,18 @@
-import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState } from './game-rules.js';
+import {openDrop} from './princess-drop.js';
+import {openRoulette} from './roulette.js';
+import {HUNTERS,weeklyHunt} from './hunt-config.js';
+import { openTable } from './table21.js';
+import { makeStudio, resetEstimate } from './room-studio.js';
+import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus, outfitProgress, journeyCounts, mondayKey, rouletteStatus, keepWeeklyUses } from './game-rules.js';
 import { CarnivalStore, STATIC, downloadJSON } from './save-manager.js';
 import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
 const $ = id => document.getElementById(id), store = new CarnivalStore(), prize = id => PRIZES.find(p => p.id === id);
 const dialog = $('game-dialog'), body = $('game-body'), result = $('game-result');
 let roomSignature = '', toastTimer;
+const renderStudio = makeStudio(store);
+const resetNote = document.createElement('p'); resetNote.className='section-copy'; resetNote.id='weekly-reset-estimate'; $('weekly-box').parentElement.append(resetNote);
+const mazeReset = document.createElement('small'); mazeReset.id='maze-reset-estimate'; $('manor-open').append(mazeReset);
 function el(tag, text, className) { const n = document.createElement(tag); if (text !== undefined)
     n.textContent = text; if (className)
     n.className = className; return n; }
@@ -12,39 +20,46 @@ function image(item, className = 'collectible-image') { const img = el('img', un
 function button(text, fn, parent = body) { const b = el('button', text, 'button'); b.onclick = fn; parent.append(b); return b; }
 function p(text) { const n = el('p', text, 'rules'); body.append(n); return n; }
 function actions() { const n = el('div', undefined, 'game-actions'); body.append(n); return n; }
-function open(title) { $('game-title').textContent = title; body.replaceChildren(); result.textContent = ''; if (!dialog.open)
-    dialog.showModal(); }
+function open(title) { $('game-title').textContent = title; body.classList.remove('wishing-cabinet','royal-table-body','drop-playing');body.replaceChildren(); result.textContent = ''; if (!dialog.open)
+    dialog.showModal(); const friend=el('img',undefined,'game-host');friend.src=OUTFITS.find(o=>o.id===store.state.outfit)?.image||OUTFITS[0].image;friend.alt='Your little Espurr host';body.append(friend); }
 function close() { dialog.close(); }
 $('game-close').onclick = close;
 function render(s, event = {}) {
     $('save-status').textContent = event.status || store.status;
     $('sync-retry').hidden = window.CARNIVAL_CONFIG?.saveTools !== true || STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
+    renderStudio(s);
+    const estimate = weekNumber() >= 52 ? 'The final week of this year’s carnival ♡' : resetEstimate();
+    resetNote.textContent = estimate; mazeReset.textContent = estimate;
     const week = weekNumber(), pending = s.weeklyBox && !s.weeklyBox.revealed, claimed = s.weeklyClaims.includes(week);
     $('weekly-label').textContent = t('weekly.eyebrow', { week: String(pending ? s.weeklyBox.week : week).padStart(2, '0') });
     $('weekly-copy').textContent = t(pending ? 'weekly.resumeCopy' : claimed ? 'weekly.doneCopy' : 'weekly.intro');
-    $('weekly-box').disabled = $('blind-open').disabled = !store.ready || claimed && !pending;
+    $('weekly-box').disabled = !store.ready || claimed && !pending;
     $('weekly-box').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'weekly.open');
-    $('blind-action').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'games.blind.action');
+    $('weekly-label').textContent='WEEKLY BLIND BOX';
+    const dropRun=s.dropRuns?.[mondayKey()];$('drop-open').disabled=!store.ready||!!dropRun&&dropRun.status!=='active';$('drop-action').textContent=dropRun?.status==='active'?'Resume your basket →':dropRun?'A fresh basket opens Monday ♡':'Drop a little treasure →';
+    const host=HUNTERS.find(h=>h.id===(s.manorRun?.status==='active'?s.manorRun.hunt?.hunter:weeklyHunt(week).hunter))||HUNTERS[0];$('hunt-name').textContent=host.name+' is looking for you';const portrait=$('manor-open').querySelector('img');portrait.src='assets/images/hunters/'+host.id+'.png';portrait.alt=host.name;
     $('cards-open').disabled = !store.ready;
-    $('test-reset').disabled = $('test-unlock').disabled = !store.ready;
+    const canTest = store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true);
+    $('test-tools').hidden = !canTest;
+    $('test-reset').disabled = $('test-unlock').disabled = !store.ready || !canTest;
     const mazeActive = s.manorRun?.status === 'active';
     const mazeUnavailable = !mazeActive && s.mazeWeeks.includes(week);
-    $('manor-open').disabled = !store.ready || mazeUnavailable;
-    $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Wednesday.' : '';
+    $('manor-open').disabled = !store.ready || mazeUnavailable&&store.profile!=='testing';
+    $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Monday.' : '';
     $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : s.mazeWeeks.includes(week) ? 'This week’s run is complete ♡' : t('games.manor.action');
-    const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready]);
+    const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready,journeyCounts(s)]);
     if (signature !== roomSignature) {
         roomSignature = signature;
         const outfit = OUTFITS.find(o => o.id === s.outfit) || OUTFITS[0];
-        $('espurr-portrait').src = outfit.image || OUTFITS[0].image;
+        $('espurr-portrait').src = outfit.image || OUTFITS[0].image;document.querySelector('.weekly-espurr').src=outfit.image||OUTFITS[0].image;
         $('espurr-portrait').alt = `Princess Espurr · ${outfit.name}`;
         $('outfit-caption').textContent = outfit.name;
         $('outfit-count').textContent = t('wardrobe.count', { owned: unlocked.length, total: OUTFITS.length });
         $('prize-count').textContent = t('collection.count', { count: s.prizes.length });
         $('collection-total').textContent = `${s.prizes.length} / ${PRIZES.length}`;
-        $('stage-shelves').replaceChildren(...s.shelf.map((id, index) => { const b = el('button', id ? undefined : '+', 'stage-slot'); if (id)
+        $('stage-shelves').replaceChildren(...s.shelf.map((id, index) => { const b = el('button', id ? undefined : '+', 'stage-slot'); const plinth=el('span',undefined,'display-plinth');plinth.setAttribute('aria-hidden','true');b.append(plinth); if (id)
             b.append(image(prize(id))); b.setAttribute('aria-label', `Decorate shelf ${index + 1}${id ? `, ${prize(id).name}` : ''}`); b.disabled = !store.ready; b.onclick = () => decorate(index); return b; }));
-        $('outfits').replaceChildren(...OUTFITS.map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
+        $('outfits').replaceChildren(...OUTFITS.map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); if(!owned){const goals=outfitProgress(s,o.id);if(goals.length){const list=el('span',undefined,'outfit-goals');for(const goal of goals){const key='journey.labels.'+goal.metric,label=t(key)===key?goal.label:t(key),line=el('span',label+' · '+goal.value+' / '+goal.goal),meter=el('progress');meter.max=goal.goal;meter.value=goal.value;meter.setAttribute('aria-label',label);list.append(line,meter);}b.append(list);}} b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
         $('collection').replaceChildren(...PRIZES.map(item => { const card = el('div', undefined, `inventory-item${s.prizes.includes(item.id) ? '' : ' locked'}`); card.append(image(item), el('span', item.name)); if (!s.prizes.includes(item.id)) {
             const lock = el('small', 'Not found yet');
             card.append(lock);
@@ -58,14 +73,15 @@ function render(s, event = {}) {
     }
 }
 function decorate(index) { open(t('collection.choose')); p(t('collection.chooseIntro')); if (!store.state.prizes.length)
-    p(t('collection.empty')); const row = actions(); store.state.prizes.forEach(id => { const item = prize(id), b = button('', () => { store.change(s => { s.shelf[index] = id; }); close(); }, row); b.classList.add('soft', 'prize-choice'); b.append(image(item), el('small', item.name)); b.setAttribute('aria-label', `Place ${item.name}`); }); button(t('collection.clear'), () => { store.change(s => { s.shelf[index] = null; }); close(); }).classList.add('soft'); }
+    p(t('collection.empty')); const row = actions(); row.classList.add('collectible-picker'); store.state.prizes.forEach(id => { const item = prize(id), b = button('', () => { store.change(s => { s.shelf[index] = id; }); close(); }, row); b.classList.add('soft', 'prize-choice'); b.append(image(item), el('small', item.name)); b.setAttribute('aria-label', `Place ${item.name}`); }); button(t('collection.clear'), () => { store.change(s => { s.shelf[index] = null; }); close(); }).classList.add('soft'); }
 function blind() {
     let box;
     store.change(s => { box = startBox(s, weekNumber()); });
     if (!box)
         return;
-    open(t('games.blind.title'));
+    open('Weekly blind box');body.querySelector('.game-host')?.remove();
     p(t('games.blind.rules'));
+    const friend=el('img',undefined,'game-espurr');friend.src=OUTFITS.find(o=>o.id===store.state.outfit)?.image||OUTFITS[0].image;friend.alt='Espurr is excited for your surprise';body.append(friend);
     const cube = el('div', '?', 'blind-cube');
     body.append(cube);
     const clue = el('p', t('games.blind.initial'), 'blind-clue');
@@ -101,55 +117,33 @@ function blind() {
     }, row);
     unwrap.disabled = true;
 }
-$('blind-open').onclick = blind;
+$('drop-open').onclick=()=>openDrop(store,{open,body,result,button,p});
 $('weekly-box').onclick = blind;
-function cards() {
-    open(t('games.cards.title'));
-    p(t('games.cards.rules'));
-    const score = p('');
-    score.classList.add('table-bank');
-    const select = el('select');
-    select.setAttribute('aria-label', t('games.cards.bet'));
-    [5, 10, 20, 50].forEach(n => { const o = el('option', `${n} pretend chips`); o.value = n; select.append(o); });
-    body.append(select);
-    const table = el('div', undefined, 'card-table');
-    body.append(table);
-    const dealerTitle = el('h3', t('games.cards.dealer')), dealerRow = el('div', undefined, 'card-hand'), dealerScore = el('p', '', 'card-score'), yourTitle = el('h3', t('games.cards.player')), yourRow = el('div', undefined, 'card-hand'), yourScore = el('p', '', 'card-score');
-    table.append(dealerTitle, dealerRow, dealerScore, yourTitle, yourRow, yourScore);
-    const row = actions();
-    let deck = [], hand = [], dealer = [], active = false, wager = 0;
-    function paint() { const card = (c, hidden = false) => el('span', hidden ? '♛' : `${({ 1: 'A', 11: 'J', 12: 'Q', 13: 'K' })[c.rank] || c.rank}${c.suit}`, 'playing-card' + (hidden ? ' back' : ['♥', '♦'].includes(c.suit) ? ' red' : '')); dealerRow.replaceChildren(...dealer.map((c, i) => card(c, active && i > 0))); yourRow.replaceChildren(...hand.map(c => card(c))); dealerScore.textContent = dealer.length ? (active ? 'One card is still a secret' : `${handTotal(dealer)} points`) : ''; yourScore.textContent = hand.length ? `${handTotal(hand)} points · ${wager} on the table` : ''; score.textContent = t('games.cards.bank', { score: store.state.chips, best: store.state.stats.bestBank }); deal.disabled = active || store.state.chips < Number(select.value); select.disabled = active; hit.disabled = stand.disabled = !active; double.disabled = !active || hand.length !== 2 || store.state.chips < wager * 2; reset.disabled = active; }
-    function finish() { if (!active)
-        return; active = false; const yours = handTotal(hand), theirs = handTotal(dealer), win = yours <= 21 && (theirs > 21 || yours > theirs), tie = yours <= 21 && yours === theirs; store.change(s => { s.chips = Math.max(0, Math.min(1e6, s.chips + (win ? wager : tie ? 0 : -wager))); s.stats.bestBank = Math.max(s.stats.bestBank, s.chips); s.stats.rounds++; if (win)
-        s.stats.cardWins++; }); result.textContent = t(win ? 'games.cards.win' : tie ? 'games.cards.tie' : yours > 21 ? 'games.cards.bust' : 'games.cards.lose'); deal.textContent = t('games.cards.again'); paint(); }
-    function dealerTurn() { while (handTotal(dealer) < 17)
-        dealer.push(deck.pop()); finish(); }
-    const deal = button(t('games.cards.deal'), () => { wager = Number(select.value); if (store.state.chips < wager) {
-        result.textContent = t('games.cards.low');
-        return;
-    } deck = Array.from({ length: 52 }, (_, i) => ({ rank: i % 13 + 1, suit: ['♠', '♥', '♣', '♦'][Math.floor(i / 13)] })); for (let i = 51; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-    } hand = [deck.pop(), deck.pop()]; dealer = [deck.pop(), deck.pop()]; active = true; store.change(s => { s.stats.cardRounds = (s.stats.cardRounds || 0) + 1; }); result.textContent = ''; paint(); if (handTotal(hand) === 21 || handTotal(dealer) === 21)
-        dealerTurn(); }, row);
-    const hit = button(t('games.cards.hit'), () => { if (!active)
-        return; hand.push(deck.pop()); if (handTotal(hand) > 21)
-        finish();
-    else if (handTotal(hand) === 21)
-        dealerTurn();
-    else
-        paint(); }, row), stand = button(t('games.cards.stay'), () => { if (active)
-        dealerTurn(); }, row), double = button(t('games.cards.double'), () => { if (!active || hand.length !== 2 || store.state.chips < wager * 2)
-        return; wager *= 2; hand.push(deck.pop()); if (handTotal(hand) > 21)
-        finish();
-    else
-        dealerTurn(); }, row);
-    const reset = button(t('games.cards.reset'), () => { if (active)
-        return; store.change(s => { s.chips = 100; }); hand = []; dealer = []; wager = 0; deal.textContent = t('games.cards.deal'); result.textContent = 'A fresh little start. Your best score and outfits are safe. ♡'; paint(); });
-    reset.classList.add('soft');
-    p(t('games.cards.resetHint'));
-    select.onchange = paint;
-    paint();
+function cards(){
+ open(t('games.cards.title'));p('A little luck, a little sparkle. Choose your table.');
+ const seats=document.createElement('div');seats.className='casino-seats';body.append(seats);button('♠ 21 · Princess blackjack',()=>openTable(store,{open,body,result,t}),seats);
+ const trade=button('✦ The wishing cabinet · Weekly 3-for-1',()=>{
+  open('The wishing cabinet');body.classList.add('wishing-cabinet');const cabinet=el('div',undefined,'wish-altar');cabinet.innerHTML='<span aria-hidden="true">✧ ♛ ✧</span><strong>Sacrifice three collectibles, get one muahahah</strong><small>Choose your offerings below</small>';body.append(cabinet);p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
+  const selected=new Set(),grid=el('div',undefined,'trade-grid');body.append(grid);const review=el('div',undefined,'exchange-review');review.hidden=true;review.setAttribute('role','alertdialog');review.append(el('p','These three collectibles will leave your room for one random collectible. Duplicates are possible.'));body.insertBefore(review,grid);button('Keep my treasures',()=>{review.hidden=true;delete go.dataset.review;},review);button('Make my wish ♡',()=>go.click(),review);
+  const available=cabinetStatus(store.state);
+  if(available.needed){const empty=el('div',undefined,'wish-empty');empty.append(el('span','✧ ♡ ✧'),el('strong',available.owned+' / 3 collectibles ready'),el('p','Find treasures in the weekly blind box or Ann’s garden. Your wish will be waiting here.'));grid.append(empty);}
+  const go=button('Choose 3 treasures',()=>{
+   if(selected.size!==3)return;
+   if(!go.dataset.review){go.dataset.review='yes';review.hidden=false;review.scrollIntoView({block:'nearest',behavior:'smooth'});return;}
+   let reward;store.change(s=>reward=tradeCollectibles(s,[...selected]));if(!reward)return;review.hidden=true;
+   grid.replaceChildren();cabinet.classList.add('wish-granted');cabinet.querySelector('small').textContent='Your wish has arrived ♡';go.disabled=true;go.textContent='This week’s wish is complete ♡';const item=prize(reward.id);grid.append(image(item));p(item.name+(reward.isNew?' · A new treasure!':' · A duplicate, no extra roll.'));playBoxSound('reveal');
+  });
+  body.insertBefore(go,review);
+  const refresh=()=>{review.hidden=true;delete go.dataset.review;cabinet.querySelector('small').textContent=selected.size+' / 3 offerings chosen · one surprise awaits';go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
+  for(const item of PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh();if(selected.size===3)go.scrollIntoView({block:'nearest',behavior:'smooth'});};grid.append(b)}refresh();
+ },seats);
+ const wheel=button('♡ Princess roulette · '+rouletteStatus(store.state).left+' / 1 weekly wish',()=>openRoulette(store,{open,body,result,button,p}),seats);wheel.disabled=!rouletteStatus(store.state).canSpin;wheel.title=rouletteStatus(store.state).left===0?'A fresh wheel opens Monday ♡':rouletteStatus(store.state).canSpin?'Offer two treasures for one surprise.':'Choose two treasures, including an outfit or room ♡';
+ const cabinetState=cabinetStatus(store.state);
+ trade.disabled=!store.ready||!cabinetState.canEnter;
+ trade.title=cabinetState.used?'Your next wish opens Monday.':cabinetState.needed?'Come peek inside! Collect '+cabinetState.needed+' more treasure'+(cabinetState.needed===1?'':'s')+' to make a wish.':'Choose three collectibles for your wish.';
+ if(cabinetState.used)p('This week’s wish is complete ♡ A fresh wish opens Monday.');
+ else if(cabinetState.needed)p('Your cabinet is open ♡ Find '+cabinetState.needed+' more collectible'+(cabinetState.needed===1?'':'s')+' before making a wish.');
+ p('The wishing cabinet resets Monday at midnight Central Time.');
 }
 $('cards-open').onclick = cards;
 $('sync-retry').onclick = () => store.retry();
@@ -164,7 +158,7 @@ $('import-save').onchange = async (event) => { const file = event.target.files[0
         throw new Error('That file isn’t a valid carnival backup.');
     open('Bring your treasures back');
     p(`This backup has ${data.state.prizes.length} collectibles. Restoring it replaces your current progress. Weekly openings already used on this device stay used.`);
-    button('Restore this backup', () => { const restored = normalizeState(data.state), current = store.state; restored.weeklyClaims = [...new Set([...restored.weeklyClaims, ...current.weeklyClaims])]; restored.mazeWeeks = [...new Set([...restored.mazeWeeks, ...current.mazeWeeks])]; if (current.weeklyBox && (!restored.weeklyBox || current.weeklyBox.week >= restored.weeklyBox.week))
+    button('Restore this backup', () => { const restored = normalizeState(data.state), current = store.state; keepWeeklyUses(restored,current); restored.tradeWeeks=[...new Set([...(restored.tradeWeeks||[]),...(current.tradeWeeks||[])])]; restored.weeklyClaims = [...new Set([...restored.weeklyClaims, ...current.weeklyClaims])]; restored.mazeWeeks = [...new Set([...restored.mazeWeeks, ...current.mazeWeeks])]; if (current.weeklyBox && (!restored.weeklyBox || current.weeklyBox.week >= restored.weeklyBox.week))
         restored.weeklyBox = current.weeklyBox; if (current.manorRun && (!restored.manorRun || current.manorRun.week >= restored.manorRun.week))
         restored.manorRun = current.manorRun; restored.clicker.lastTick = Date.now(); store.change(s => Object.assign(s, restored)); $('backup-status').textContent = t('backup.restored'); close(); });
     button('Keep my current progress', close).classList.add('soft');
@@ -173,17 +167,22 @@ catch (error) {
     $('backup-status').textContent = error.message || 'Your backup couldn’t be read. Your progress hasn’t changed.';
 } };
 $('save-controls').hidden = window.CARNIVAL_CONFIG?.saveTools !== true;
-$('test-tools').hidden = window.CARNIVAL_CONFIG?.testingTools !== true;
+$('test-tools').hidden = true;
+const canUseTestingTools = () => store.ready && (store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true));
 $('test-reset').onclick = () => {
+    if (!canUseTestingTools()) return;
     open('Reset this testing save?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current browser/profile. Download a backup first.');
     button('Download backup first', () => downloadJSON('nayleen-before-test-reset.json', {kind:'nayleen-carnival-backup', version:3, state:store.state}));
-    button('Reset my progress', async () => { store.change(s => Object.assign(s, freshState())); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='Fresh testing save. All four games are ready.'; close(); });
+    button('Reset my progress', async () => { store.change(s => (Object.keys(s).forEach(k=>delete s[k]),Object.assign(s, freshState()))); try { localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); } catch {} await store.save(); $('test-status').textContent='A fresh start ♡ Weekly games are ready. Find three collectibles to make a wish.'; close(); });
     button('Cancel', close).classList.add('soft');
 };
-$('test-unlock').onclick = () => { open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all 19 collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
+$('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This marks all outfit goals complete and adds all current collectibles. Weekly games stay available.'); button('Unlock everything', async () => {store.change(s => Object.assign(s, testingState())); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
 await loadContent();
+const journeyIntro=el('p',t('wardrobe.journeyIntro'),'section-copy journey-intro');$('outfits').before(journeyIntro);
 store.subscribe(render);
 await store.load();
+void import('./espurr-personality.js').then(m=>m.attachEspurr());
+setInterval(() => render(store.state), 60000);
 readNotes().then(data => { const latest = data.notes.filter(n => n.published).sort((a, b) => a.week - b.week).at(-1); if (latest)
     $('latest-note').textContent = `${latest.emoji} Week ${latest.week} · ${latest.title} — ${latest.message.slice(0, 160)}`; }).catch(() => { });
 
