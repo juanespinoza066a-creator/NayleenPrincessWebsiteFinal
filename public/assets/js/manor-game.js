@@ -22,13 +22,13 @@ const gate = center(23, 16);
 const exitUnlocked = () => machines.every(m => m.progress >= 40);
 const peanut = center(6, 6);
 const treasures = [[6, 10]].map(([x, y], index) => ({ ...center(x, y), index }));
-let checkpointAt = 0, huntConfig=null, abilityTime=0,hiddenTime=0,swiftTime=0,decodeTime=0,hazardClock=7,hazards=[],snareTime=0,photoTime=0,decoy=null;
+let checkpointAt = 0, huntConfig=null, abilityTime=0,hiddenTime=0,swiftTime=0,decodeTime=0,hazardClock=7,hazards=[],snareTime=0,photoTime=0,rootTime=0,waterTime=0,decoy=null;
 const currentPower=()=>window.CarnivalManor?.powers?.[window.CarnivalManor.outfit]||{name:'Psychic stun',type:'stun',hint:'Freeze a nearby hunter for 5 seconds.'};
 const hunterName=()=>huntConfig?.hunterName||'Ann';
 function saveCheckpoint() {
     if (!['playing', 'paused', 'peanut'].includes(state))
         return;
-    window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY, travelX:player.travelX||0,travelY:player.travelY||0 }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, peanutFound, machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
+    window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY, travelX:player.travelX||0,travelY:player.travelY||0 }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, peanutFound, timers:{hiddenTime,swiftTime,decodeTime,snareTime,photoTime,rootTime,waterTime,invincible,stunned,hazardClock,calmTime,searchTime,noiseTime}, hazards:hazards.map(h=>({...h})),decoy,lastSeen,noiseTarget,locks:machines.map(m=>m.lockRemaining||0),checks:machines.map(m=>m.nextCheck), machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
 }
 window.addEventListener('pagehide', saveCheckpoint);
 let peanutFound = false, peanutCount = 0, peanutSound = true, peanutAudio;
@@ -90,11 +90,11 @@ async function reset() {
         modal('Your weekly adventure is resting.', 'This week’s run is finished. A new maze adventure opens next Monday. Your collected treasures are waiting in Espurr’s room.', 'Back to Espurr’s room');
         return;
     }
-    huntConfig=window.CarnivalManor.map;huntConfig.hunterName={ann:'Ann',antonio:'Antonio',joseph:'Joseph',grace:'Grace'}[huntConfig.hunter];walls.clear();for(const tile of huntConfig.walls)walls.add(tile);document.querySelector('.location-tag').textContent=huntConfig.name;document.querySelector('.heading h1').textContent='IDV Hunt · '+huntConfig.hunterName;hazards=[];decoy=null;hazardClock=7;snareTime=photoTime=0;abilityTime=hiddenTime=swiftTime=decodeTime=0;
+    huntConfig=window.CarnivalManor.map;huntConfig.hunterName={ann:'Ann',antonio:'Antonio',joseph:'Joseph',grace:'Grace'}[huntConfig.hunter];walls.clear();for(const tile of huntConfig.walls)walls.add(tile);document.querySelector('.location-tag').textContent=huntConfig.name;document.querySelector('.heading h1').textContent='IDV Hunt · '+huntConfig.hunterName;hazards=[];decoy=null;hazardClock=7;snareTime=photoTime=rootTime=waterTime=0;abilityTime=hiddenTime=swiftTime=decodeTime=0;
     const choices=document.querySelector('.hunt-options');if(choices)choices.hidden=true;const info=document.getElementById('hunt-ability');if(info)info.textContent=currentPower().name+' · '+currentPower().hint+' Three charges; each finished cipher restores one.';
     peanutFound = access.checkpoint?.peanutFound === true;
     peanutCount = window.CarnivalManor?.peanut?.count || 0;
-    const peanutSpots=[];for(let y=2;y<17;y++)for(let x=2;x<23;x++){const point=center(x,y);if(!walls.has(x+','+y)&&findPath(center(2,9),point).length&&distance(point,center(2,9))>120&&!machines.some(m=>distance(m,point)<70))peanutSpots.push(point);}let peanutSeed=(access.peanutSeed||access.week||1)*17+(huntConfig.map||0)*7+['ann','antonio','joseph','grace'].indexOf(huntConfig.hunter)*13;const spot=peanutSpots[Math.abs(peanutSeed)%peanutSpots.length];if(spot)Object.assign(peanut,spot);
+
     player = center(2, 9);
     hunter = center(21, 10);
     hp = 3;
@@ -116,7 +116,7 @@ async function reset() {
     patrolIndex = 0;
     joy = { x: 0, y: 0 };
     sprinting = false;
-    machines.forEach(m => { m.progress = 0; m.lockRemaining = 0; m.nextCheck = randomBetween(5.5, 11.5); });
+    machines.forEach(m => { m.completed=false; m.progress = 0; m.lockRemaining = 0; m.nextCheck = randomBetween(5.5, 11.5); });
     pallets.forEach(p => p.down = false);
     if (access.checkpoint) {
         const saved = access.checkpoint;
@@ -128,7 +128,12 @@ async function reset() {
         elapsed = saved.elapsed;
         machines.forEach((m, i) => { m.progress = saved.machines[i]; });
         pallets.forEach((p, i) => { p.down = saved.pallets[i]; });
+        machines.forEach((m,i)=>{m.completed=m.progress>=40;m.lockRemaining=saved.locks?.[i]||0;m.nextCheck=saved.checks?.[i]??randomBetween(5.5,11.5);});
+        const a=saved.timers||{};hiddenTime=a.hiddenTime||0;swiftTime=a.swiftTime||0;decodeTime=a.decodeTime||0;snareTime=a.snareTime||0;photoTime=a.photoTime||0;rootTime=a.rootTime||0;waterTime=a.waterTime||0;invincible=a.invincible||0;stunned=a.stunned||0;hazardClock=a.hazardClock??7;calmTime=a.calmTime??6;searchTime=a.searchTime||0;noiseTime=a.noiseTime||0;
+        hazards=(saved.hazards||[]).map(h=>({...h}));decoy=saved.decoy?{...saved.decoy}:null;lastSeen=saved.lastSeen?{...saved.lastSeen}:null;noiseTarget=saved.noiseTarget?{...saved.noiseTarget}:null;
+
     }
+    const peanutSpots=[];for(let y=2;y<17;y++)for(let x=2;x<23;x++){const point=center(x,y);if(!walls.has(x+','+y)&&findPath(center(2,9),point).length&&distance(point,center(2,9))>120&&!machines.some(m=>distance(m,point)<70))peanutSpots.push(point);}let peanutSeed=(access.peanutSeed??access.week??1)*17+(huntConfig.map||0)*7+['ann','antonio','joseph','grace'].indexOf(huntConfig.hunter)*13;const spot=peanutSpots[Math.abs(peanutSeed)%peanutSpots.length];if(spot)Object.assign(peanut,spot);
     checkpointAt = elapsed;
     keys.clear();
     $('stick').style.transform = '';
@@ -238,6 +243,7 @@ function completeInteraction(c) {
         window.ManorAudio?.effect('collect');
         peanutFound = true;
         savePeanut();
+        saveCheckpoint();
         hud();
         message('A crunchy peanut! It’s in your pocket now. Tap the peanut button any time.');
         openPeanut();
@@ -254,6 +260,21 @@ function completeInteraction(c) {
     if (c.type === 'gate') finish(true);
 }
 
+function forgetHunterTrail(){lastSeen=null;searchTime=0;noiseTime=0;noiseTarget=null;chase=false;path=[];pathClock=0;patrolGoal=null;}
+function completeCipher(m){
+ if(m.progress<40||m.completed)return;m.completed=true;m.progress=40;
+ if(repairing===m){repairing=null;calibration=null;}
+ effects.push({kind:'spark',x:m.x,y:m.y,life:.8,duration:.8});window.ManorAudio?.effect('complete');charges=Math.min(3,charges+1);
+ if(exitUnlocked()){calmTime=Math.max(calmTime,6);message('All ciphers complete! THE EXIT IS UNLOCKED. Follow the moon marker to the gate.');effects.push({kind:'spark',x:gate.x,y:gate.y,life:2,duration:2});}
+ else message('Cipher complete! A power charge is restored. Find the next cipher.');
+ saveCheckpoint();
+}
+function takeHit(copy){
+ if(invincible>0||state!=='playing')return false;
+ hp--;invincible=7;action=null;repairing=null;calibration=null;hiddenTime=0;
+ window.ManorAudio?.effect('hit');effects.push({kind:'ability',ability:'hurt',label:'−1 heart',x:player.x,y:player.y,life:1.5,duration:1.5});message(copy);
+ if(hp<=0)finish(false);else saveCheckpoint();return true;
+}
 function power() {
  if(state!=='playing'||charges<1)return;const power=currentPower(),kind=power.type;
  if(['stun','fireworks','borrow'].includes(kind)&&distance(player,hunter)>(kind==='fireworks'?260:155)){message('The hunter is too far away. Save your power for a closer chase.');return;}
@@ -262,25 +283,45 @@ function power() {
  if(kind==='stun')stunned=5;
  if(kind==='heal'){hp=Math.min(3,hp+1);invincible=4;}
  if(kind==='energy'){stamina=100;swiftTime=6;}
+ const origin={...player};
  if(kind==='blink'||kind==='dash'){let dx=player.travelX||0,dy=player.travelY||0;const length=Math.hypot(dx,dy);if(length<.1){dx=player.facingY===-1?0:player.facing||1;dy=player.facingY===-1?-1:0;}else{dx/=length;dy/=length;}for(let i=0;i<(kind==='blink'?16:10);i++)move(player,dx*10,dy*10);invincible=1;if(kind==='dash'&&distance(player,hunter)<130)stunned=2;}
- if(kind==='smoke')hiddenTime=8;
- if(kind==='cleanse'){hazards=[];snareTime=photoTime=0;invincible=6;}
+ if(kind==='smoke'){hiddenTime=8;forgetHunterTrail();}
+ if(kind==='cleanse'){hazards=[];snareTime=photoTime=rootTime=waterTime=0;invincible=6;}
  if(kind==='borrow'){stunned=3;swiftTime=6;}
  if(kind==='focus'){hp=Math.min(3,hp+1);decodeTime=10;}
  if(kind==='fireworks')stunned=4;
- if(kind==='veil'){hiddenTime=5;invincible=7;}
- if(kind==='paint'){stunned=4;decodeTime=8;}
- if(kind==='luck'){const m=machines.filter(m=>m.progress<40).sort((a,b)=>distance(player,a)-distance(player,b))[0];m.progress=Math.min(39,m.progress+10);}
- if(kind==='warm'){swiftTime=8;hiddenTime=3;stamina=100;}
+ if(kind==='veil'){hiddenTime=5;invincible=7;forgetHunterTrail();}
+ if(kind==='paint'){if(distance(player,hunter)<=225)stunned=4;decodeTime=8;}
+ if(kind==='luck'){const m=machines.filter(m=>m.progress<40).sort((a,b)=>distance(player,a)-distance(player,b))[0];m.progress=Math.min(40,m.progress+10);completeCipher(m);}
+ if(kind==='warm'){swiftTime=8;hiddenTime=3;stamina=100;forgetHunterTrail();}
  if(kind==='decoy'){const candidates=[];for(let y=1;y<18;y++)for(let x=1;x<24;x++){const q=center(x,y);if(!blocked(x,y)&&distance(q,hunter)>90&&distance(q,hunter)<300&&distance(q,player)>100)candidates.push(q);}candidates.sort((a,b)=>distance(b,player)-distance(a,player));const target=candidates.find(q=>findPath(hunter,q).length)||center(...tile(player));decoy={...target,life:8};hiddenTime=8;lastSeen=null;searchTime=0;chase=false;path=[];pathClock=0;patrolGoal=null;}
- if(kind==='case'){if(action)action.elapsed=action.duration;else if(repairing)repairing.progress=Math.min(39,repairing.progress+6);hiddenTime=4;}
- effects.push({kind:'ability',ability:kind,label:power.name,x:player.x,y:player.y,life:2.5,duration:2.5});message(power.name+'! '+power.hint);saveCheckpoint();hud();
+ if(kind==='case'){if(action){const done=action;action=null;completeInteraction(done);}else if(repairing&&!(repairing.lockRemaining>0)){const m=repairing;m.progress=Math.min(40,m.progress+6);completeCipher(m);}hiddenTime=4;forgetHunterTrail();}
+ effects.push({kind:'ability',ability:kind,label:power.name,x:player.x,y:player.y,fromX:origin.x,fromY:origin.y,life:2.5,duration:2.5});message(power.name+'! '+power.hint);saveCheckpoint();hud();
 }
+function hazardContains(h,p){return h.kind==='joseph'?Math.abs(p.x-h.x)<=h.r&&Math.abs(p.y-h.y)<=h.r:distance(p,h)<=h.r;}
 function updateHazards(dt){
- abilityTime=Math.max(0,abilityTime-dt);hiddenTime=Math.max(0,hiddenTime-dt);swiftTime=Math.max(0,swiftTime-dt);decodeTime=Math.max(0,decodeTime-dt);snareTime=Math.max(0,snareTime-dt);photoTime=Math.max(0,photoTime-dt);hazardClock-=dt;
- if(hazardClock<=0&&stunned===0&&huntConfig){hazardClock=13;const kind=huntConfig.hunter;hazards.push({kind,x:player.x,y:player.y,t:0,duration:kind==='grace'?7:4,r:kind==='joseph'?68:kind==='grace'?84:52});message(kind==='ann'?'A tiny cat is gathering moonlight. Step outside the circle!':kind==='antonio'?'A glowing string is tuning. Step away!':kind==='joseph'?'A camera is focusing. Leave the frame!':'A little tide is rising. Leave the water!');}
- for(const h of hazards){h.t+=dt;const inside=h.kind==='antonio'?Math.abs(player.y-h.y)<12&&Math.abs(player.x-h.x)<h.r:h.kind==='joseph'?Math.abs(player.x-h.x)<h.r&&Math.abs(player.y-h.y)<h.r:distance(player,h)<h.r;if(h.t>2&&h.t<h.duration&&inside&&invincible===0){if(h.kind==='grace'){stamina=Math.max(0,stamina-25*dt);snareTime=.3;}else if(!h.triggered){h.triggered=true;hiddenTime=0;noiseTime=h.kind==='joseph'?5:3;noiseTarget={...player};if(h.kind==='ann')snareTime=2;if(h.kind==='antonio')stamina=Math.max(0,stamina-40);if(h.kind==='joseph'){photoTime=.8;lastSeen={...player};searchTime=3;}message(h.kind==='ann'?'A tiny cat tangled your steps. Run when the spell lifts!':h.kind==='antonio'?'The string caught your sprint energy. Break sight and catch your breath!':'A little flash gave away your hiding place. Slip behind a hedge!');}}}hazards=hazards.filter(h=>h.t<h.duration);
-
+ // All durations tick on the game clock, never while paused.
+ abilityTime=Math.max(0,abilityTime-dt);hiddenTime=Math.max(0,hiddenTime-dt);swiftTime=Math.max(0,swiftTime-dt);decodeTime=Math.max(0,decodeTime-dt);snareTime=Math.max(0,snareTime-dt);photoTime=Math.max(0,photoTime-dt);rootTime=Math.max(0,rootTime-dt);waterTime=Math.max(0,waterTime-dt);hazardClock-=dt;
+ if(hazardClock<=0&&stunned===0&&huntConfig){
+  hazardClock=13;const kind=huntConfig.hunter;
+  hazards.push({kind,x:player.x,y:player.y,t:0,warmup:1.8,duration:kind==='grace'?8.5:4.5,r:kind==='joseph'?68:kind==='grace'?84:kind==='antonio'?64:52,exposure:0});
+  window.ManorAudio?.effect('warning');message(kind==='ann'?'A cat spell is closing. Leave the circle!':kind==='antonio'?'The music will strike inside this circle. Step out!':kind==='joseph'?'A camera is focusing. Leave the frame before the flash!':'Water is rising. Step out before it fills!');
+ }
+ for(const h of hazards){
+  h.t+=dt;if(h.t<(h.warmup??1.8)||h.t>=h.duration)continue;
+  const inside=hazardContains(h,player);
+  if(h.kind==='grace'){
+   h.exposure=inside?Math.min(2,(h.exposure||0)+dt):Math.max(0,(h.exposure||0)-dt*2);
+   if(inside&&invincible===0){waterTime=.3;if(h.exposure>=1.8&&!h.triggered){h.triggered=true;takeHit('The tide took one heart. Hurry out of the water!');}}
+  }else if(inside&&!h.triggered&&invincible===0){
+   h.triggered=true;hiddenTime=0;noiseTime=5;noiseTarget={...player};path=[];pathClock=0;
+   if(h.kind==='ann'){rootTime=1.8;action=null;repairing=null;calibration=null;window.ManorAudio?.effect('stun');message('A cat spell froze your steps for a moment!');}
+   if(h.kind==='antonio'){stamina=Math.max(0,stamina-40);snareTime=1.2;takeHit('Antonio’s music took one heart and tangled your steps!');}
+   if(h.kind==='joseph'){photoTime=1.2;lastSeen={...player};searchTime=5;takeHit('The flash took one heart and revealed your hiding place!');}
+  }
+  if(state!=='playing')break;
+ }
+ hazards=hazards.filter(h=>h.t<h.duration);
 }
 function clearSight() {
     const d = distance(player, hunter), steps = Math.ceil(d / 15);
@@ -324,7 +365,7 @@ function resolveCalibration(success) {
 function update(dt) {
     if (state !== 'playing')
         return;
-    elapsed += dt;updateHazards(dt);if(decoy){decoy.life-=dt;if(distance(hunter,decoy)<23){stunned=Math.max(stunned,1.5);effects.push({kind:"ability",ability:"decoy",label:"A ribbon surprise!",x:decoy.x,y:decoy.y,life:2,duration:2});decoy=null;}else if(decoy.life<=0)decoy=null;}
+    elapsed += dt;updateHazards(dt);if(state!=='playing'){hud();return;}if(decoy){decoy.life-=dt;if(distance(hunter,decoy)<23){stunned=Math.max(stunned,1.5);effects.push({kind:"ability",ability:"decoy",label:"A ribbon surprise!",x:decoy.x,y:decoy.y,life:2,duration:2});decoy=null;}else if(decoy.life<=0)decoy=null;}
     if (elapsed - checkpointAt >= 8) {
         checkpointAt = elapsed;
         saveCheckpoint();
@@ -346,9 +387,9 @@ function update(dt) {
         dy /= mag;
     }
     const sprint = (sprinting || keys.has('Shift')) && stamina > 1 && mag > 0;
-    stamina = Math.max(0, Math.min(100, stamina + (sprint ? -20 : 23) * dt));
+    stamina = Math.max(0, Math.min(100, stamina + (waterTime>0 ? -25 : sprint ? -20 : 23) * dt));
     const px = player.x, py = player.y;
-    const pace=(swiftTime>0?205:sprint?174:112)*(photoTime>0?.3:snareTime>0?.6:1);move(player,dx*pace*dt,dy*pace*dt);
+    const pace=(swiftTime>0?205:sprint?174:112)*(rootTime>0?0:photoTime>0?.3:snareTime>0||waterTime>0?.6:1);move(player,dx*pace*dt,dy*pace*dt);
     player.moving = distance(player, { x: px, y: py }) > .01;
     player.walk = (player.walk || 0) + (player.moving ? dt * (sprint ? 18 : 12) : 0);
     if (mag > .1) {
@@ -388,19 +429,9 @@ function update(dt) {
             if (repairing.nextCheck <= 0 && repairing.progress < 38)
                 beginCalibration();
         }
-        if (repairing.progress >= 40) {
-            effects.push({ kind: 'spark', x: repairing.x, y: repairing.y, life: .8, duration: .8 });
-            repairing = null;
-            calibration = null;
-            window.ManorAudio?.effect('complete');
-            charges = Math.min(3, charges + 1);
-            if (exitUnlocked()) {
-                calmTime = Math.max(calmTime, 6);
-                message('All ciphers complete! THE EXIT IS UNLOCKED. Follow the moon marker to the gate.');
-                effects.push({kind:'spark',x:gate.x,y:gate.y,life:2,duration:2});
-            } else message('Cipher complete! Psychic charge restored. Find the next cipher.');
-        }
+        if (repairing.progress >= 40) completeCipher(repairing);
     }
+
     // Hedges really hide you. Decoding never reveals the player's position.
     calmTime = Math.max(0, calmTime - dt);
     const seesPlayer = hiddenTime === 0 && calmTime === 0 && distance(player, hunter) < 225 && clearSight();
@@ -425,7 +456,7 @@ function update(dt) {
         const goal = decoy ? decoy : chase ? (seesPlayer ? player : lastSeen) : noiseTime > 0 && noiseTarget && distance(hunter, noiseTarget) < 260 ? noiseTarget : patrol[patrolIndex];
         // Keep the current waypoints while patrolling. Constant repathing at corners caused sticking.
         const goalKey = tile(goal).join(',');
-        if (!path.length || (pathClock <= 0 && (chase||decoy) && patrolGoal !== goalKey)) {
+        if (!path.length || (pathClock <= 0 && patrolGoal !== goalKey)) {
             path = findPath(hunter, goal);
             const middle = center(...tile(hunter));
             if (distance(hunter, middle) > 3) path.unshift(middle);
@@ -446,18 +477,9 @@ function update(dt) {
             }
         }
         if (distance(player, hunter) < 27 && invincible === 0) {
-            window.ManorAudio?.effect('hit');
-            action = null; repairing = null; calibration = null;
-            hp--;
-            invincible = 7;
-            stunned = 2.5;
-            hunter.attack = .65;
-            message('Ann landed a hit. Sprint or stun to escape!');
-            if (hp <= 0) {
-                finish(false);
-                hud();
-                return;
-            }
+            stunned=2.5;hunter.attack=.65;
+            takeHit(hunterName()+' landed a hit. Sprint or use your power to escape!');
+            if(state!=='playing'){hud();return;}
         }
     }
     hud();
@@ -474,7 +496,7 @@ function hud() {
     $('exit-status').textContent = exitUnlocked() ? '☾ Exit unlocked' : '☾ Exit locked';
     $('exit-status').classList.toggle('exit-ready', exitUnlocked());
     $('loot-count').textContent = '✧ ' + (window.CarnivalManor?.loot?.filter(x => x.claimed).length || 0) + ' / 1';
-    $('threat').textContent = stunned > 0 ? hunterName()+' is stunned' : chase ? hunterName()+' is searching' : 'Garden is quiet';
+    $('threat').textContent = rootTime>0?'Cat spell · '+Math.ceil(rootTime)+'s':waterTime>0?'Rising water · keep moving':photoTime>0?'Caught in the flash':snareTime>0?'Tangled steps':stunned > 0 ? hunterName()+' is stunned' : chase ? hunterName()+' is searching' : 'Garden is quiet';
     $('threat').classList.toggle('danger', chase && stunned === 0);
     $('clock').textContent = Math.floor(elapsed / 60) + ':' + String(Math.floor(elapsed % 60)).padStart(2, '0');
     $('stamina').value = stamina;
@@ -484,7 +506,7 @@ function hud() {
     $('repair-note').hidden = !repairing && !action;
     $('repair-note').classList.toggle('jammed', Boolean(jammed));
     $('repair-label').textContent = action ? action.label.toUpperCase() + ' · ' + Math.floor(action.elapsed / action.duration * 100) + '%' : jammed ? 'CIPHER LOCKED · ' + repairing.lockRemaining.toFixed(1) + 's' : calibration ? 'CALIBRATION ' + (calibration.phase === 'warning' ? 'INCOMING' : 'ACTIVE') : 'DECODING · ' + Math.floor((repairing?.progress || 0) / 40 * 100) + '%';
-    const activePower=Math.max(hiddenTime,swiftTime,decodeTime,decoy?.life||0);$('power').textContent='✦ '+currentPower().name+' · '+charges+(activePower>0?' · '+Math.ceil(activePower)+'s':'');
+    const activePower=Math.max(hiddenTime,swiftTime,decodeTime,invincible,decoy?.life||0);$('power').textContent='✦ '+currentPower().name+' · '+charges+(activePower>0?' · '+Math.ceil(activePower)+'s':'');
     $('power').disabled = charges === 0;
     const c = context(), active = calibration?.phase === 'active';
     $('interact').textContent = action ? 'Working…' : jammed ? 'Cipher locked…' : repairing ? (active ? 'Calibrate · E' : 'Decoding…') : c ? c.label : 'Find an objective';
@@ -492,7 +514,7 @@ function hud() {
     $('interact').classList.toggle('calibrate', active);
 }
 function draw() {
-    drawManor({ decoy, buffs:{hidden:hiddenTime,swift:swiftTime,decode:decodeTime,shield:invincible}, huntConfig, hazards, hiddenTime, canvas, player, hunter, machines, pallets, walls, gate, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
+    drawManor({ decoy, buffs:{hidden:hiddenTime,swift:swiftTime,decode:decodeTime,shield:invincible,root:rootTime,water:waterTime,photo:photoTime}, huntConfig, hazards, hiddenTime, canvas, player, hunter, machines, pallets, walls, gate, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
 }
 function frame(now) {
     const dt = Math.min(.04, (now - last) / 1000 || 0);
@@ -609,7 +631,7 @@ $('help').addEventListener('click', () => {
     if (state !== 'playing')
         return;
     pause();
-    modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Move with the stick or WASD. Tap Interact near a cipher and wait for the occasional gold calibration arc. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Watch for the hunter’s glowing warning areas.', 'Resume adventure');
+    modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Move with the stick or WASD. Tap Interact near a cipher and wait for the occasional gold calibration arc. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Leave a glowing warning area before it fills. Cat spells freeze your steps; music and camera flashes take one heart. Staying in rising water takes a heart too.', 'Resume adventure');
 });
 $('interact').addEventListener('click', interact);
 $('power').addEventListener('click', power);

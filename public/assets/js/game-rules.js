@@ -117,7 +117,10 @@ export function normalizeCheckpoint(c) {
     if (!c || typeof c !== 'object')
         return null;
     const position = p => ({ x: Math.max(50, Math.min(950, number(p?.x, 1000) || 100)), y: Math.max(50, Math.min(710, number(p?.y, 760) || 380)), facing: p?.facing === -1 ? -1 : 1, facingY: p?.facingY === -1 ? -1 : 0,travelX:Math.max(-1,Math.min(1,Number(p?.travelX)||0)),travelY:Math.max(-1,Math.min(1,Number(p?.travelY)||0)) });
-    return { player: position(c.player), hunter: position(c.hunter), hp: Math.max(1, Math.min(3, integer(c.hp) || 3)), stamina: number(c.stamina, 100), charges: integer(c.charges, 3), elapsed: number(c.elapsed, 86400), rescued: c.rescued === true, peanutFound:c.peanutFound===true, machines: Array.from({ length: 3 }, (_, i) => number(c.machines?.[i], 40)), pallets: Array.from({ length: 3 }, (_, i) => c.pallets?.[i] === true) };
+    const caps={hiddenTime:8,swiftTime:8,decodeTime:10,snareTime:3,photoTime:2,rootTime:2,waterTime:1,invincible:7,stunned:5,hazardClock:13,calmTime:6,searchTime:5,noiseTime:5};
+    const timers=Object.fromEntries(Object.entries(caps).map(([key,max])=>[key,number(c.timers?.[key]??(key==='hazardClock'?7:key==='calmTime'?6:0),max)]));
+    const hazards=(Array.isArray(c.hazards)?c.hazards:[]).slice(0,4).filter(h=>['ann','antonio','joseph','grace'].includes(h?.kind)).map(h=>({...position(h),kind:h.kind,t:number(h.t,9),warmup:1.8,duration:h.kind==='grace'?8.5:4.5,r:h.kind==='grace'?84:h.kind==='joseph'?68:h.kind==='antonio'?64:52,triggered:h.triggered===true,exposure:number(h.exposure,2)}));
+    return {timers,hazards,decoy:c.decoy?{...position(c.decoy),life:number(c.decoy.life,8)}:null,lastSeen:c.lastSeen?position(c.lastSeen):null,noiseTarget:c.noiseTarget?position(c.noiseTarget):null,locks:Array.from({length:3},(_,i)=>number(c.locks?.[i],3)),checks:Array.from({length:3},(_,i)=>number(c.checks?.[i]??8,12)), player: position(c.player), hunter: position(c.hunter), hp: Math.max(1, Math.min(3, integer(c.hp) || 3)), stamina: number(c.stamina, 100), charges: integer(c.charges, 3), elapsed: number(c.elapsed, 86400), rescued: c.rescued === true, peanutFound:c.peanutFound===true, machines: Array.from({ length: 3 }, (_, i) => number(c.machines?.[i], 40)), pallets: Array.from({ length: 3 }, (_, i) => c.pallets?.[i] === true) };
 }
 export function validState(raw) {
     if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > PRIZES.length + 1 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => knownPrize(id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
@@ -245,20 +248,21 @@ export function spinRoulette(s,offerings,color,random=Math.random,week=mondayKey
  s.rouletteResult={week,number:Math.min(36,Math.floor(random()*37)),color:'rose',wager:items.find(x=>x.kind==='collectible')?.id||'espurr',prizes:kind==='collectible'?[id]:[],won:true,offerings:items.map(x=>({kind:x.kind,id:x.id})),reward:{kind,id}};return structuredClone(s.rouletteResult);
 }
 
-export const DROP_GOAL=1400;
+export const DROP_GOAL=3000;
+export const DROP_FINAL_TIER=8;
 export function cleanDrop(r){
  if(!r||!['active','won','lost'].includes(r.status))return null;
- const out={status:r.status,score:integer(r.score,1e6),next:integer(r.next,3),held:integer(r.held,3),pieces:[],reward:null};
+ const out={status:r.status,score:integer(r.score,1e6),bestTier:integer(r.bestTier,8),next:integer(r.next,3),held:integer(r.held,3),pieces:[],reward:null};
  if(r.status==='active'&&Array.isArray(r.pieces))out.pieces=r.pieces.slice(0,100).filter(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)).map(p=>({tier:integer(p.tier,8),x:Math.max(10,Math.min(390,p.x)),y:Math.max(-100,Math.min(680,p.y)),vx:Math.max(-20,Math.min(20,Number(p.vx)||0)),vy:Math.max(-20,Math.min(20,Number(p.vy)||0)),angle:Number.isFinite(p.angle)?p.angle:0}));
  if(r.reward&&['collectible','room','outfit'].includes(r.reward.kind)){const items=r.reward.kind==='collectible'?PRIZES:r.reward.kind==='room'?ROOMS:OUTFITS;if(items.some(x=>x.id===r.reward.id))out.reward={kind:r.reward.kind,id:r.reward.id};}
- return out;
+ out.bestTier=Math.max(out.bestTier,...out.pieces.map(p=>p.tier));return out;
 }
 export function beginDrop(s,random=Math.random,week=mondayKey()){
  s.dropRuns??={};for(const [key,old] of Object.entries(s.dropRuns))if(key<week&&old.status==='active'){old.status='lost';old.pieces=[];}if(s.dropRuns[week])return s.dropRuns[week].status==='active'?s.dropRuns[week]:null;
- return s.dropRuns[week]={status:'active',score:0,held:Math.min(3,Math.floor(random()*4)),next:Math.min(3,Math.floor(random()*4)),pieces:[],reward:null};
+ return s.dropRuns[week]={status:'active',score:0,bestTier:0,held:Math.min(3,Math.floor(random()*4)),next:Math.min(3,Math.floor(random()*4)),pieces:[],reward:null};
 }
 export function finishDrop(s,won,random=Math.random,week=mondayKey()){
- const run=s.dropRuns?.[week];if(!run||run.status!=='active'||won&&run.score<DROP_GOAL)return null;
+ const run=s.dropRuns?.[week];if(!run||run.status!=='active'||won&&(run.score<DROP_GOAL||(run.bestTier||0)<DROP_FINAL_TIER))return null;
  run.status=won?'won':'lost';run.pieces=[];if(!won)return {won:false};
  const rooms=ROOMS.filter(x=>!unlockedRooms(s).includes(x.id)),outfits=OUTFITS.filter(x=>!unlockedOutfits(s).includes(x.id));
  const options=[{kind:'collectible',items:PRIZES},...(rooms.length?[{kind:'room',items:rooms}]:[]),...(outfits.length?[{kind:'outfit',items:outfits}]:[])];

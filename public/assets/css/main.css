@@ -157,3 +157,19 @@ button:disabled,.button:disabled,.game-card:disabled{background:#e3d2ee!importan
 
 @media(prefers-reduced-motion:reduce){.roulette-cheer{animation:none!important}}
 .roulette-result:empty{display:none}.roulette-result img{width:min(100%,180px);height:160px;object-fit:contain}.roulette-confirm>.button{margin:6px}
+
+/* Palace 5.3: separate actions, readable keepsakes, a tidy little basket. */
+#game-body>.button{margin:12px 8px}
+#game-body .game-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin:18px 0}
+#game-body .game-actions>.button{margin:0}
+#game-body .roulette-submit{gap:16px;margin-bottom:24px}
+#game-body .roulette-confirm>.button{margin:8px}
+#game-body .table-toolbar{gap:12px;row-gap:14px;flex-wrap:wrap}
+#game-body .collectible-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:14px;width:100%}
+#game-body .collectible-picker .prize-choice:not(:disabled){display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:145px;margin:0;padding:12px 8px;background:#f4e9fa!important;border:1px solid #cfb5dc!important;color:#563367!important;font-size:.8rem}
+#game-body .prize-choice small{display:block;color:inherit!important;font-size:.75rem;line-height:1.4;overflow-wrap:normal}
+.drop-picture{overflow:hidden;background:radial-gradient(ellipse at 50% 25%,#fbf1d9,#e4c9ef);}
+.drop-picture .mini-basket{box-sizing:border-box;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:4px;width:112px;height:86px;padding:13px 7px 10px;border:3px solid #a679b3;border-radius:9px 9px 24px 24px;background:linear-gradient(#fdf4ff99,#eedcf8);overflow:hidden;box-shadow:0 4px 0 #bc9bcf66}
+.drop-picture .mini-basket img:nth-child(n){position:static!important;inset:auto!important;width:100%!important;height:48px!important;object-fit:contain;border-radius:0;background:none;min-width:0}
+.drop-picture>i{right:9px;top:5px;font-size:22px;line-height:1}.drop-picture:after{content:'♡';position:absolute;left:50%;bottom:10px;transform:translateX(-50%);color:#b28abe;font-size:14px}
+.drop-ladder{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;padding:12px;border-radius:16px;background:#f4e8fa;margin:12px 0}.drop-ladder img{width:26px;height:30px;object-fit:contain}.drop-ladder img:last-child{width:38px;height:40px;filter:drop-shadow(0 0 4px #caacd9)}

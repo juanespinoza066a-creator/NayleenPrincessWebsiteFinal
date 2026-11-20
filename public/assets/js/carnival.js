@@ -73,7 +73,7 @@ function render(s, event = {}) {
     }
 }
 function decorate(index) { open(t('collection.choose')); p(t('collection.chooseIntro')); if (!store.state.prizes.length)
-    p(t('collection.empty')); const row = actions(); store.state.prizes.forEach(id => { const item = prize(id), b = button('', () => { store.change(s => { s.shelf[index] = id; }); close(); }, row); b.classList.add('soft', 'prize-choice'); b.append(image(item), el('small', item.name)); b.setAttribute('aria-label', `Place ${item.name}`); }); button(t('collection.clear'), () => { store.change(s => { s.shelf[index] = null; }); close(); }).classList.add('soft'); }
+    p(t('collection.empty')); const row = actions(); row.classList.add('collectible-picker'); store.state.prizes.forEach(id => { const item = prize(id), b = button('', () => { store.change(s => { s.shelf[index] = id; }); close(); }, row); b.classList.add('soft', 'prize-choice'); b.append(image(item), el('small', item.name)); b.setAttribute('aria-label', `Place ${item.name}`); }); button(t('collection.clear'), () => { store.change(s => { s.shelf[index] = null; }); close(); }).classList.add('soft'); }
 function blind() {
     let box;
     store.change(s => { box = startBox(s, weekNumber()); });
