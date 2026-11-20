@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';import * as r from '../server/game-rules.js';
+const week=r.mondayKey();let counts={collectible:0,room:0,outfit:0};for(let i=0;i<1000;i++){const s=r.freshState();s.prizes=['frog','rose'];const draws=[i/1000,.2,.5];const result=r.spinRoulette(s,['frog','rose'],null,()=>draws.shift(),week);assert(result&&result.won);counts[result.reward.kind]++;assert.equal(r.rouletteStatus(s,week).left,0);assert.equal(r.spinRoulette(s,['frog','rose'],null,()=>0,week),null);assert(r.validState(s));const saved=r.normalizeState(s);assert.deepEqual(saved.rouletteResult.reward,result.reward);}assert.deepEqual(counts,{collectible:850,room:100,outfit:50});
+let s=r.testingState();s.outfit='royal';s.room='lavender';const result=r.spinRoulette(s,[{kind:'outfit',id:'cozy'},{kind:'room',id:'cafe'}],null,()=>.99,week);assert(result);s=r.normalizeState(s);assert(!r.unlockedOutfits(s).includes('cozy'));assert(!r.unlockedRooms(s).includes('cafe'));assert.equal(s.outfit,'royal');assert.equal(s.room,'lavender');r.grantItem(s,'outfit','cozy');r.grantItem(s,'room','cafe');assert(r.unlockedOutfits(r.normalizeState(s)).includes('cozy'));assert(r.unlockedRooms(r.normalizeState(s)).includes('cafe'));
+s=r.testingState();for(const item of [{kind:'outfit',id:'royal'},{kind:'room',id:'lavender'}])assert.equal(r.spinRoulette(s,[item,{kind:'collectible',id:'frog'}]),null);s.outfit='cozy';s.room='cafe';for(const item of [{kind:'outfit',id:'cozy'},{kind:'room',id:'cafe'}])assert.equal(r.spinRoulette(s,[item,{kind:'collectible',id:'frog'}]),null);assert.equal(r.rouletteStatus(s).left,1);
+const reset=r.freshState();assert.deepEqual(reset.tradedOutfits,[]);assert.deepEqual(reset.tradedRooms,[]);const legacy=r.testingState();delete legacy.tradedRooms;delete legacy.tradedOutfits;legacy.rouletteWeeks[week]=3;assert.equal(r.rouletteStatus(r.normalizeState(legacy),week).left,0);
+console.log('PASS: exact 85/10/5 category split over stratified draws; guaranteed prize; all offering categories; starter/current protections; removal survives normalization; prize reacquisition; reset and used-week migration.');
+
+// Exercise the real exchange screen, including its review and saved result.
+const {parseHTML}=await import('linkedom');const {openRoulette}=await import('../public/assets/js/roulette.js');
+const {window,document}=parseHTML('<div id="body"></div>');Object.assign(globalThis,{window,document});window.HTMLElement.prototype.scrollIntoView=function(){};
+const body=document.getElementById('body');const store={state:r.freshState(),change(fn){fn(this.state);}};store.state.prizes=['frog','rose'];let pending;
+const oldTimer=globalThis.setTimeout;globalThis.setTimeout=fn=>pending=fn;
+const button=(text,fn,parent=body)=>{const b=document.createElement('button');b.className='button';b.textContent=text;b.onclick=fn;parent.append(b);return b;};
+try{
+ openRoulette(store,{open(){},body,p(){},button});
+ assert(body.querySelector('.roulette-submit>.button').disabled);const choices=[...body.querySelectorAll('.trade-choice')];choices.find(x=>x.textContent.includes('frog')).click();[...body.querySelectorAll('.trade-choice')].find(x=>x.textContent.includes('Forever rose')).click();
+ const go=body.querySelector('.roulette-submit>.button');assert.equal(go.disabled,false);go.click();const review=body.querySelector('.roulette-confirm');assert.equal(review.hidden,false);assert.equal(r.rouletteStatus(store.state).left,1,'review alone spends nothing');
+ [...review.querySelectorAll('button')].find(x=>x.textContent.includes('Keep')).click();assert.equal(review.hidden,true);go.click();[...review.querySelectorAll('button')].find(x=>x.textContent.includes('Make my wish')).click();assert.equal(r.rouletteStatus(store.state).left,0);assert(go.disabled);pending();assert(body.querySelector('.roulette-result').textContent.includes('is yours'));assert(store.state.rouletteResult.reward);
+ console.log('PASS: real roulette screen selection, reversible in-app review, single commit and visible saved prize.');
+}finally{globalThis.setTimeout=oldTimer;}

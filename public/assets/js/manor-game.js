@@ -28,7 +28,7 @@ const hunterName=()=>huntConfig?.hunterName||'Ann';
 function saveCheckpoint() {
     if (!['playing', 'paused', 'peanut'].includes(state))
         return;
-    window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY, travelX:player.travelX||0,travelY:player.travelY||0 }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
+    window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY, travelX:player.travelX||0,travelY:player.travelY||0 }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, peanutFound, machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
 }
 window.addEventListener('pagehide', saveCheckpoint);
 let peanutFound = false, peanutCount = 0, peanutSound = true, peanutAudio;
@@ -92,8 +92,9 @@ async function reset() {
     }
     huntConfig=window.CarnivalManor.map;huntConfig.hunterName={ann:'Ann',antonio:'Antonio',joseph:'Joseph',grace:'Grace'}[huntConfig.hunter];walls.clear();for(const tile of huntConfig.walls)walls.add(tile);document.querySelector('.location-tag').textContent=huntConfig.name;document.querySelector('.heading h1').textContent='IDV Hunt · '+huntConfig.hunterName;hazards=[];decoy=null;hazardClock=7;snareTime=photoTime=0;abilityTime=hiddenTime=swiftTime=decodeTime=0;
     const choices=document.querySelector('.hunt-options');if(choices)choices.hidden=true;const info=document.getElementById('hunt-ability');if(info)info.textContent=currentPower().name+' · '+currentPower().hint+' Three charges; each finished cipher restores one.';
-    peanutFound = window.CarnivalManor?.peanut?.found === true;
+    peanutFound = access.checkpoint?.peanutFound === true;
     peanutCount = window.CarnivalManor?.peanut?.count || 0;
+    const peanutSpots=[];for(let y=2;y<17;y++)for(let x=2;x<23;x++){const point=center(x,y);if(!walls.has(x+','+y)&&findPath(center(2,9),point).length&&distance(point,center(2,9))>120&&!machines.some(m=>distance(m,point)<70))peanutSpots.push(point);}let peanutSeed=(access.peanutSeed||access.week||1)*17+(huntConfig.map||0)*7+['ann','antonio','joseph','grace'].indexOf(huntConfig.hunter)*13;const spot=peanutSpots[Math.abs(peanutSeed)%peanutSpots.length];if(spot)Object.assign(peanut,spot);
     player = center(2, 9);
     hunter = center(21, 10);
     hp = 3;
@@ -133,7 +134,7 @@ async function reset() {
     $('stick').style.transform = '';
     state = 'playing';
     overlay.close();
-    message(access.checkpoint ? (exitUnlocked() ? 'All ciphers complete! The exit is unlocked. Follow the moon marker to the gate.' : 'Your weekly adventure is right where you left it.') : 'Find three machines and one hidden treasure. Ann wanders the whole garden; hedges hide you.');
+    message(access.checkpoint ? (exitUnlocked() ? 'All ciphers complete! The exit is unlocked. Follow the moon marker to the gate.' : 'Your weekly adventure is right where you left it.') : 'Find three machines and one hidden treasure. Hedges hide you from the hunter.');
     saveCheckpoint();
     canvas.focus();
     hud();
@@ -466,9 +467,9 @@ function hud() {
     $('health').textContent = '♥ '.repeat(hp) + '♡ '.repeat(3 - hp);
     $('health').setAttribute('aria-label', hp + ' of 3 hearts');
     $('objectives').textContent = complete + ' / 3 ciphers · ' + (exitUnlocked() ? 'Exit unlocked' : 'Exit locked');
-    $('peanut-bag').disabled = !peanutFound;
-    $('peanut-bag').textContent = peanutFound ? '🥜 My peanut' : '🥜 Find peanut';
-    $('peanut-bag').setAttribute('aria-label', peanutFound ? 'Open your crunchy peanut' : 'Find the crunchy peanut in the western garden');
+    $('peanut-bag').hidden = !peanutFound;$('peanut-bag').disabled = !peanutFound;
+    $('peanut-bag').textContent = '🥜 My peanut';
+    $('peanut-bag').setAttribute('aria-label', 'Open your crunchy peanut');
     $('machine-count').textContent = '⚙ ' + complete + ' / 3';
     $('exit-status').textContent = exitUnlocked() ? '☾ Exit unlocked' : '☾ Exit locked';
     $('exit-status').classList.toggle('exit-ready', exitUnlocked());

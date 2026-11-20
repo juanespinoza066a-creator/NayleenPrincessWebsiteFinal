@@ -8,7 +8,7 @@ export const ROOMS = [
  {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach a best table score of 1,000',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'},
 {id:'gambit',name:'Gambit’s card lounge',hint:'Finish 5 hands in each of 8 weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/gambit.webp'},{id:'minecraft',name:'Block-built daydream',hint:'Enjoy 18 cozy squishy days',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/minecraft.webp'},{id:'manor',name:'Moonlit manor',hint:'Join the hunt in 12 different weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/manor.webp'},{id:'restaurant',name:'A little dinner date',hint:'Enjoy 28 play days and open boxes in 6 weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/restaurant.webp'}
 ];
-export function unlockedRooms(s){return ROOMS.filter(r=>(s.grantedRooms||[]).includes(r.id)||r.id==='gambit'&&journeyCounts(s).tableWeeks>=8||r.id==='minecraft'&&journeyCounts(s).cozyDays>=18||r.id==='manor'&&journeyCounts(s).mazeWeeks>=12||r.id==='restaurant'&&journeyCounts(s).playDays>=28&&journeyCounts(s).boxWeeks>=6||r.id==='lavender'||r.id==='cafe'&&unlockedSquishies(s).length>=SQUISHIES.length||r.id==='garden'&&((s.mazeWeeks||[]).length>=1||s.stats.manorWins>=1||!!s.manorRun)||r.id==='cards'&&s.clicker.lifetime>=1000000||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id)}
+export function unlockedRooms(s){return ROOMS.filter(r=>(s.grantedRooms||[]).includes(r.id)||r.id==='gambit'&&journeyCounts(s).tableWeeks>=8||r.id==='minecraft'&&journeyCounts(s).cozyDays>=18||r.id==='manor'&&journeyCounts(s).mazeWeeks>=12||r.id==='restaurant'&&journeyCounts(s).playDays>=28&&journeyCounts(s).boxWeeks>=6||r.id==='lavender'||r.id==='cafe'&&unlockedSquishies(s).length>=SQUISHIES.length||r.id==='garden'&&((s.mazeWeeks||[]).length>=1||s.stats.manorWins>=1||!!s.manorRun)||r.id==='cards'&&s.clicker.lifetime>=1000000||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id).filter(id=>!(s.tradedRooms||[]).includes(id))}
 export const SQUISHIES = [
  {id:'peanut',name:'Peanut Crunchy',goal:0,image:'assets/images/crunchy-peanut.svg',color:'#bd8c52',sound:'crunch'},
  {id:'butter',name:'Butter Baby',goal:250000,image:'assets/images/squishies/butter.webp',color:'#e9c963',sound:'butter'},
@@ -67,9 +67,9 @@ const integer = (v, max = 1e9) => Math.floor(number(v, max));
 const weeks = v => [...new Set(Array.isArray(v) ? v.filter(n => Number.isInteger(n) && n >= 1 && n <= 52) : [])];
 export const MAX_CRUNCHES = 1e12;
 export function freshState(now = Date.now()) {
-    return { version: 3, rouletteWeeks: {}, rouletteResult: null, dropRuns: {}, grantedRooms: [], grantedOutfits: [], journey: freshJourney(), room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', tradeWeeks: [], collectionHistory: [], weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
+    return { version: 3, tradedRooms: [], tradedOutfits: [], rouletteWeeks: {}, rouletteResult: null, dropRuns: {}, grantedRooms: [], grantedOutfits: [], journey: freshJourney(), room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', tradeWeeks: [], collectionHistory: [], weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
 }
-export function unlockedOutfits(s) { return OUTFITS.filter(o => (s.grantedOutfits||[]).includes(o.id) || o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 1000000 || OUTFIT_CHALLENGES[o.id] && ((s.journey?.earnedOutfits||[]).includes(o.id) || outfitProgress(s,o.id).every(g=>g.value>=g.goal))).map(o => o.id); }
+export function unlockedOutfits(s) { return OUTFITS.filter(o => (s.grantedOutfits||[]).includes(o.id) || o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 1000000 || OUTFIT_CHALLENGES[o.id] && ((s.journey?.earnedOutfits||[]).includes(o.id) || outfitProgress(s,o.id).every(g=>g.value>=g.goal))).map(o => o.id).filter(id=>!(s.tradedOutfits||[]).includes(id)); }
 export function normalizeState(raw, now = Date.now()) {
     const s = freshState(now);
     if (!raw || typeof raw !== 'object')
@@ -96,13 +96,14 @@ export function normalizeState(raw, now = Date.now()) {
     if (raw.weeklyBox && weeks([raw.weeklyBox.week]).length && (prizeID(raw.weeklyBox.id) || retiredPrize(raw.weeklyBox.id)))
         s.weeklyBox = { week: raw.weeklyBox.week, id: prizeID(raw.weeklyBox.id) || 'espurr', revealed: raw.weeklyBox.revealed === true };
     if (raw.manorRun && weeks([raw.manorRun.week]).length && ['active', 'won', 'lost'].includes(raw.manorRun.status)) {
-        s.manorRun = { hunt: normalizeHunt(raw.manorRun.hunt), outfit: OUTFITS.some(o=>o.id===raw.manorRun.outfit)?raw.manorRun.outfit:raw.outfit||'royal', week: raw.manorRun.week, status: raw.manorRun.status, loot: (Array.isArray(raw.manorRun.loot) ? raw.manorRun.loot : []).filter((x, i, all) => all.some(y => y?.claimed) ? x === all.find(y => y?.claimed) : i === 0).slice(0, 1).map(x => ({ id: prizeID(x.id) || 'espurr', claimed: x.claimed === true })), checkpoint: normalizeCheckpoint(raw.manorRun.checkpoint) };
+        s.manorRun = { peanutSeed:integer(raw.manorRun.peanutSeed,1e6), hunt: normalizeHunt(raw.manorRun.hunt), outfit: OUTFITS.some(o=>o.id===raw.manorRun.outfit)?raw.manorRun.outfit:raw.outfit||'royal', week: raw.manorRun.week, status: raw.manorRun.status, loot: (Array.isArray(raw.manorRun.loot) ? raw.manorRun.loot : []).filter((x, i, all) => all.some(y => y?.claimed) ? x === all.find(y => y?.claimed) : i === 0).slice(0, 1).map(x => ({ id: prizeID(x.id) || 'espurr', claimed: x.claimed === true })), checkpoint: normalizeCheckpoint(raw.manorRun.checkpoint) };
     }
     if (s.weeklyBox && !s.weeklyClaims.includes(s.weeklyBox.week)) s.weeklyClaims.push(s.weeklyBox.week);
     if (s.manorRun && !s.mazeWeeks.includes(s.manorRun.week)) s.mazeWeeks.push(s.manorRun.week);
     s.rouletteWeeks = cleanWeekMap(raw.rouletteWeeks, n=>integer(n,3));
     s.rouletteResult = cleanRoulette(raw.rouletteResult);
     s.dropRuns = cleanWeekMap(raw.dropRuns, cleanDrop);const activeWeeks=Object.keys(s.dropRuns).filter(k=>s.dropRuns[k].status==='active').sort();for(const old of activeWeeks.slice(0,-1)){s.dropRuns[old].status='lost';s.dropRuns[old].pieces=[];}
+    s.tradedRooms=cleanGrants(raw.tradedRooms,ROOMS).filter(id=>id!=='lavender');s.tradedOutfits=cleanGrants(raw.tradedOutfits,OUTFITS).filter(id=>id!=='royal');
     s.grantedRooms = cleanGrants(raw.grantedRooms,ROOMS);
     s.grantedOutfits = cleanGrants(raw.grantedOutfits,OUTFITS);
     s.journey = normalizeJourney(raw.journey,now);
@@ -116,7 +117,7 @@ export function normalizeCheckpoint(c) {
     if (!c || typeof c !== 'object')
         return null;
     const position = p => ({ x: Math.max(50, Math.min(950, number(p?.x, 1000) || 100)), y: Math.max(50, Math.min(710, number(p?.y, 760) || 380)), facing: p?.facing === -1 ? -1 : 1, facingY: p?.facingY === -1 ? -1 : 0,travelX:Math.max(-1,Math.min(1,Number(p?.travelX)||0)),travelY:Math.max(-1,Math.min(1,Number(p?.travelY)||0)) });
-    return { player: position(c.player), hunter: position(c.hunter), hp: Math.max(1, Math.min(3, integer(c.hp) || 3)), stamina: number(c.stamina, 100), charges: integer(c.charges, 3), elapsed: number(c.elapsed, 86400), rescued: c.rescued === true, machines: Array.from({ length: 3 }, (_, i) => number(c.machines?.[i], 40)), pallets: Array.from({ length: 3 }, (_, i) => c.pallets?.[i] === true) };
+    return { player: position(c.player), hunter: position(c.hunter), hp: Math.max(1, Math.min(3, integer(c.hp) || 3)), stamina: number(c.stamina, 100), charges: integer(c.charges, 3), elapsed: number(c.elapsed, 86400), rescued: c.rescued === true, peanutFound:c.peanutFound===true, machines: Array.from({ length: 3 }, (_, i) => number(c.machines?.[i], 40)), pallets: Array.from({ length: 3 }, (_, i) => c.pallets?.[i] === true) };
 }
 export function validState(raw) {
     if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > PRIZES.length + 1 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => knownPrize(id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
@@ -177,7 +178,7 @@ export function revealBox(s) { const box = s.weeklyBox; if (!box || box.revealed
     return null; box.revealed = true; s.stats.boxes++; s.stats.rounds++; recordJourney(s,'box'); return { id: box.id, isNew: awardPrize(s, box.id) }; }
 export function beginMaze(s, week, random = Math.random) { if (s.manorRun?.status === 'active')
     return s.manorRun; if (s.mazeWeeks.includes(week))
-    return null; s.mazeWeeks.push(week); s.manorRun = { hunt: weeklyHunt(week), outfit: s.outfit, week, status: 'active', loot: Array.from({ length: 1 }, () => ({ id: PRIZES[Math.min(PRIZES.length - 1, Math.floor(random() * PRIZES.length))].id, claimed: false })), checkpoint: null }; recordJourney(s,'maze-start'); return s.manorRun; }
+    return null; s.mazeWeeks.push(week); s.manorRun = { peanutSeed:Math.floor(random()*1e6), hunt: weeklyHunt(week), outfit: s.outfit, week, status: 'active', loot: Array.from({ length: 1 }, () => ({ id: PRIZES[Math.min(PRIZES.length - 1, Math.floor(random() * PRIZES.length))].id, claimed: false })), checkpoint: null }; recordJourney(s,'maze-start'); return s.manorRun; }
 export function claimMazePrize(s, index) { const loot = s.manorRun?.status === 'active' && s.manorRun.loot[index]; if (!loot || loot.claimed || s.manorRun.loot.some(x => x.claimed))
     return null; loot.claimed = true; return { id: loot.id, isNew: awardPrize(s, loot.id) }; }
 export function handTotal(cards) { let n = cards.reduce((n, c) => n + Math.min(c.rank, 10), 0); if (cards.some(c => c.rank === 1) && n + 10 <= 21)
@@ -229,12 +230,19 @@ export function recordJourney(s,event,now=Date.now()){
 // Palace 5: weekly plays use Monday dates and survive reloads.
 const cleanGrants=(v,items)=>[...new Set((Array.isArray(v)?v:[]).filter(id=>items.some(x=>x.id===id)))];
 function cleanWeekMap(raw,clean){const out={};if(raw&&typeof raw==='object'&&!Array.isArray(raw))for(const key of Object.keys(raw).filter(dateKey).sort().slice(-104)){const value=clean(raw[key]);if(value!==null)out[key]=value;}return out;}
-function cleanRoulette(r){return r&&dateKey(r.week)&&Number.isInteger(r.number)&&r.number>=0&&r.number<=36&&['rose','violet'].includes(r.color)&&knownPrize(r.wager)&&Array.isArray(r.prizes)&&r.prizes.length<=2&&r.prizes.every(knownPrize)?{week:r.week,number:r.number,color:r.color,wager:r.wager,prizes:[...r.prizes],won:r.won===true}:null;}
-export function rouletteStatus(s,week=mondayKey()){const used=s.rouletteWeeks?.[week]||0;return {used,left:Math.max(0,3-used),canSpin:used<3&&s.prizes.length>=2};}
-export function spinRoulette(s,wagers,color,random=Math.random,week=mondayKey()){
- if(!Array.isArray(wagers)||wagers.length!==2||new Set(wagers).size!==2||!wagers.every(id=>s.prizes.includes(id))||(s.rouletteWeeks?.[week]||0)>=3)return null;
- s.rouletteWeeks??={};s.rouletteWeeks[week]=(s.rouletteWeeks[week]||0)+1;s.prizes=s.prizes.filter(id=>!wagers.includes(id));s.shelf=s.shelf.map(id=>wagers.includes(id)?null:id);
- const id=PRIZES[Math.min(PRIZES.length-1,Math.floor(random()*PRIZES.length))].id;awardPrize(s,id);s.rouletteResult={week,number:Math.floor(random()*37),color:'rose',wager:wagers[0],wagers:[...wagers],prizes:[id],won:true};return structuredClone(s.rouletteResult);
+function cleanRoulette(r){return r&&dateKey(r.week)&&Number.isInteger(r.number)&&r.number>=0&&r.number<=36&&['rose','violet'].includes(r.color)&&knownPrize(r.wager)&&Array.isArray(r.prizes)&&r.prizes.length<=2&&r.prizes.every(knownPrize)?{week:r.week,number:r.number,color:r.color,wager:r.wager,prizes:[...r.prizes],won:r.won===true,...(r.reward&&['collectible','room','outfit'].includes(r.reward.kind)&&(r.reward.kind==='collectible'?PRIZES:r.reward.kind==='room'?ROOMS:OUTFITS).some(x=>x.id===r.reward.id)?{reward:{kind:r.reward.kind,id:r.reward.id}}:{}),...(Array.isArray(r.offerings)?{offerings:r.offerings.filter(x=>x&&['collectible','room','outfit'].includes(x.kind)).slice(0,2).map(x=>({kind:x.kind,id:x.id}))}:{})}:null;}
+export const ROULETTE_ODDS={collectible:.85,room:.10,outfit:.05};
+export function ownedTradeItems(s){return [...PRIZES.filter(x=>s.prizes.includes(x.id)).map(x=>({...x,kind:'collectible'})),...ROOMS.filter(x=>unlockedRooms(s).includes(x.id)).map(x=>({...x,kind:'room'})),...OUTFITS.filter(x=>unlockedOutfits(s).includes(x.id)).map(x=>({...x,kind:'outfit'}))].map(x=>({...x,key:x.kind+':'+x.id,protected:x.kind==='room'&&(x.id==='lavender'||x.id===s.room)||x.kind==='outfit'&&(x.id==='royal'||x.id===s.outfit)}));}
+export function rouletteStatus(s,week=mondayKey()){const used=Math.min(1,s.rouletteWeeks?.[week]||0);return {used,left:1-used,canSpin:used===0&&ownedTradeItems(s).filter(x=>!x.protected).length>=2};}
+export function grantItem(s,kind,id){if(kind==='collectible')return awardPrize(s,id);const retired=kind==='room'?'tradedRooms':'tradedOutfits',grants=kind==='room'?'grantedRooms':'grantedOutfits';s[retired]=(s[retired]||[]).filter(x=>x!==id);s[grants]??=[];if(!s[grants].includes(id))s[grants].push(id);return true;}
+export function spinRoulette(s,offerings,color,random=Math.random,week=mondayKey()){
+ if(!Array.isArray(offerings)||offerings.length!==2||!rouletteStatus(s,week).canSpin)return null;
+ const items=offerings.map(x=>typeof x==='string'?{kind:'collectible',id:x}:x),owned=ownedTradeItems(s);if(new Set(items.map(x=>x?.kind+':'+x?.id)).size!==2||!items.every(x=>owned.some(y=>!y.protected&&y.kind===x?.kind&&y.id===x?.id)))return null;
+ // Decide the prize before mutating inventory. Category probabilities never change for duplicate ownership.
+ const roll=random(),kind=roll<.85?'collectible':roll<.95?'room':'outfit',pool=kind==='collectible'?PRIZES:kind==='room'?ROOMS:OUTFITS,id=pool[Math.min(pool.length-1,Math.floor(random()*pool.length))].id;
+ for(const item of items)if(item.kind==='collectible'){s.prizes=s.prizes.filter(x=>x!==item.id);s.shelf=s.shelf.map(x=>x===item.id?null:x);}else{const key=item.kind==='room'?'tradedRooms':'tradedOutfits';s[key]??=[];s[key].push(item.id);}
+ s.rouletteWeeks??={};s.rouletteWeeks[week]=1;grantItem(s,kind,id);
+ s.rouletteResult={week,number:Math.min(36,Math.floor(random()*37)),color:'rose',wager:items.find(x=>x.kind==='collectible')?.id||'espurr',prizes:kind==='collectible'?[id]:[],won:true,offerings:items.map(x=>({kind:x.kind,id:x.id})),reward:{kind,id}};return structuredClone(s.rouletteResult);
 }
 
 export const DROP_GOAL=1400;
@@ -255,10 +263,10 @@ export function finishDrop(s,won,random=Math.random,week=mondayKey()){
  const rooms=ROOMS.filter(x=>!unlockedRooms(s).includes(x.id)),outfits=OUTFITS.filter(x=>!unlockedOutfits(s).includes(x.id));
  const options=[{kind:'collectible',items:PRIZES},...(rooms.length?[{kind:'room',items:rooms}]:[]),...(outfits.length?[{kind:'outfit',items:outfits}]:[])];
  const choice=options[Math.min(options.length-1,Math.floor(random()*options.length))],item=choice.items[Math.min(choice.items.length-1,Math.floor(random()*choice.items.length))];
- run.reward={kind:choice.kind,id:item.id};if(choice.kind==='collectible')awardPrize(s,item.id);else{const key=choice.kind==='room'?'grantedRooms':'grantedOutfits';s[key]??=[];if(!s[key].includes(item.id))s[key].push(item.id);}return {...run.reward,name:item.name,won:true};
+ run.reward={kind:choice.kind,id:item.id};grantItem(s,choice.kind,item.id);return {...run.reward,name:item.name,won:true};
 }
 function validWeeklyGames(s){
- for(const [key,items] of [['grantedRooms',ROOMS],['grantedOutfits',OUTFITS]])if(s[key]!==undefined&&(!Array.isArray(s[key])||s[key].length>items.length||s[key].some(id=>!items.some(x=>x.id===id))))return false;
+ for(const [key,items] of [['grantedRooms',ROOMS],['grantedOutfits',OUTFITS],['tradedRooms',ROOMS],['tradedOutfits',OUTFITS]])if(s[key]!==undefined&&(!Array.isArray(s[key])||s[key].length>items.length||s[key].some(id=>!items.some(x=>x.id===id))))return false;
  for(const key of ['rouletteWeeks','dropRuns']){const v=s[key];if(v!==undefined&&(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).length>104||Object.keys(v).some(k=>!dateKey(k))))return false;}
  if(Object.values(s.rouletteWeeks||{}).some(n=>!Number.isInteger(n)||n<0||n>3))return false;
  if(Object.values(s.dropRuns||{}).some(r=>!cleanDrop(r)||!Array.isArray(r.pieces)||r.pieces.length>100))return false;
@@ -268,5 +276,5 @@ function validWeeklyGames(s){
 export function keepWeeklyUses(restored,current){
  for(const [week,n] of Object.entries(current.rouletteWeeks||{}))restored.rouletteWeeks[week]=Math.max(restored.rouletteWeeks[week]||0,n);
  for(const [week,run] of Object.entries(current.dropRuns||{}))restored.dropRuns[week]=structuredClone(run);
- restored.rouletteWeeks=cleanWeekMap(restored.rouletteWeeks,n=>integer(n,3));restored.dropRuns=cleanWeekMap(restored.dropRuns,cleanDrop);return restored;
+ restored.tradedRooms=[...new Set([...(restored.tradedRooms||[]),...(current.tradedRooms||[])])];restored.tradedOutfits=[...new Set([...(restored.tradedOutfits||[]),...(current.tradedOutfits||[])])];restored.rouletteWeeks=cleanWeekMap(restored.rouletteWeeks,n=>integer(n,3));restored.dropRuns=cleanWeekMap(restored.dropRuns,cleanDrop);return restored;
 }

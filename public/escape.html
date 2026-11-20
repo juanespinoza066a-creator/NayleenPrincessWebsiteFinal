@@ -14,7 +14,7 @@
 <script type="module" src="assets/js/code-login.js"></script><link rel="stylesheet" href="assets/css/code-login.css"></head>
 <body>
 <main>
-<header><a href="./">← Nayleen’s carnival</a><div class="top-actions"><button id="peanut-bag" disabled aria-label="Find the crunchy peanut in the western garden">🥜 Find peanut</button><button id="maze-music" aria-pressed="true">♫ Music on</button><button id="maze-sfx" aria-pressed="true">♪ Effects on</button><button id="help" aria-label="How to play">?</button><button id="pause">Ⅱ Pause</button></div></header>
+<header><a href="./">← Nayleen’s carnival</a><div class="top-actions"><button id="peanut-bag" hidden disabled aria-label="Find the crunchy peanut in the western garden">🥜 Find peanut</button><button id="maze-music" aria-pressed="true">♫ Music on</button><button id="maze-sfx" aria-pressed="true">♪ Effects on</button><button id="help" aria-label="How to play">?</button><button id="pause">Ⅱ Pause</button></div></header>
 <section class="heading"><div><p>AN ADVENTURE FOR MY PRINCESS</p><h1>IDV Hunt</h1></div><div class="clock"><span>ESCAPE TIME</span><strong id="clock">0:00</strong></div></section>
 <div class="game-shell">
   <div class="mission-bar">
@@ -27,7 +27,7 @@
     <div class="legend">⚙ Machines <span>✧</span> Treasure <span>☾</span> Exit</div>
     <div id="repair-note" class="repair-note" hidden><span id="repair-label">DECODING</span><progress id="repair" max="40" value="0"></progress></div>
   </div>
-  <div class="readout"><span class="status-spark" aria-hidden="true">✦</span><p id="status" role="status">Complete three ciphers to unlock the exit. Find one weekly collectible and the crunchy peanut.</p></div>
+  <div class="readout"><span class="status-spark" aria-hidden="true">✦</span><p id="status" role="status">Complete three ciphers to unlock the exit. Find one hidden weekly collectible.</p></div>
   <div class="control-deck">
     <div class="movement"><div id="joystick" aria-label="Movement joystick"><span id="stick"></span><span class="joy-label">MOVE</span></div><label class="energy">ENERGY <progress id="stamina" max="100" value="100"></progress></label></div>
     <div class="buttons"><button id="interact" class="interact">Interact · E</button><button id="power"><span aria-hidden="true">✦</span> Psychic stun · 3</button><button id="sprint">Hold to sprint</button></div>

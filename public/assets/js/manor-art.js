@@ -1,4 +1,3 @@
-const HUNTER_ART_BOUNDS={"ann": [433, 141, 382, 766], "antonio": [231, 125, 654, 793], "joseph": [379, 134, 449, 752], "grace": [197, 115, 612, 769]};let hunterPortrait=null;
 /* Animated canvas actors and garden artwork. All motion follows the game clock. */
 function drawManor(v) {
     const { canvas, player, hunter, machines, pallets, walls, gate, elapsed: t, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures = [], T, COLS, ROWS } = v;
@@ -153,19 +152,90 @@ function drawManor(v) {
         text(0, 25, 'CIPHER ' + (i + 1), 8, '#c3afce');
         c.restore();
     }
-    function hunterActor(p){
-      const kind=v.huntConfig?.hunter||'ann';if(kind==='ann'){annActor(p);return;}
-      if(typeof Image==='function'){if(!hunterPortrait||hunterPortrait.kind!==kind){const img=new Image();img.src='assets/images/hunters/'+kind+'-full.png';hunterPortrait={kind,img};}const img=hunterPortrait.img;if(img.complete&&img.naturalWidth){const [sx,sy,sw,sh]=HUNTER_ART_BOUNDS[kind],height=104,width=Math.min(100,height*sw/sh),bob=p.moving?Math.sin(p.walk||0)*2:Math.sin(t*2)*.6;c.save();c.translate(p.x,p.y);shadow(0,10,18);c.rotate(p.moving?Math.sin(p.walk||0)*.025:0);c.drawImage(img,sx,sy,sw,sh,-width/2,-height+12+bob,width,height);if(stunned>0)text(0,-height-3,'✦',18,'#edcbff');c.restore();return;}}
-      c.save();c.translate(p.x,p.y);shadow(0,10,17);const swing=Math.sin((p.walk||0))*5;
-      const coat=kind==='antonio'?'#502c46':kind==='joseph'?'#d4deeb':'#5a9fa4';
-      line([[-7,5],[-9,19+swing]],'#303245',5);line([[7,5],[9,19-swing]],'#303245',5);
-      c.fillStyle=coat;c.beginPath();c.moveTo(-10,-25);c.lineTo(10,-25);c.lineTo(17,12);c.lineTo(-17,12);c.closePath();c.fill();
-      oval(0,-31,10,12,kind==='grace'?'#cce7df':'#ead9d9');oval(0,-41,13,6,kind==='antonio'?'#292030':kind==='joseph'?'#f1edf0':'#2c5660');
-      oval(-4,-31,1.3,1.5,'#39314d');oval(4,-31,1.3,1.5,'#39314d');
-      if(kind==='antonio'){c.save();c.strokeStyle='#211b2e';c.lineWidth=4;for(let n=0;n<5;n++){c.beginPath();c.moveTo(-9+n*4,-40);c.quadraticCurveTo(-30+Math.sin(t*2+n)*9,-6,-16+n*6,24);c.stroke();}c.restore();for(let i=0;i<3;i++)line([[-11+i*4,-40],[-18+i*2,8]],'#292030',3);oval(13,-12,5,10,'#a57560');line([[7,-22],[23,0]],'#e0c3a5',2);text(22,-35,'♫',17,'#e8c3d6');}
-      if(kind==='joseph'){shape([[-10,-20],[-27,12],[-8,7],[0,13],[9,8],[26,12],[10,-20]],'#b4c6dd');line([[-7,-19],[-4,5]],'#efe2b6',2);line([[7,-19],[4,5]],'#efe2b6',2);box(8,-19,16,11,2,'#637387','#c9d5e6');oval(16,-14,4,4,'#3e4e68');line([[-10,-20],[-19,5]],'#dee6ef',5);text(0,-54,'✧',17,'#cfe2fa');}
-      if(kind==='grace'){shape([[-10,-14],[-21,17],[-9,13],[0,19],[11,13],[21,17],[10,-14]],'#588f9b');for(let n=0;n<3;n++)line([[-15+n*12,10],[-18+n*14,18+Math.sin(t*2+n)*3]],'#b1d6d0',2);line([[15,-38],[22,19]],'#b6d7cd',3);line([[15,-38],[8,-26]],'#b6d7cd',2);line([[15,-38],[21,-26]],'#b6d7cd',2);oval(0,-4,12,4,'#78b5bb');text(-18,-40,'◌',18,'#a3d4d3');}
-      if(stunned>0)text(0,-57,'✦',19,'#ead0ff');c.restore();
+    function hunterActor(p) {
+        const kind = v.huntConfig?.hunter || 'ann';
+        if (kind === 'ann') { annActor(p); return; }
+        c.save();
+        c.translate(p.x, p.y);
+        shadow(0, 11, 19);
+        const stride = p.walk || 0, sway = p.moving ? Math.sin(stride) * 2 : Math.sin(t * 1.6) * 1.2;
+        const reach = p.attack > 0 ? Math.sin(p.attack * 9) * 13 : Math.sin(stride) * 2;
+        const face = kind === 'grace' ? '#c4d9d2' : kind === 'joseph' ? '#e1dce2' : '#b6a4b0';
+        // Little articulated boots keep the same silhouette and scale as Ann.
+        oval(-7, 10 + Math.sin(stride) * 2, 4, 6, kind === 'joseph' ? '#49576e' : '#292738');
+        oval(6, 10 - Math.sin(stride) * 2, 4, 6, kind === 'joseph' ? '#49576e' : '#292738');
+        c.save(); c.rotate(sway * .018);
+        const coat = c.createLinearGradient(-17, -24, 20, 16);
+        const colors = kind === 'antonio' ? ['#79566b', '#493143', '#261f30'] : kind === 'joseph' ? ['#c7d6e8', '#718ba9', '#3c506c'] : ['#90bfc1', '#4d818f', '#2a4f62'];
+        colors.forEach((color, i) => coat.addColorStop(i / 2, color));
+        shape([[-9,-24],[-15,-10],[-20-sway,13],[-9,10],[-3,15],[4,11],[13,15],[20+sway,10],[13,-12],[8,-24]], coat);
+        line([[-7,-18],[-12,10]], colors[0], 1); line([[7,-18],[13,11]], colors[0], 1);
+        shape([[-3,-40],[4,-40],[5,-22],[-4,-22]], face);
+        if (kind === 'antonio') {
+            // The violinist's hair trails behind his long, bowed head.
+            for (let n = 0; n < 7; n++) {
+                c.beginPath(); c.moveTo(-12+n*3.5,-55);
+                c.bezierCurveTo(-28+Math.sin(t*2+n)*5,-35,-29+Math.sin(t*2+n)*7,-1,-18+n*6,22+Math.sin(t*2+n)*3);
+                c.strokeStyle = n%2 ? '#403044' : '#201c2b'; c.lineWidth = 4; c.stroke();
+            }
+            shape([[-8,-24],[-3,-17],[0,-25],[5,-18],[9,-24],[6,-9],[-5,-9]], '#322332');
+            line([[-4,-17],[-6,9]], '#a68691', 1);
+            for (let n=0;n<4;n++) oval(2,-8+n*5,1,1,'#c6a18c');
+            oval(0,-47,8.5,12,face);
+            shape([[-10,-52],[-6,-59],[4,-58],[10,-51],[9,-36],[5,-45],[1,-50],[-5,-46],[-7,-36]], '#28202e');
+            line([[-6,-45],[-2,-43]],'#4b354b',1.6); line([[2,-43],[6,-45]],'#4b354b',1.6);
+            line([[0,-44],[-2,-38],[1,-38]],'#806779',.8); line([[-3,-34],[2,-34]],'#6c4b60',1);
+            line([[-9,-21],[-17,-10],[3,-12]], face, 3);
+            line([[9,-22],[18,-13],[23+reach,-2]], face, 3);
+            c.save(); c.translate(10,-12); c.rotate(-.5);
+            oval(0,-1,5.5,6.5,'#a77760'); oval(0,8,6.5,7.5,'#93624f');
+            oval(-5,3,2,2.8,'#493346'); oval(5,3,2,2.8,'#493346');
+            line([[0,-6],[0,-23]],'#714b4d',3); oval(0,-25,3,3,'#b49377');
+            for (let n=-1;n<=1;n++) line([[n,-21],[n,11]],'#e4c9a2',.5);
+            line([[-3,7],[3,7]],'#e7cfaa',1); c.restore();
+            line([[8,-26],[28+reach,3]],'#b89779',1.7); line([[10,-26],[30+reach,2]],'#e9d5b5',.6);
+            text(-22+Math.sin(t)*2,-38-Math.sin(t*2)*3,'♪',13,'#c69bb7');
+        } else if (kind === 'joseph') {
+            // Powdered curls, a ruffled collar, brocade and his little camera.
+            shape([[-12,-21],[-27,14],[-9,8],[-5,-6],[0,0],[5,-6],[10,8],[27,14],[12,-21]], coat);
+            line([[-11,-20],[-18,8]],'#c7d5df',1); line([[11,-20],[18,8]],'#c7d5df',1);
+            for(let n=0;n<4;n++) { oval(-9,-15+n*5,1,1,'#d8c49e'); oval(9,-15+n*5,1,1,'#d8c49e'); }
+            shape([[-8,-25],[-4,-17],[0,-22],[5,-17],[8,-25],[4,-29],[-4,-29]],'#f1e8dd');
+            line([[0,-22],[0,-8]],'#e5d8c7',2); oval(0,-20,2,3,'#90aecb');
+            oval(0,-46,8.5,11,face);
+            for(let n=0;n<7;n++) oval(-10+n*3.2,-53-Math.sin(n)*3,4.3,4.6,n%2?'#e4e0e8':'#f2eced');
+            oval(-10,-44,4,8,'#d5d3e0'); oval(10,-44,4,8,'#e9e4ea');
+            line([[11,-47],[16,-33],[12,-27]],'#dddce7',5); shape([[11,-30],[18,-28],[12,-26],[8,-28]],'#4c6585');
+            line([[-6,-45],[-2,-46]],'#6b6b83',1.4); line([[2,-46],[6,-45]],'#6b6b83',1.4);
+            oval(-4,-43,1.4,1,'#7791ad'); oval(4,-43,1.4,1,'#7791ad');
+            line([[0,-43],[-1,-38],[1,-38]],'#a3a0b1',.8); line([[-2,-34],[2,-34]],'#97828f',.8);
+            line([[-11,-21],[-20,-10],[-17+reach,0]],'#c9d6e2',4);
+            line([[10,-21],[18,-14],[18,-7]],'#c9d6e2',4);
+            box(10,-17,17,12,2,'#5b6d83','#c7cbd3'); oval(18.5,-11,4.7,4.7,'#ccd6df'); oval(18.5,-11,3.3,3.3,'#374257'); oval(17.5,-12,1,1,'#a5c4df');
+            box(12,-20,7,3,1,'#c1cbd9');
+            c.save(); c.translate(-17+reach,0); c.rotate(-.5); line([[0,-14],[0,23]],'#c3c3d1',1.8); shape([[-3,-14],[0,-23],[3,-14]],'#e4d8c9'); c.restore();
+        } else {
+            // Naiad's layered skirt, sea-glass eyes and swaying harpoon ribbons.
+            shape([[-9,-25],[-6,-9],[-20-sway,12],[-13,10],[-7,17],[0,13],[8,18],[14,11],[21+sway,14],[8,-10],[7,-25]], coat);
+            for(let n=0;n<4;n++) line([[-12+n*8,-4],[-15+n*10,13+Math.sin(t*2+n)*2]],'#8fb8bd',.8);
+            shape([[-8,-24],[-3,-18],[2,-22],[8,-25],[4,-10],[-4,-12]],'#a8c5c6');
+            oval(0,-46,8.5,11,face);
+            shape([[-10,-50],[-9,-57],[0,-60],[9,-55],[12,-43],[15+sway,-22],[8,-26],[6,-42],[1,-50],[-5,-47],[-9,-31],[-14-sway,-24]],'#254b5a');
+            line([[-9,-50],[-11,-33],[-16-sway,-20]],'#50818b',1.7); line([[7,-53],[12,-34],[17+sway,-23]],'#50818b',1.7);
+            line([[-6,-45],[-2,-44]],'#385e69',1.4); line([[2,-44],[6,-45]],'#385e69',1.4);
+            oval(-4,-43,1.4,1.2,'#a7c9c2'); oval(4,-43,1.4,1.2,'#a7c9c2');
+            line([[0,-42],[-1,-38],[1,-38]],'#7d9f9e',.8); line([[-2,-34],[2,-34]],'#6d8a91',.8);
+            shape([[-7,-54],[-12,-58],[-12,-51],[-6,-51]],'#c9d4ba'); oval(-8,-53,1.5,1.5,'#d9d4b4');
+            line([[-9,-22],[-19,-12],[-22,-19]],face,3); line([[8,-22],[16,-12],[22+reach,-6]],face,3);
+            c.save(); c.translate(22+reach,-6); c.rotate(-.15);
+            line([[0,-37],[0,27]],'#b5cbc6',2.3); shape([[-3,-29],[0,-43],[3,-29],[0,-32]],'#d1ded3');
+            line([[0,-37],[-7,-30],[-4,-34]],'#b5cbc6',1.6); line([[0,-37],[7,-30],[4,-34]],'#b5cbc6',1.6);
+            line([[0,-18],[7+Math.sin(t*3)*3,-10],[4,-2]],'#a6d1d1',1.5); c.restore();
+            for(let n=0;n<2;n++) { c.beginPath(); c.ellipse(0,17+n*3,19+n*7,4+n*2,0,0,Math.PI*2); c.strokeStyle='#91c8cb55'; c.lineWidth=1; c.stroke(); }
+        }
+        c.restore();
+        if(stunned>0)for(let i=0;i<3;i++)star(Math.cos(t*3+i*2)*17,-66+Math.sin(t*3+i*2)*3,3,'#d3c5fc',t);
+        c.restore();
     }
     c.save();
     c.translate(-cameraX, -cameraY);

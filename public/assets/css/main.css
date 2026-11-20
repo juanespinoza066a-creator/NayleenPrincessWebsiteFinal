@@ -148,3 +148,12 @@ button:disabled,.button:disabled,.game-card:disabled{background:#e3d2ee!importan
 .drop-picture .mini-basket img:nth-child(1){left:5px;bottom:5px;width:38px;height:38px}
 .drop-picture .mini-basket img:nth-child(2){left:50px;bottom:5px;width:38px;height:38px}
 .drop-picture .mini-basket img:nth-child(3){left:28px;bottom:55px;width:38px;height:38px}
+
+/* Keep the room portrait centered without CSS motion. */
+.espurr-room .espurr-doll,.espurr-room .espurr-doll.espurr-petted,.espurr-room .espurr-doll.espurr-napping{left:50%!important;right:auto!important;transform:translateX(-50%)!important;animation:none!important;margin:0!important}
+.royal-wheel{transition:transform 2s cubic-bezier(.12,.72,.12,1);position:relative}.roulette-stage{position:relative}.roulette-stage:after{content:'▼';position:absolute;top:-13px;left:calc(50% + 55px);color:#c79a54;font-size:30px}.roulette-result img{display:block;margin:10px auto;filter:drop-shadow(0 5px 9px #9c6fb855)}.roulette-result.prize-arrived{animation:royal-reveal .7s ease-out}.royal-wheel.spinning{box-shadow:0 0 30px #dfb9ee}.roulette-confirm{border:2px solid #c9a8d9;border-radius:20px;padding:16px;background:#f4e9fa;text-align:center}.roulette-confirm .game-actions{justify-content:center}.princess-drop{box-shadow:0 10px 30px #80578b25;background:#fcf5ff;border-color:#a982ba}.drop-score{padding:12px;border-radius:15px;background:#e8d6f1;color:#573366}@keyframes royal-reveal{0%{transform:scale(.7);opacity:.2}70%{transform:scale(1.07)}100%{transform:scale(1);opacity:1}}
+
+.roulette-cheer{animation:royal-cheer .6s ease-in-out infinite!important}@keyframes royal-cheer{50%{transform:translateY(-9px) rotate(-5deg)}}.drop-next{display:flex;justify-content:center;align-items:center;gap:15px;padding:8px 15px;border-radius:18px;background:#f8ecff;color:#634078}.drop-next img{width:55px;height:55px;object-fit:contain}.roulette-confirm[hidden]{display:none!important}
+
+@media(prefers-reduced-motion:reduce){.roulette-cheer{animation:none!important}}
+.roulette-result:empty{display:none}.roulette-result img{width:min(100%,180px);height:160px;object-fit:contain}.roulette-confirm>.button{margin:6px}
