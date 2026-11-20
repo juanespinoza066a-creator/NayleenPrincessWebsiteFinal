@@ -5,9 +5,10 @@ export const ROOMS = [
  {id:'garden',name:'Lily-of-the-valley garden',hint:'Play Ann’s weekly maze at least once',wall:'#d1e7dc',floor:'#8cb6a0',image:'assets/images/rooms/lilies.webp'},
  {id:'cards',name:'Pokémon card shop',hint:'Make 1,000,000 lifetime squishes',wall:'#dbc8ed',floor:'#af8dbd',image:'assets/images/rooms/cards.webp'},
  {id:'popmart',name:'Pop Mart date',hint:'Open 3 weekly blind boxes',wall:'#efd0e3',floor:'#c8a2b9',image:'assets/images/rooms/popmart.webp'},
- {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach a best table score of 1,000',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'}
+ {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach a best table score of 1,000',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'},
+{id:'gambit',name:'Gambit’s card lounge',hint:'Finish 5 hands in each of 8 weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/gambit.webp'},{id:'minecraft',name:'Block-built daydream',hint:'Enjoy 18 cozy squishy days',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/minecraft.webp'},{id:'manor',name:'Moonlit manor',hint:'Join the hunt in 12 different weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/manor.webp'},{id:'restaurant',name:'A little dinner date',hint:'Enjoy 28 play days and open boxes in 6 weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/restaurant.webp'}
 ];
-export function unlockedRooms(s){return ROOMS.filter(r=>(s.grantedRooms||[]).includes(r.id)||r.id==='lavender'||r.id==='cafe'&&unlockedSquishies(s).length>=SQUISHIES.length||r.id==='garden'&&((s.mazeWeeks||[]).length>=1||s.stats.manorWins>=1||!!s.manorRun)||r.id==='cards'&&s.clicker.lifetime>=1000000||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id)}
+export function unlockedRooms(s){return ROOMS.filter(r=>(s.grantedRooms||[]).includes(r.id)||r.id==='gambit'&&journeyCounts(s).tableWeeks>=8||r.id==='minecraft'&&journeyCounts(s).cozyDays>=18||r.id==='manor'&&journeyCounts(s).mazeWeeks>=12||r.id==='restaurant'&&journeyCounts(s).playDays>=28&&journeyCounts(s).boxWeeks>=6||r.id==='lavender'||r.id==='cafe'&&unlockedSquishies(s).length>=SQUISHIES.length||r.id==='garden'&&((s.mazeWeeks||[]).length>=1||s.stats.manorWins>=1||!!s.manorRun)||r.id==='cards'&&s.clicker.lifetime>=1000000||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&s.stats.bestBank>=1000).map(r=>r.id)}
 export const SQUISHIES = [
  {id:'peanut',name:'Peanut Crunchy',goal:0,image:'assets/images/crunchy-peanut.svg',color:'#bd8c52',sound:'crunch'},
  {id:'butter',name:'Butter Baby',goal:250000,image:'assets/images/squishies/butter.webp',color:'#e9c963',sound:'butter'},
@@ -182,7 +183,7 @@ export function claimMazePrize(s, index) { const loot = s.manorRun?.status === '
 export function handTotal(cards) { let n = cards.reduce((n, c) => n + Math.min(c.rank, 10), 0); if (cards.some(c => c.rank === 1) && n + 10 <= 21)
     n += 10; return n; }
 
-export function testingState(now = Date.now()) { const s = freshState(now); s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 30; s.clicker.ownedSkins=SQUISHIES.map(x=>x.id); s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 250000000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); for(let i=55;i>=0;i--){const at=centralDate(now)-i*86400000,day=dayKey(at+43200000);s.journey.cardDays[day]=5;s.journey.squishDays[day]=100;s.journey.playDays.push(day);if(i%7===0){const week=mondayKey(at+43200000);for(const key of ['boxWeeks','mazeWeeks','escapeWeeks'])s.journey[key].push(week)}}claimJourneyRewards(s);return s; }
+export function testingState(now = Date.now()) { const s = freshState(now); s.grantedRooms=ROOMS.map(r=>r.id);s.chips = s.stats.bestBank = 1000; s.stats.boxes = 5; s.stats.manorWins = 5; s.stats.cardRounds = 10; s.stats.cardWins = 30; s.clicker.ownedSkins=SQUISHIES.map(x=>x.id); s.clicker.balance = s.clicker.lifetime = s.clicker.manual = 250000000; s.manorPeanut.found = true; s.clicker.upgrades.helpers = 10; s.prizes = PRIZES.map(p => p.id); s.shelf = s.prizes.slice(0, 4); for(let i=55;i>=0;i--){const at=centralDate(now)-i*86400000,day=dayKey(at+43200000);s.journey.cardDays[day]=5;s.journey.squishDays[day]=100;s.journey.playDays.push(day);if(i%7===0){const week=mondayKey(at+43200000);for(const key of ['boxWeeks','mazeWeeks','escapeWeeks'])s.journey[key].push(week)}}claimJourneyRewards(s);return s; }
 
 // A new collection may enter the cabinet, but needs three different treasures to wish.
 export function cabinetStatus(s,week=weekNumber()) {
@@ -229,16 +230,13 @@ export function recordJourney(s,event,now=Date.now()){
 const cleanGrants=(v,items)=>[...new Set((Array.isArray(v)?v:[]).filter(id=>items.some(x=>x.id===id)))];
 function cleanWeekMap(raw,clean){const out={};if(raw&&typeof raw==='object'&&!Array.isArray(raw))for(const key of Object.keys(raw).filter(dateKey).sort().slice(-104)){const value=clean(raw[key]);if(value!==null)out[key]=value;}return out;}
 function cleanRoulette(r){return r&&dateKey(r.week)&&Number.isInteger(r.number)&&r.number>=0&&r.number<=36&&['rose','violet'].includes(r.color)&&knownPrize(r.wager)&&Array.isArray(r.prizes)&&r.prizes.length<=2&&r.prizes.every(knownPrize)?{week:r.week,number:r.number,color:r.color,wager:r.wager,prizes:[...r.prizes],won:r.won===true}:null;}
-export function rouletteStatus(s,week=mondayKey()){const used=s.rouletteWeeks?.[week]||0;return {used,left:Math.max(0,3-used),canSpin:used<3&&s.prizes.length>0};}
-export function spinRoulette(s,wager,color,random=Math.random,week=mondayKey()){
- if(!rouletteStatus(s,week).canSpin||!s.prizes.includes(wager)||!['rose','violet'].includes(color))return null;
- const number=Math.min(36,Math.floor(Math.max(0,random())*37)),won=number!==0&&(number%2===1?'rose':'violet')===color;
- s.rouletteWeeks??={};s.rouletteWeeks[week]=(s.rouletteWeeks[week]||0)+1;
- s.prizes=s.prizes.filter(x=>x!==wager);s.shelf=s.shelf.map(x=>x===wager?null:x);
- const prizes=won?Array.from({length:2},()=>PRIZES[Math.min(PRIZES.length-1,Math.floor(Math.max(0,random())*PRIZES.length))].id):[];
- for(const id of prizes)awardPrize(s,id);
- s.rouletteResult={week,number,color,wager,prizes,won};return structuredClone(s.rouletteResult);
+export function rouletteStatus(s,week=mondayKey()){const used=s.rouletteWeeks?.[week]||0;return {used,left:Math.max(0,3-used),canSpin:used<3&&s.prizes.length>=2};}
+export function spinRoulette(s,wagers,color,random=Math.random,week=mondayKey()){
+ if(!Array.isArray(wagers)||wagers.length!==2||new Set(wagers).size!==2||!wagers.every(id=>s.prizes.includes(id))||(s.rouletteWeeks?.[week]||0)>=3)return null;
+ s.rouletteWeeks??={};s.rouletteWeeks[week]=(s.rouletteWeeks[week]||0)+1;s.prizes=s.prizes.filter(id=>!wagers.includes(id));s.shelf=s.shelf.map(id=>wagers.includes(id)?null:id);
+ const id=PRIZES[Math.min(PRIZES.length-1,Math.floor(random()*PRIZES.length))].id;awardPrize(s,id);s.rouletteResult={week,number:Math.floor(random()*37),color:'rose',wager:wagers[0],wagers:[...wagers],prizes:[id],won:true};return structuredClone(s.rouletteResult);
 }
+
 export const DROP_GOAL=1400;
 export function cleanDrop(r){
  if(!r||!['active','won','lost'].includes(r.status))return null;

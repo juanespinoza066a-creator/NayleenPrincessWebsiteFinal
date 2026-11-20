@@ -22,7 +22,7 @@ const gate = center(23, 16);
 const exitUnlocked = () => machines.every(m => m.progress >= 40);
 const peanut = center(6, 6);
 const treasures = [[6, 10]].map(([x, y], index) => ({ ...center(x, y), index }));
-let checkpointAt = 0, huntConfig=null, abilityTime=0,hiddenTime=0,swiftTime=0,decodeTime=0,hazardClock=7,hazards=[],snareTime=0,photoTime=0;
+let checkpointAt = 0, huntConfig=null, abilityTime=0,hiddenTime=0,swiftTime=0,decodeTime=0,hazardClock=7,hazards=[],snareTime=0,photoTime=0,decoy=null;
 const currentPower=()=>window.CarnivalManor?.powers?.[window.CarnivalManor.outfit]||{name:'Psychic stun',type:'stun',hint:'Freeze a nearby hunter for 5 seconds.'};
 const hunterName=()=>huntConfig?.hunterName||'Ann';
 function saveCheckpoint() {
@@ -90,7 +90,7 @@ async function reset() {
         modal('Your weekly adventure is resting.', 'This week’s run is finished. A new maze adventure opens next Monday. Your collected treasures are waiting in Espurr’s room.', 'Back to Espurr’s room');
         return;
     }
-    huntConfig=window.CarnivalManor.map;huntConfig.hunterName={ann:'Ann',antonio:'Antonio',joseph:'Joseph',grace:'Grace'}[huntConfig.hunter];walls.clear();for(const tile of huntConfig.walls)walls.add(tile);document.querySelector('.location-tag').textContent=huntConfig.name;document.querySelector('.heading h1').textContent='IDV Hunt · '+huntConfig.hunterName;hazards=[];hazardClock=7;snareTime=photoTime=0;abilityTime=hiddenTime=swiftTime=decodeTime=0;
+    huntConfig=window.CarnivalManor.map;huntConfig.hunterName={ann:'Ann',antonio:'Antonio',joseph:'Joseph',grace:'Grace'}[huntConfig.hunter];walls.clear();for(const tile of huntConfig.walls)walls.add(tile);document.querySelector('.location-tag').textContent=huntConfig.name;document.querySelector('.heading h1').textContent='IDV Hunt · '+huntConfig.hunterName;hazards=[];decoy=null;hazardClock=7;snareTime=photoTime=0;abilityTime=hiddenTime=swiftTime=decodeTime=0;
     const choices=document.querySelector('.hunt-options');if(choices)choices.hidden=true;const info=document.getElementById('hunt-ability');if(info)info.textContent=currentPower().name+' · '+currentPower().hint+' Three charges; each finished cipher restores one.';
     peanutFound = window.CarnivalManor?.peanut?.found === true;
     peanutCount = window.CarnivalManor?.peanut?.count || 0;
@@ -271,9 +271,9 @@ function power() {
  if(kind==='paint'){stunned=4;decodeTime=8;}
  if(kind==='luck'){const m=machines.filter(m=>m.progress<40).sort((a,b)=>distance(player,a)-distance(player,b))[0];m.progress=Math.min(39,m.progress+10);}
  if(kind==='warm'){swiftTime=8;hiddenTime=3;stamina=100;}
- if(kind==='decoy'){noiseTime=8;noiseTarget=center(player.x<500?21:3,player.y<380?15:3);hiddenTime=8;lastSeen=null;searchTime=0;}
+ if(kind==='decoy'){const candidates=[];for(let y=1;y<18;y++)for(let x=1;x<24;x++){const q=center(x,y);if(!blocked(x,y)&&distance(q,hunter)>90&&distance(q,hunter)<300&&distance(q,player)>100)candidates.push(q);}candidates.sort((a,b)=>distance(b,player)-distance(a,player));const target=candidates.find(q=>findPath(hunter,q).length)||center(...tile(player));decoy={...target,life:8};hiddenTime=8;lastSeen=null;searchTime=0;chase=false;path=[];pathClock=0;patrolGoal=null;}
  if(kind==='case'){if(action)action.elapsed=action.duration;else if(repairing)repairing.progress=Math.min(39,repairing.progress+6);hiddenTime=4;}
- effects.push({kind:'stun',x:player.x,y:player.y,life:.7,duration:.7});message(power.name+'! '+power.hint);saveCheckpoint();hud();
+ effects.push({kind:'ability',ability:kind,label:power.name,x:player.x,y:player.y,life:2.5,duration:2.5});message(power.name+'! '+power.hint);saveCheckpoint();hud();
 }
 function updateHazards(dt){
  abilityTime=Math.max(0,abilityTime-dt);hiddenTime=Math.max(0,hiddenTime-dt);swiftTime=Math.max(0,swiftTime-dt);decodeTime=Math.max(0,decodeTime-dt);snareTime=Math.max(0,snareTime-dt);photoTime=Math.max(0,photoTime-dt);hazardClock-=dt;
@@ -323,7 +323,7 @@ function resolveCalibration(success) {
 function update(dt) {
     if (state !== 'playing')
         return;
-    elapsed += dt;updateHazards(dt);
+    elapsed += dt;updateHazards(dt);if(decoy){decoy.life-=dt;if(distance(hunter,decoy)<23){stunned=Math.max(stunned,1.5);effects.push({kind:"ability",ability:"decoy",label:"A ribbon surprise!",x:decoy.x,y:decoy.y,life:2,duration:2});decoy=null;}else if(decoy.life<=0)decoy=null;}
     if (elapsed - checkpointAt >= 8) {
         checkpointAt = elapsed;
         saveCheckpoint();
@@ -421,10 +421,10 @@ function update(dt) {
             patrolIndex = (patrolIndex + 1) % patrol.length;
             path = []; pathClock = 0;
         }
-        const goal = chase ? (seesPlayer ? player : lastSeen) : noiseTime > 0 && noiseTarget && distance(hunter, noiseTarget) < 260 ? noiseTarget : patrol[patrolIndex];
+        const goal = decoy ? decoy : chase ? (seesPlayer ? player : lastSeen) : noiseTime > 0 && noiseTarget && distance(hunter, noiseTarget) < 260 ? noiseTarget : patrol[patrolIndex];
         // Keep the current waypoints while patrolling. Constant repathing at corners caused sticking.
         const goalKey = tile(goal).join(',');
-        if (!path.length || (pathClock <= 0 && chase && patrolGoal !== goalKey)) {
+        if (!path.length || (pathClock <= 0 && (chase||decoy) && patrolGoal !== goalKey)) {
             path = findPath(hunter, goal);
             const middle = center(...tile(hunter));
             if (distance(hunter, middle) > 3) path.unshift(middle);
@@ -483,7 +483,7 @@ function hud() {
     $('repair-note').hidden = !repairing && !action;
     $('repair-note').classList.toggle('jammed', Boolean(jammed));
     $('repair-label').textContent = action ? action.label.toUpperCase() + ' · ' + Math.floor(action.elapsed / action.duration * 100) + '%' : jammed ? 'CIPHER LOCKED · ' + repairing.lockRemaining.toFixed(1) + 's' : calibration ? 'CALIBRATION ' + (calibration.phase === 'warning' ? 'INCOMING' : 'ACTIVE') : 'DECODING · ' + Math.floor((repairing?.progress || 0) / 40 * 100) + '%';
-    $('power').textContent = '✦ '+currentPower().name+' · ' + charges;
+    const activePower=Math.max(hiddenTime,swiftTime,decodeTime,decoy?.life||0);$('power').textContent='✦ '+currentPower().name+' · '+charges+(activePower>0?' · '+Math.ceil(activePower)+'s':'');
     $('power').disabled = charges === 0;
     const c = context(), active = calibration?.phase === 'active';
     $('interact').textContent = action ? 'Working…' : jammed ? 'Cipher locked…' : repairing ? (active ? 'Calibrate · E' : 'Decoding…') : c ? c.label : 'Find an objective';
@@ -491,7 +491,7 @@ function hud() {
     $('interact').classList.toggle('calibrate', active);
 }
 function draw() {
-    drawManor({ huntConfig, hazards, hiddenTime, canvas, player, hunter, machines, pallets, walls, gate, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
+    drawManor({ decoy, buffs:{hidden:hiddenTime,swift:swiftTime,decode:decodeTime,shield:invincible}, huntConfig, hazards, hiddenTime, canvas, player, hunter, machines, pallets, walls, gate, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
 }
 function frame(now) {
     const dt = Math.min(.04, (now - last) / 1000 || 0);

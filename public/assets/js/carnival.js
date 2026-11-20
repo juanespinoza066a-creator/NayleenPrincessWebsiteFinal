@@ -37,7 +37,7 @@ function render(s, event = {}) {
     $('weekly-box').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'weekly.open');
     $('weekly-label').textContent='WEEKLY BLIND BOX';
     const dropRun=s.dropRuns?.[mondayKey()];$('drop-open').disabled=!store.ready||!!dropRun&&dropRun.status!=='active';$('drop-action').textContent=dropRun?.status==='active'?'Resume your basket →':dropRun?'A fresh basket opens Monday ♡':'Drop a little treasure →';
-    const host=HUNTERS.find(h=>h.id===(s.manorRun?.status==='active'?s.manorRun.hunt?.hunter:weeklyHunt(week).hunter))||HUNTERS[0];$('hunt-name').textContent=host.name+' is looking for you';const portrait=$('manor-open').querySelector('img');portrait.src='assets/images/hunters/'+host.id+'.svg';portrait.alt=host.name;
+    const host=HUNTERS.find(h=>h.id===(s.manorRun?.status==='active'?s.manorRun.hunt?.hunter:weeklyHunt(week).hunter))||HUNTERS[0];$('hunt-name').textContent=host.name+' is looking for you';const portrait=$('manor-open').querySelector('img');portrait.src='assets/images/hunters/'+host.id+'.png';portrait.alt=host.name;
     $('cards-open').disabled = !store.ready;
     const canTest = store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true);
     $('test-tools').hidden = !canTest;
@@ -79,7 +79,7 @@ function blind() {
     store.change(s => { box = startBox(s, weekNumber()); });
     if (!box)
         return;
-    open(t('games.blind.title'));body.querySelector('.game-host')?.remove();
+    open('Weekly blind box');body.querySelector('.game-host')?.remove();
     p(t('games.blind.rules'));
     const friend=el('img',undefined,'game-espurr');friend.src=OUTFITS.find(o=>o.id===store.state.outfit)?.image||OUTFITS[0].image;friend.alt='Espurr is excited for your surprise';body.append(friend);
     const cube = el('div', '?', 'blind-cube');

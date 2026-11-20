@@ -1,3 +1,4 @@
+const HUNTER_ART_BOUNDS={"ann": [433, 141, 382, 766], "antonio": [231, 125, 654, 793], "joseph": [379, 134, 449, 752], "grace": [197, 115, 612, 769]};let hunterPortrait=null;
 /* Animated canvas actors and garden artwork. All motion follows the game clock. */
 function drawManor(v) {
     const { canvas, player, hunter, machines, pallets, walls, gate, elapsed: t, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures = [], T, COLS, ROWS } = v;
@@ -154,15 +155,16 @@ function drawManor(v) {
     }
     function hunterActor(p){
       const kind=v.huntConfig?.hunter||'ann';if(kind==='ann'){annActor(p);return;}
+      if(typeof Image==='function'){if(!hunterPortrait||hunterPortrait.kind!==kind){const img=new Image();img.src='assets/images/hunters/'+kind+'-full.png';hunterPortrait={kind,img};}const img=hunterPortrait.img;if(img.complete&&img.naturalWidth){const [sx,sy,sw,sh]=HUNTER_ART_BOUNDS[kind],height=104,width=Math.min(100,height*sw/sh),bob=p.moving?Math.sin(p.walk||0)*2:Math.sin(t*2)*.6;c.save();c.translate(p.x,p.y);shadow(0,10,18);c.rotate(p.moving?Math.sin(p.walk||0)*.025:0);c.drawImage(img,sx,sy,sw,sh,-width/2,-height+12+bob,width,height);if(stunned>0)text(0,-height-3,'✦',18,'#edcbff');c.restore();return;}}
       c.save();c.translate(p.x,p.y);shadow(0,10,17);const swing=Math.sin((p.walk||0))*5;
       const coat=kind==='antonio'?'#502c46':kind==='joseph'?'#d4deeb':'#5a9fa4';
       line([[-7,5],[-9,19+swing]],'#303245',5);line([[7,5],[9,19-swing]],'#303245',5);
       c.fillStyle=coat;c.beginPath();c.moveTo(-10,-25);c.lineTo(10,-25);c.lineTo(17,12);c.lineTo(-17,12);c.closePath();c.fill();
       oval(0,-31,10,12,kind==='grace'?'#cce7df':'#ead9d9');oval(0,-41,13,6,kind==='antonio'?'#292030':kind==='joseph'?'#f1edf0':'#2c5660');
       oval(-4,-31,1.3,1.5,'#39314d');oval(4,-31,1.3,1.5,'#39314d');
-      if(kind==='antonio'){for(let i=0;i<3;i++)line([[-11+i*4,-40],[-18+i*2,8]],'#292030',3);oval(13,-12,5,10,'#a57560');line([[7,-22],[23,0]],'#e0c3a5',2);text(22,-35,'♫',17,'#e8c3d6');}
-      if(kind==='joseph'){box(8,-19,16,11,2,'#637387','#c9d5e6');oval(16,-14,4,4,'#3e4e68');line([[-10,-20],[-19,5]],'#dee6ef',5);text(0,-54,'✧',17,'#cfe2fa');}
-      if(kind==='grace'){line([[15,-38],[22,19]],'#b6d7cd',3);line([[15,-38],[8,-26]],'#b6d7cd',2);line([[15,-38],[21,-26]],'#b6d7cd',2);oval(0,-4,12,4,'#78b5bb');text(-18,-40,'◌',18,'#a3d4d3');}
+      if(kind==='antonio'){c.save();c.strokeStyle='#211b2e';c.lineWidth=4;for(let n=0;n<5;n++){c.beginPath();c.moveTo(-9+n*4,-40);c.quadraticCurveTo(-30+Math.sin(t*2+n)*9,-6,-16+n*6,24);c.stroke();}c.restore();for(let i=0;i<3;i++)line([[-11+i*4,-40],[-18+i*2,8]],'#292030',3);oval(13,-12,5,10,'#a57560');line([[7,-22],[23,0]],'#e0c3a5',2);text(22,-35,'♫',17,'#e8c3d6');}
+      if(kind==='joseph'){shape([[-10,-20],[-27,12],[-8,7],[0,13],[9,8],[26,12],[10,-20]],'#b4c6dd');line([[-7,-19],[-4,5]],'#efe2b6',2);line([[7,-19],[4,5]],'#efe2b6',2);box(8,-19,16,11,2,'#637387','#c9d5e6');oval(16,-14,4,4,'#3e4e68');line([[-10,-20],[-19,5]],'#dee6ef',5);text(0,-54,'✧',17,'#cfe2fa');}
+      if(kind==='grace'){shape([[-10,-14],[-21,17],[-9,13],[0,19],[11,13],[21,17],[10,-14]],'#588f9b');for(let n=0;n<3;n++)line([[-15+n*12,10],[-18+n*14,18+Math.sin(t*2+n)*3]],'#b1d6d0',2);line([[15,-38],[22,19]],'#b6d7cd',3);line([[15,-38],[8,-26]],'#b6d7cd',2);line([[15,-38],[21,-26]],'#b6d7cd',2);oval(0,-4,12,4,'#78b5bb');text(-18,-40,'◌',18,'#a3d4d3');}
       if(stunned>0)text(0,-57,'✦',19,'#ead0ff');c.restore();
     }
     c.save();
@@ -287,13 +289,17 @@ function drawManor(v) {
         c.restore();
     }
     for(const h of v.hazards||[]){c.save();c.globalAlpha=h.t<2?.3:.6;c.strokeStyle=h.kind==='grace'?'#a2e1e9':h.kind==='antonio'?'#efa1bb':'#e4c9fa';c.fillStyle=h.kind==='grace'?'#60bbce55':'#dd9dcd33';c.lineWidth=3;c.beginPath();if(h.kind==='joseph')c.rect(h.x-h.r,h.y-h.r,h.r*2,h.r*2);else c.arc(h.x,h.y,h.r,0,Math.PI*2);c.fill();c.stroke();if(h.kind==='antonio')line([[h.x-h.r,h.y],[h.x+h.r,h.y]],'#edb8d2',3);text(h.x,h.y-10,h.kind==='ann'?'♣':h.kind==='antonio'?'♫':h.kind==='joseph'?'✧':'≈',24,'#e8d9ff');c.restore();}
+    if(v.decoy){const d=v.decoy;c.save();c.globalAlpha=.7;drawPrincessEspurr(c,{...d,facing:1,moving:true,walk:t*6},t,'reze',false);c.strokeStyle='#e9addb';c.lineWidth=3;c.setLineDash([5,5]);c.beginPath();c.moveTo(player.x,player.y);c.quadraticCurveTo((player.x+d.x)/2,Math.min(player.y,d.y)-50,d.x,d.y);c.stroke();c.setLineDash([]);text(d.x,d.y-60,'RIBBON DECOY · '+Math.ceil(d.life)+'s',10,'#ffe3f6');c.restore();}
+    if(v.buffs){const b=v.buffs;if(b.hidden>0||b.swift>0||b.decode>0||b.shield>0){c.save();c.strokeStyle=b.hidden>0?'#c7a8e9':b.decode>0?'#a8e4e7':b.shield>0?'#f4d79e':'#e9a9cf';c.lineWidth=3;c.beginPath();c.ellipse(player.x,player.y-15,25+Math.sin(t*5)*3,34,0,0,Math.PI*2);c.stroke();for(let k=0;k<5;k++)star(player.x+Math.cos(t*3+k*1.3)*33,player.y-15+Math.sin(t*3+k*1.3)*25,2.5,c.strokeStyle,t);c.restore();}}
     // Sort the actors by their feet so passing them has depth.
-    const actors = [{ y: player.y, draw: () => { c.globalAlpha = invincible > 0 && Math.floor(t * 8) % 2 === 0 ? .5 : 1; espurrActor(player); c.globalAlpha = 1; } }, { y: hunter.y, draw: () => hunterActor(hunter) }];
+    const actors = [{ y: player.y, draw: () => { c.globalAlpha = v.hiddenTime>0?.35:invincible > 0 && Math.floor(t * 8) % 2 === 0 ? .5 : 1; espurrActor(player); c.globalAlpha = 1; } }, { y: hunter.y, draw: () => hunterActor(hunter) }];
     actors.sort((a, b) => a.y - b.y).forEach(a => a.draw());
     for (const effect of effects) {
         const f = 1 - effect.life / effect.duration;
         c.globalAlpha = Math.max(0, 1 - f);
-        if (effect.kind === 'stun') {
+        if(effect.kind==='ability'){
+ const color=['heal','focus'].includes(effect.ability)?'#abdcb9':['energy','warm','dash','blink'].includes(effect.ability)?'#f2d29d':'#dbb4ef';c.strokeStyle=color;c.lineWidth=3;c.beginPath();c.ellipse(effect.x,effect.y-12,15+f*65,12+f*35,0,0,Math.PI*2);c.stroke();for(let k=0;k<8;k++){const a=k*Math.PI/4+t;const x=effect.x+Math.cos(a)*(20+f*40),y=effect.y-20+Math.sin(a)*(20+f*30);text(x,y,['heal','focus'].includes(effect.ability)?'♥':effect.ability==='decoy'?'🎀':'✦',12,color);}text(effect.x,effect.y-70-f*12,effect.label||'✦',11,'#f7e7ff');
+ }else if (effect.kind === 'stun') {
             c.strokeStyle = '#e1b9ff';
             c.lineWidth = 3 - f * 2;
             c.beginPath();
