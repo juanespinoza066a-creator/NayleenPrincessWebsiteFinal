@@ -12,6 +12,14 @@
       "title": "A Pearl",
       "artist": "Mitski",
       "file": "tracks/A Pearl [_lYA3i3QkWM].mp3"
+    },
+    {
+      "id": "liquid-smooth-6751b88543",
+      "title": "Liquid Smooth",
+      "artist": "Mitski",
+      "file": "tracks/liquid-smooth-6751b88543.mp3",
+      "sourceId": "Youtube:shg2kcAiWvk",
+      "sha256": "c38074eca7b5c948fcd7792a7f10556b23d07cb74d231624fcd138ef1fb12ad5"
     }
   ],
   "playlists": [
