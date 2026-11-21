@@ -5,10 +5,10 @@ export const ROOMS = [
  {id:'garden',name:'Lily-of-the-valley garden',hint:'Play Ann’s weekly maze at least once',wall:'#d1e7dc',floor:'#8cb6a0',image:'assets/images/rooms/lilies.webp'},
  {id:'cards',name:'Pokémon card shop',hint:'Make 1,000,000 lifetime squishes',wall:'#dbc8ed',floor:'#af8dbd',image:'assets/images/rooms/cards.webp'},
  {id:'popmart',name:'Pop Mart date',hint:'Open 3 weekly blind boxes',wall:'#efd0e3',floor:'#c8a2b9',image:'assets/images/rooms/popmart.webp'},
- {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach 3,500 sparkle points in Princess Drop',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'},
+ {id:'sunday',name:'Sunday’s quiet sanctuary',hint:'Reach 3,200 sparkle points in Princess Drop',wall:'#d9dfef',floor:'#c3b4d2',image:'assets/images/rooms/sunday.webp'},
 {id:'gambit',name:'Gambit’s card lounge',hint:'Finish 5 hands in each of 8 weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/gambit.webp'},{id:'minecraft',name:'Block-built daydream',hint:'Enjoy 18 cozy squishy days',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/minecraft.webp'},{id:'manor',name:'Moonlit manor',hint:'Join the hunt in 12 different weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/manor.webp'},{id:'restaurant',name:'A little dinner date',hint:'Enjoy 28 play days and open boxes in 6 weeks',wall:'#dcc9e9',floor:'#b49ac4',image:'assets/images/rooms/restaurant.webp'}
 ];
-export function unlockedRooms(s){return ROOMS.filter(r=>(s.grantedRooms||[]).includes(r.id)||r.id==='gambit'&&journeyCounts(s).tableWeeks>=8||r.id==='minecraft'&&journeyCounts(s).cozyDays>=18||r.id==='manor'&&journeyCounts(s).mazeWeeks>=12||r.id==='restaurant'&&journeyCounts(s).playDays>=28&&journeyCounts(s).boxWeeks>=6||r.id==='lavender'||r.id==='cafe'&&unlockedSquishies(s).length>=SQUISHIES.length||r.id==='garden'&&((s.mazeWeeks||[]).length>=1||s.stats.manorWins>=1||!!s.manorRun)||r.id==='cards'&&s.clicker.lifetime>=1000000||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&(s.stats.bestDrop>=3500||Object.values(s.dropRuns||{}).some(run=>run.score>=3500))).map(r=>r.id).filter(id=>!(s.tradedRooms||[]).includes(id))}
+export function unlockedRooms(s){return ROOMS.filter(r=>(s.grantedRooms||[]).includes(r.id)||r.id==='gambit'&&journeyCounts(s).tableWeeks>=8||r.id==='minecraft'&&journeyCounts(s).cozyDays>=18||r.id==='manor'&&journeyCounts(s).mazeWeeks>=12||r.id==='restaurant'&&journeyCounts(s).playDays>=28&&journeyCounts(s).boxWeeks>=6||r.id==='lavender'||r.id==='cafe'&&unlockedSquishies(s).length>=SQUISHIES.length||r.id==='garden'&&((s.mazeWeeks||[]).length>=1||s.stats.manorWins>=1||!!s.manorRun)||r.id==='cards'&&s.clicker.lifetime>=1000000||r.id==='popmart'&&s.stats.boxes>=3||r.id==='sunday'&&(s.stats.bestDrop>=3200||Object.values(s.dropRuns||{}).some(run=>run.score>=3200))).map(r=>r.id).filter(id=>!(s.tradedRooms||[]).includes(id))}
 export const SQUISHIES = [
  {id:'peanut',name:'Peanut Crunchy',goal:0,image:'assets/images/crunchy-peanut.svg',color:'#bd8c52',sound:'crunch'},
  {id:'butter',name:'Butter Baby',goal:250000,image:'assets/images/squishies/butter.webp',color:'#e9c963',sound:'butter'},
@@ -253,37 +253,40 @@ export function spinRoulette(s,offerings,color,random=Math.random,week=mondayKey
  s.rouletteResult={week,number:Math.min(36,Math.floor(random()*37)),color:'rose',wager:items.find(x=>x.kind==='collectible')?.id||'espurr',prizes:kind==='collectible'?[id]:[],won:true,offerings:items.map(x=>({kind:x.kind,id:x.id})),reward:{kind,id}};return structuredClone(s.rouletteResult);
 }
 
-export const DROP_GOAL=3500;
+export const DROP_GOAL=1500;
+export const DROP_TRIES=5;
+export const dropAttempts=run=>run?Math.max(1,Math.min(DROP_TRIES,Number.isInteger(run.attempts)?run.attempts:1)):0;
 export const DROP_FINAL_TIER=8;
 export function cleanDrop(r){
  if(!r||!['active','won','lost'].includes(r.status))return null;
- const out={layout:r.layout===2?2:1,status:r.status,score:integer(r.score,1e6),bestTier:integer(r.bestTier,8),next:integer(r.next,3),held:integer(r.held,3),pieces:[],reward:null};
+ const out={attempts:dropAttempts(r),layout:r.layout===2?2:1,status:r.status,score:integer(r.score,1e6),bestTier:integer(r.bestTier,8),next:integer(r.next,3),held:integer(r.held,3),pieces:[],reward:null};
  if(r.status==='active'&&Array.isArray(r.pieces))out.pieces=r.pieces.slice(0,100).filter(p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)).map(p=>({tier:integer(p.tier,8),x:Math.max(10,Math.min(390,p.x)),y:Math.max(-100,Math.min(680,p.y)),vx:Math.max(-20,Math.min(20,Number(p.vx)||0)),vy:Math.max(-20,Math.min(20,Number(p.vy)||0)),angle:Number.isFinite(p.angle)?p.angle:0}));
  if(r.reward&&['collectible','room','outfit'].includes(r.reward.kind)){const items=r.reward.kind==='collectible'?PRIZES:r.reward.kind==='room'?ROOMS:OUTFITS;if(items.some(x=>x.id===r.reward.id))out.reward={kind:r.reward.kind,id:r.reward.id};}
  out.bestTier=Math.max(out.bestTier,...out.pieces.map(p=>p.tier));return out;
 }
 export function beginDrop(s,random=Math.random,week=mondayKey()){
- s.dropRuns??={};for(const [key,old] of Object.entries(s.dropRuns))if(key<week&&old.status==='active'){old.status='lost';old.pieces=[];}if(s.dropRuns[week])return s.dropRuns[week].status==='active'?s.dropRuns[week]:null;
- return s.dropRuns[week]={layout:2,status:'active',score:0,bestTier:0,held:Math.min(3,Math.floor(random()*4)),next:Math.min(3,Math.floor(random()*4)),pieces:[],reward:null};
+ s.dropRuns??={};for(const [key,old] of Object.entries(s.dropRuns))if(key<week&&old.status==='active'){old.status='lost';old.pieces=[];}const previous=s.dropRuns[week];if(previous?.status==='active')return previous;if(dropAttempts(previous)>=DROP_TRIES)return null;s.stats.bestDrop=Math.max(s.stats.bestDrop||0,previous?.score||0);
+ return s.dropRuns[week]={attempts:dropAttempts(previous)+1,layout:2,status:'active',score:0,bestTier:0,held:Math.min(3,Math.floor(random()*4)),next:Math.min(3,Math.floor(random()*4)),pieces:[],reward:null};
+}
+export function claimDropPrize(s,random=Math.random,week=mondayKey()){
+ const run=s.dropRuns?.[week];if(!run||run.status!=='active'||run.score<DROP_GOAL||run.reward)return null;
+ const item=PRIZES[Math.min(PRIZES.length-1,Math.floor(random()*PRIZES.length))];run.reward={kind:'collectible',id:item.id};grantItem(s,'collectible',item.id);return {...run.reward,name:item.name,won:true};
 }
 export function finishDrop(s,won,random=Math.random,week=mondayKey()){
- const run=s.dropRuns?.[week];if(!run||run.status!=='active'||won&&(run.score<DROP_GOAL||(run.bestTier||0)<DROP_FINAL_TIER))return null;
- s.stats.bestDrop=Math.max(s.stats.bestDrop||0,run.score);run.status=won?'won':'lost';run.pieces=[];if(!won)return {won:false};
- const rooms=ROOMS.filter(x=>!unlockedRooms(s).includes(x.id)),outfits=OUTFITS.filter(x=>!unlockedOutfits(s).includes(x.id));
- const options=[{kind:'collectible',items:PRIZES},...(rooms.length?[{kind:'room',items:rooms}]:[]),...(outfits.length?[{kind:'outfit',items:outfits}]:[])];
- const choice=options[Math.min(options.length-1,Math.floor(random()*options.length))],item=choice.items[Math.min(choice.items.length-1,Math.floor(random()*choice.items.length))];
- run.reward={kind:choice.kind,id:item.id};grantItem(s,choice.kind,item.id);return {...run.reward,name:item.name,won:true};
+ const run=s.dropRuns?.[week];if(!run||run.status!=='active'||won&&run.score<DROP_GOAL)return null;
+ const reward=claimDropPrize(s,random,week);s.stats.bestDrop=Math.max(s.stats.bestDrop||0,run.score);run.status=run.reward?'won':'lost';run.pieces=[];
+ return reward||(run.reward?{...run.reward,name:PRIZES.find(x=>x.id===run.reward.id)?.name||'Your treasure',won:true}:{won:false});
 }
 function validWeeklyGames(s){
  for(const [key,items] of [['grantedRooms',ROOMS],['grantedOutfits',OUTFITS],['tradedRooms',ROOMS],['tradedOutfits',OUTFITS]])if(s[key]!==undefined&&(!Array.isArray(s[key])||s[key].length>items.length||s[key].some(id=>!items.some(x=>x.id===id))))return false;
  for(const key of ['rouletteWeeks','dropRuns']){const v=s[key];if(v!==undefined&&(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).length>104||Object.keys(v).some(k=>!dateKey(k))))return false;}
  if(Object.values(s.rouletteWeeks||{}).some(n=>!Number.isInteger(n)||n<0||n>3))return false;
- if(Object.values(s.dropRuns||{}).some(r=>!cleanDrop(r)||!Array.isArray(r.pieces)||r.pieces.length>100))return false;
+ if(Object.values(s.dropRuns||{}).some(r=>!cleanDrop(r)||r.attempts!==undefined&&(!Number.isInteger(r.attempts)||r.attempts<1||r.attempts>DROP_TRIES)||!Array.isArray(r.pieces)||r.pieces.length>100))return false;
  if(s.rouletteResult!==undefined&&s.rouletteResult!==null&&!cleanRoulette(s.rouletteResult))return false;
  return true;
 }
 export function keepWeeklyUses(restored,current){
  for(const [week,n] of Object.entries(current.rouletteWeeks||{}))restored.rouletteWeeks[week]=Math.max(restored.rouletteWeeks[week]||0,n);
- for(const [week,run] of Object.entries(current.dropRuns||{}))restored.dropRuns[week]=structuredClone(run);
+ for(const [week,run] of Object.entries(current.dropRuns||{}))if(dropAttempts(run)>=dropAttempts(restored.dropRuns[week]))restored.dropRuns[week]=structuredClone(run);
  restored.tradedRooms=[...new Set([...(restored.tradedRooms||[]),...(current.tradedRooms||[])])];restored.tradedOutfits=[...new Set([...(restored.tradedOutfits||[]),...(current.tradedOutfits||[])])];restored.rouletteWeeks=cleanWeekMap(restored.rouletteWeeks,n=>integer(n,3));restored.dropRuns=cleanWeekMap(restored.dropRuns,cleanDrop);return restored;
 }

@@ -112,7 +112,7 @@ export class CarnivalStore {
         return this;
     }
     change(fn) { if (!this.ready)
-        return; tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.remember(); this.emit({ unlocked: unlockedOutfits(this.state).filter(id => !before.includes(id)) }); this.schedule(); }
+        return; tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.status = this.online ? 'Saving your treasures…' : 'Kept on this device. Try saving again when you’re connected.'; this.remember(); this.emit({ unlocked: unlockedOutfits(this.state).filter(id => !before.includes(id)) }); this.schedule(); }
     schedule() { clearTimeout(this.debounce); this.debounce = setTimeout(() => void this.save(), 750); }
     async save() {
         if (!this.online || this.saving || this.conflict || !this.dirty)
@@ -125,7 +125,7 @@ export class CarnivalStore {
                 const data = await api('api/player', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ state: snapshot, revision: this.revision }) });
                 this.revision = data.revision;
                 this.lastSync = Date.now();
-                this.status = 'Room, outfits, and squishes are saved to your account.';
+                this.status = 'Saved ♡';
                 this.remember();
             }
             catch (error) {
@@ -144,6 +144,14 @@ export class CarnivalStore {
             return this.save();
         try {
             const data = await api('api/player');
+            if (this.dirty && !this.conflict) {
+                if (data.userId !== this.userId || data.revision !== this.revision) {
+                    this.conflict = true;
+                    this.status = 'Another device saved newer progress. Keep a backup before choosing which copy to use.';
+                    this.emit(); return;
+                }
+                this.online = true; await this.save(); return;
+            }
             if (!data.state || validState(data.state)) {
                 // Keep a recovery copy before the visitor explicitly reloads the account save.
                 try {

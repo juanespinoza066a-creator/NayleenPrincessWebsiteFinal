@@ -1,0 +1,6 @@
+import assert from 'node:assert/strict';import {freshState,beginDrop,finishDrop,dropAttempts,normalizeState,validState,keepWeeklyUses} from '../server/game-rules.js';
+const week='2026-11-16',s=freshState();for(let i=1;i<=5;i++){const run=beginDrop(s,()=>0,week);assert.equal(run.attempts,i);assert.equal(beginDrop(s,()=>0,week),run,'resume does not spend a try');finishDrop(s,false,()=>0,week);assert.equal(dropAttempts(normalizeState(s).dropRuns[week]),i);}
+assert.equal(beginDrop(s,()=>0,week),null);assert.equal(beginDrop(s,()=>0,'2026-11-23').attempts,1);
+const legacy=freshState();legacy.dropRuns[week]={status:'lost',score:0,bestTier:0,next:0,held:0,pieces:[]};assert.equal(beginDrop(normalizeState(legacy),()=>0,week).attempts,2,'old completed run counts as one');
+for(const [a,b] of [[5,1],[1,5],[3,3]]){const old=freshState(),current=freshState();old.dropRuns[week]={...legacy.dropRuns[week],attempts:a};current.dropRuns[week]={...legacy.dropRuns[week],attempts:b};keepWeeklyUses(old,current);assert.equal(old.dropRuns[week].attempts,Math.max(a,b));}
+const invalid=freshState();invalid.dropRuns[week]={...legacy.dropRuns[week],attempts:6};assert(!validState(invalid));console.log('PASS: five weekly attempts, free resume, legacy migration, next-week reset, quota-safe recovery and bounds.');

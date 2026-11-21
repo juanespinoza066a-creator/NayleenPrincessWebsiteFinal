@@ -3,7 +3,8 @@ import {openRoulette} from './roulette.js';
 import {HUNTERS,weeklyHunt} from './hunt-config.js';
 import { openTable } from './table21.js';
 import { makeStudio, resetEstimate } from './room-studio.js';
-import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus, outfitProgress, journeyCounts, mondayKey, rouletteStatus, keepWeeklyUses } from './game-rules.js';
+import { freshState, testingState, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus, outfitProgress, journeyCounts, mondayKey, rouletteStatus, keepWeeklyUses,dropAttempts,DROP_TRIES } from './game-rules.js';
+import {attachRecovery} from './recovery-panel.js';
 import { CarnivalStore, STATIC, downloadJSON } from './save-manager.js';
 import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
@@ -20,13 +21,13 @@ function image(item, className = 'collectible-image') { const img = el('img', un
 function button(text, fn, parent = body) { const b = el('button', text, 'button'); b.onclick = fn; parent.append(b); return b; }
 function p(text) { const n = el('p', text, 'rules'); body.append(n); return n; }
 function actions() { const n = el('div', undefined, 'game-actions'); body.append(n); return n; }
-function open(title) { $('game-title').textContent = title; body.classList.remove('wishing-cabinet','royal-table-body');body.replaceChildren(); result.textContent = ''; if (!dialog.open)
+function open(title) { $('game-title').textContent = title; body.classList.remove('wishing-cabinet','royal-table-body','drop-playing');body.replaceChildren(); result.textContent = ''; if (!dialog.open)
     dialog.showModal(); const friend=el('img',undefined,'game-host');friend.src=OUTFITS.find(o=>o.id===store.state.outfit)?.image||OUTFITS[0].image;friend.alt='Your little Espurr host';body.append(friend); }
 function close() { dialog.close(); }
 $('game-close').onclick = close;
 function render(s, event = {}) {
     $('save-status').textContent = event.status || store.status;
-    $('sync-retry').hidden = window.CARNIVAL_CONFIG?.saveTools !== true || STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
+    $('sync-retry').hidden = STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
     renderStudio(s);
     const estimate = weekNumber() >= 52 ? 'The final week of this year’s carnival ♡' : resetEstimate();
     resetNote.textContent = estimate; mazeReset.textContent = estimate;
@@ -36,7 +37,7 @@ function render(s, event = {}) {
     $('weekly-box').disabled = !store.ready || claimed && !pending;
     $('weekly-box').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'weekly.open');
     $('weekly-label').textContent='WEEKLY BLIND BOX';
-    const dropRun=s.dropRuns?.[mondayKey()];$('drop-open').disabled=!store.ready||!!dropRun&&dropRun.status!=='active';$('drop-action').textContent=dropRun?.status==='active'?'Resume your basket →':dropRun?'A fresh basket opens Monday ♡':'Drop a little treasure →';
+    const dropRun=s.dropRuns?.[mondayKey()];$('drop-open').disabled=!store.ready||!!dropRun&&dropRun.status!=='active'&&dropAttempts(dropRun)>=DROP_TRIES;$('drop-action').textContent=dropRun?.status==='active'?'Resume your basket →':dropAttempts(dropRun)>=DROP_TRIES?'A fresh basket opens Monday ♡':(DROP_TRIES-dropAttempts(dropRun))+' tries left · Drop a treasure →';
     const host=HUNTERS.find(h=>h.id===(s.manorRun?.status==='active'?s.manorRun.hunt?.hunter:weeklyHunt(week).hunter))||HUNTERS[0];$('hunt-name').textContent=host.name+' is looking for you';const portrait=$('manor-open').querySelector('img');portrait.src='assets/images/hunters/'+host.id+'.png';portrait.alt=host.name;
     $('cards-open').disabled = !store.ready;
     const canTest = store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true);
@@ -146,27 +147,8 @@ function cards(){
  p('The wishing cabinet resets Monday at midnight Central Time.');
 }
 $('cards-open').onclick = cards;
-$('sync-retry').onclick = () => store.retry();
-$('export-save').onclick = () => { downloadJSON('nayleen-carnival-save.json', { kind: 'nayleen-carnival-backup', version: 3, exportedAt: new Date().toISOString(), state: store.state }); $('backup-status').textContent = t('backup.downloaded'); };
-$('import-trigger').onclick = () => $('import-save').click();
-$('import-save').onchange = async (event) => { const file = event.target.files[0]; event.target.value = ''; if (!file)
-    return; try {
-    if (file.size > 200000)
-        throw new Error('That file is too large to be a carnival save.');
-    const data = JSON.parse(await file.text());
-    if (data.kind !== 'nayleen-carnival-backup' || !validState(data.state))
-        throw new Error('That file isn’t a valid carnival backup.');
-    open('Bring your treasures back');
-    p(`This backup has ${data.state.prizes.length} collectibles. Restoring it replaces your current progress. Weekly openings already used on this device stay used.`);
-    button('Restore this backup', () => { const restored = normalizeState(data.state), current = store.state; keepWeeklyUses(restored,current); restored.tradeWeeks=[...new Set([...(restored.tradeWeeks||[]),...(current.tradeWeeks||[])])]; restored.weeklyClaims = [...new Set([...restored.weeklyClaims, ...current.weeklyClaims])]; restored.mazeWeeks = [...new Set([...restored.mazeWeeks, ...current.mazeWeeks])]; if (current.weeklyBox && (!restored.weeklyBox || current.weeklyBox.week >= restored.weeklyBox.week))
-        restored.weeklyBox = current.weeklyBox; if (current.manorRun && (!restored.manorRun || current.manorRun.week >= restored.manorRun.week))
-        restored.manorRun = current.manorRun; restored.clicker.lastTick = Date.now(); store.change(s => Object.assign(s, restored)); $('backup-status').textContent = t('backup.restored'); close(); });
-    button('Keep my current progress', close).classList.add('soft');
-}
-catch (error) {
-    $('backup-status').textContent = error.message || 'Your backup couldn’t be read. Your progress hasn’t changed.';
-} };
-$('save-controls').hidden = window.CARNIVAL_CONFIG?.saveTools !== true;
+$('sync-retry').onclick = () => { if(!store.conflict)return store.retry();open('Choose your saved progress');p('Another device saved a different copy. Download this device’s progress before loading the account copy.');button('Download this device’s copy',()=>downloadJSON('palace-device-backup.json',{kind:'nayleen-carnival-backup',version:3,profile:store.profile,state:store.state}));button('Load account copy',async()=>{await store.retry();close();});button('Keep this device’s copy',close); };
+attachRecovery(store,{open,close,body});
 $('test-tools').hidden = true;
 const canUseTestingTools = () => store.ready && (store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true));
 $('test-reset').onclick = () => {
