@@ -44,6 +44,14 @@
       "file": "tracks/erika-3ac121fdc7.mp3",
       "sourceId": "Youtube:cJz6Oqm4UoY",
       "sha256": "903c44e40128822c7fc190f604def743c91560285b8fb0c3fd0362f09e93f40f"
+    },
+    {
+      "id": "picture-you-564066e7c3",
+      "title": "Picture You",
+      "artist": "Chappell Roan",
+      "file": "tracks/picture-you-564066e7c3.mp3",
+      "sourceId": "Youtube:EqUHnojFH5Y",
+      "sha256": "d31ec842171db4f76a71803a1459896e8d5c4fd83b02c9f4e8cac0f7b844a99c"
     }
   ],
   "playlists": [
