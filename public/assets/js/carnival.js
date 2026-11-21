@@ -1,3 +1,4 @@
+import {updateProgress} from './progress-view.js';
 import {openDrop} from './princess-drop.js';
 import {openRoulette} from './roulette.js';
 import {HUNTERS,weeklyHunt} from './hunt-config.js';
@@ -10,14 +11,14 @@ import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
 const $ = id => document.getElementById(id), store = new CarnivalStore(), prize = id => PRIZES.find(p => p.id === id);
 const dialog = $('game-dialog'), body = $('game-body'), result = $('game-result');
-let roomSignature = '', toastTimer;
+let roomSignature = '', wardrobeSignature='', collectionSignature='', toastTimer;
 const renderStudio = makeStudio(store);
 const resetNote = document.createElement('p'); resetNote.className='section-copy'; resetNote.id='weekly-reset-estimate'; $('weekly-box').parentElement.prepend(resetNote);
 const mazeReset = document.createElement('small'); mazeReset.id='maze-reset-estimate'; $('manor-open').append(mazeReset);
 function el(tag, text, className) { const n = document.createElement(tag); if (text !== undefined)
     n.textContent = text; if (className)
     n.className = className; return n; }
-function image(item, className = 'collectible-image') { const img = el('img', undefined, className); img.src = item.image; img.alt = item.name; img.loading = 'lazy'; return img; }
+function image(item, className = 'collectible-image') { const img = el('img', undefined, className); img.src = item.image; img.alt = item.name; img.loading = 'lazy';img.decoding='async'; return img; }
 function button(text, fn, parent = body) { const b = el('button', text, 'button'); b.onclick = fn; parent.append(b); return b; }
 function p(text) { const n = el('p', text, 'rules'); body.append(n); return n; }
 function actions() { const n = el('div', undefined, 'game-actions'); body.append(n); return n; }
@@ -48,7 +49,7 @@ function render(s, event = {}) {
     $('manor-open').disabled = !store.ready || mazeUnavailable&&store.profile!=='testing';
     $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Monday.' : '';
     $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : s.mazeWeeks.includes(week) ? 'This week’s run is complete ♡' : t('games.manor.action');
-    const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes, s.shelf, s.outfit, unlocked, store.ready,journeyCounts(s)]);
+    const unlocked = unlockedOutfits(s), signature = JSON.stringify([s.prizes,s.shelf,s.outfit,store.ready]);
     if (signature !== roomSignature) {
         roomSignature = signature;
         const outfit = OUTFITS.find(o => o.id === s.outfit) || OUTFITS[0];
@@ -60,7 +61,15 @@ function render(s, event = {}) {
         $('collection-total').textContent = `${s.prizes.length} / ${PRIZES.length}`;
         $('stage-shelves').replaceChildren(...s.shelf.map((id, index) => { const b = el('button', id ? undefined : '+', 'stage-slot'); const plinth=el('span',undefined,'display-plinth');plinth.setAttribute('aria-hidden','true');b.append(plinth); if (id)
             b.append(image(prize(id))); b.setAttribute('aria-label', `Decorate shelf ${index + 1}${id ? `, ${prize(id).name}` : ''}`); b.disabled = !store.ready; b.onclick = () => decorate(index); return b; }));
+    }
+    const nextWardrobe=JSON.stringify([s.outfit,unlocked,store.ready]);
+    if(nextWardrobe!==wardrobeSignature){wardrobeSignature=nextWardrobe;
+        $('outfit-count').textContent=t('wardrobe.count',{owned:unlocked.length,total:OUTFITS.length});
         $('outfits').replaceChildren(...OUTFITS.map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); {const goals=outfitProgress(s,o.id);if(goals.length){const list=el('span',undefined,'outfit-goals');for(const goal of goals){const label=goal.label,line=el('span',label+' · '+goal.value+' / '+goal.goal),meter=el('progress');meter.max=goal.goal;meter.value=goal.value;meter.setAttribute('aria-label',label);list.append(line,meter);}b.append(list);}} b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
+    }
+    updateProgress($('outfits'),OUTFITS,o=>outfitProgress(s,o.id));
+    const nextCollection=JSON.stringify(s.prizes);
+    if(nextCollection!==collectionSignature){collectionSignature=nextCollection;
         $('collection').replaceChildren(...PRIZES.map(item => { const card = el('div', undefined, `inventory-item${s.prizes.includes(item.id) ? '' : ' locked'}`); card.append(image(item), el('span', item.name)); if (!s.prizes.includes(item.id)) {
             const lock = el('small', 'Not found yet');
             card.append(lock);
@@ -169,3 +178,5 @@ readNotes().then(data => { const latest = data.notes.filter(n => n.published).so
     $('latest-note').textContent = `${latest.emoji} Week ${latest.week} · ${latest.title} — ${latest.message.slice(0, 160)}`; }).catch(() => { });
 
 $('manor-open').onclick = () => { if (!$('manor-open').disabled) location.href = 'escape.html'; };
+
+export {store};

@@ -25,7 +25,7 @@ export class CarnivalStore {
         this.conflict = false;
         this.ready = false;
         this.status = 'Opening your little carnival…';
-        this.lastSync = Date.now();
+        this.lastSync = Date.now();this.lastRemember=0;
         this.storageKey = CODE_LOGIN ? null : SAVE_KEY;
         try {
             if (CODE_LOGIN) return;
@@ -100,7 +100,7 @@ export class CarnivalStore {
             if(login){this.dirty=true;this.emit();this.schedule();}
             if (amount > 0)
                 this.dirty = true;
-            this.remember();
+            if(Date.now()-this.lastRemember>=5000){this.remember();this.lastRemember=Date.now();}
             if (amount > 0) {
                 this.emit({ unlocked: unlockedOutfits(this.state).filter(id => !previous.includes(id)) });
                 if (Date.now() - this.lastSync > 30000)

@@ -1,0 +1,2 @@
+// Keep cards/images in place while their live requirement values advance.
+export function updateProgress(grid,items,progress){for(let index=0;index<items.length;index++){const list=grid.children[index]?.querySelector('.outfit-goals');if(!list)continue;for(const [i,g] of progress(items[index]).entries()){const line=list.children[i*2],meter=list.children[i*2+1],text=g.label+' · '+g.value+' / '+g.goal;if(line&&line.textContent!==text)line.textContent=text;if(meter&&Number(meter.value)!==g.value)meter.value=g.value;}}}
