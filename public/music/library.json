@@ -94,6 +94,14 @@
       "file": "tracks/stupid-song-e9c825d2a9.mp3",
       "sourceId": "Youtube:DKaxuPbgyFM",
       "sha256": "add0b087b405c4cd12695c03475c49f83d736816418ca67f5adc73b74e76a77e"
+    },
+    {
+      "id": "perfect-de4a00f221",
+      "title": "Perfect",
+      "artist": "Ed Sheeran",
+      "file": "tracks/perfect-de4a00f221.mp3",
+      "sourceId": "Youtube:CWG-GDfejmY",
+      "sha256": "3098db81c31c0663d48d7e887cffda73aa60ccc1fddfcfd263d7d802a703af3b"
     }
   ],
   "playlists": [
