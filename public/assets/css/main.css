@@ -181,3 +181,58 @@ button:disabled,.button:disabled,.game-card:disabled{background:#e3d2ee!importan
 #game-result:not(:empty){margin:16px 0;padding:14px;border-radius:16px;background:#e8d6f3;color:#533066;font-weight:700}#game-body .royal-actions{position:sticky;top:0;z-index:5;background:#f9effced;padding:12px;border-radius:16px;box-shadow:0 5px 16px #5e3d7120}
 .drop-arena{position:relative;width:min(100%,400px);margin:auto}.drop-arena .princess-drop{width:100%;margin:0}.drop-finale{position:absolute;inset:15% 6%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;border:2px solid #b68acc;border-radius:25px;background:#fff3fff2;box-shadow:0 10px 45px #57326966;animation:royal-reveal .6s ease-out}.drop-finale strong,.drop-end-card strong{font:1.7rem Georgia;color:#69417c}.drop-finale .button{margin-top:15px}.drop-end-card{padding:26px;border:2px solid #be9acf;border-radius:24px;background:#f4e2f9;text-align:center}.drop-lost{animation:basket-shake .5s}.drop-sorry img{transform:rotate(-9deg)}.drop-celebrate img{animation:royal-cheer .6s 3}.drop-won{box-shadow:0 0 25px #ecc580}.drop-tools{margin-bottom:16px}@keyframes basket-shake{25%,75%{transform:translateX(-7px)}50%{transform:translateX(7px)}}
 #game-body>.drop-control{display:block;position:sticky;top:0;z-index:6;margin:12px auto;width:min(100%,400px);box-shadow:0 5px 16px #67457940}.saved-designs summary{cursor:pointer;font-weight:700;font-size:1.05rem;color:#654278}.saved-designs[open] summary{margin-bottom:12px}
+/* 5.5: the game gets its own space; controls never float over the board. */
+#game-dialog:has(.royal-table-body){height:min(94dvh,800px);max-height:94dvh;display:flex;flex-direction:column;overflow:hidden;padding:12px;gap:6px}
+#game-dialog:has(.royal-table-body):not([open]){display:none}
+#game-dialog:has(.royal-table-body)>.eyebrow{display:none}
+#game-dialog:has(.royal-table-body)>h2{font-size:1.35rem;line-height:1.15;margin:0;padding:4px 28px}
+#game-dialog:has(.royal-table-body)>#game-result{flex:0 0 auto;font-size:.8rem;padding:7px;margin:0}
+#game-body.royal-table-body{min-height:0;flex:1;display:flex;flex-direction:column;gap:7px;overflow:auto}
+#game-body .table-help{flex:0 0 auto;text-align:left;font-size:.72rem;padding:0 5px;color:#765187}
+#game-body .table-help[open]{max-height:100px;overflow:auto}
+#game-body .table-help p{font-size:.78rem;margin:6px 0}
+#game-body .table-toolbar{flex:0 0 auto;display:flex;gap:8px;margin:0;justify-content:center}
+#game-body .table-toolbar .text-button{font-size:.68rem;min-height:32px;padding:3px 8px;text-decoration:none;background:#f0e3f6;border-radius:12px}
+#game-body .table-bank{display:none}
+#game-body .royal-card-table{flex:1 0 245px;min-height:245px;max-height:440px;border-width:6px;outline-width:1px;border-radius:40px 40px 24px 24px;padding:7px 8px;display:flex;flex-direction:column;justify-content:space-evenly;gap:5px}
+#game-body .board-bank{position:static;flex:0 0 auto;padding:5px;font-size:.8rem;border-radius:10px;z-index:auto}
+#game-body .table-deck,#game-body .chip-tray,#game-body .table-monogram{display:none}
+#game-body .house-seat{flex:0 0 auto;display:flex;flex-direction:column;gap:3px}
+#game-body .seat-label{font-size:.65rem;margin:0;letter-spacing:.08em}
+#game-body .royal-hand{min-height:52px;max-width:100%;gap:4px}
+#game-body .royal-playing-card{width:34px;height:50px;flex-shrink:0;font-size:.9rem}
+#game-body .royal-playing-card .card-corner{font-size:.63rem;top:2px;left:3px}
+#game-body .royal-playing-card .card-pip{font-size:1.1rem;margin-top:8px}
+#game-body .seat-score{font-size:.7rem;min-height:14px;margin:0}
+#game-body .princess-seat{display:grid;grid-template-columns:75px minmax(0,1fr);grid-template-rows:auto 1fr auto;gap:3px;align-items:center;margin:0;padding:4px 0;min-height:93px}
+#game-body .table-espurr{position:static;grid-row:1/4;grid-column:1;width:75px;height:95px;max-height:100%;object-fit:contain}
+#game-body .princess-seat>.seat-label{grid-column:2;grid-row:1;background:none;padding:0;margin:0;display:block;font-size:.6rem}
+#game-body .held-hand{grid-column:2;grid-row:2;align-items:center}
+#game-body .princess-seat>.seat-score{grid-column:2;grid-row:3}
+#game-body .table-wager-row{align-items:center;flex-wrap:nowrap;font-size:.75rem}
+#game-body .table-wager{min-width:0;width:auto;flex:1;max-width:175px;font-size:.75rem;padding:6px;min-height:34px}
+#game-body .table-wager-row .button{font-size:.7rem;padding:5px 10px;min-height:34px;white-space:nowrap}
+#game-body .royal-actions{position:static;flex:0 0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0;padding:0;background:none;box-shadow:none;border-radius:0;z-index:auto}
+#game-body .royal-actions .button{min-width:0;width:100%;padding:6px 3px;min-height:44px;font-size:.73rem;line-height:1.15}
+#game-body>.drop-control{position:static;z-index:auto;margin:8px auto;min-height:44px}
+.drop-playing>.rules,.drop-playing>.drop-welcome,.drop-playing>.drop-ladder{display:none}
+.drop-playing .drop-arena{width:min(100%,400px,calc((100dvh - 265px)*.6153846))}
+.drop-playing .drop-score{font-size:.75rem;padding:6px;margin:6px 0}
+#game-body.drop-playing .drop-tools{margin:5px 0;gap:8px}
+#game-body.drop-playing .drop-tools .button{font-size:.72rem;min-height:34px;padding:6px 10px}
+#game-body:has(.trade-grid) .trade-grid{max-height:min(34dvh,250px);overflow-y:auto;overscroll-behavior:contain;margin:10px 0;padding:5px}
+#game-body:has(.trade-grid) .rules{font-size:.8rem;line-height:1.4;margin:8px 0}
+#game-body:has(.trade-grid) .roulette-stage{margin:12px 0}
+#game-body:has(.trade-grid) .royal-wheel{width:125px;height:125px}
+#game-body:has(.trade-grid) .roulette-stage img{height:100px;width:75px}
+#game-body .wish-altar{padding:12px;margin:8px 0;gap:6px}
+#game-body .wish-altar>span{font-size:1.5rem}
+@media(max-height:600px){#game-dialog:has(.royal-table-body){height:96dvh;max-height:96dvh;padding:8px;gap:4px}#game-body .royal-card-table{flex-basis:215px;min-height:215px}#game-body .royal-actions .button{min-height:38px;font-size:.68rem}#game-body .table-toolbar .text-button{min-height:28px}#game-body .table-espurr{height:75px}#game-body .princess-seat{min-height:78px}}
+/* 5.6: the entire hand and its controls live on one board. */
+#game-body .royal-card-table{flex-basis:340px;min-height:340px;max-height:none;overflow:auto}
+#game-body .royal-card-table .royal-actions{position:static;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));flex-shrink:0;padding:8px 0 2px;margin:0;width:100%;gap:6px}
+#game-body .royal-card-table .royal-actions .button{border-color:#c2a3d7;color:#fff}
+#game-body .royal-card-table .table-wager-row{flex-shrink:0;padding:5px 0;margin:0;color:#f6e2c3;font-size:.72rem}
+#game-body .royal-card-table .table-wager-row label{color:#f6e2c3}
+#game-body .royal-card-table .board-bank{position:static;top:auto;margin:0;width:100%}
+@media(max-height:600px){#game-body .royal-card-table{min-height:310px;flex-basis:310px}}

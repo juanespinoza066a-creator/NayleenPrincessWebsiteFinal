@@ -11,14 +11,17 @@
       "id": "a-pearl",
       "title": "A Pearl",
       "artist": "Mitski",
-      "file": "tracks/a-pearl.mp3"
+      "file": "tracks/A Pearl [_lYA3i3QkWM].mp3"
     }
   ],
   "playlists": [
     {
       "id": "palace-mix",
       "name": "Palace mix",
-      "trackIds": ["espurr-welcome", "a-pearl"]
+      "trackIds": [
+        "espurr-welcome",
+        "a-pearl"
+      ]
     }
   ]
 }

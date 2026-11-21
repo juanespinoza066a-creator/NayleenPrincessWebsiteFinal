@@ -9,7 +9,7 @@ function sound(kind, enabled) {
 export function openTable(store,{open,body,result,t}){
  open(t('games.cards.title'));body.querySelector('.game-host')?.remove();body.classList.add('royal-table-body');
  const node=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text!==undefined)e.textContent=text;return e};
- const rules=node('p','rules',t('games.cards.rules'));body.append(rules);
+ const help=node('details','table-help'),summary=node('summary','','How to play ♡'),rules=node('p','rules',t('games.cards.rules'));help.append(summary,rules);body.append(help);
  const tools=node('div','table-toolbar'),bank=node('strong','table-bank'),mute=node('button','text-button');
  let enabled=true;try{enabled=localStorage.getItem('table21-sound')!=='off'}catch{}
  const label=()=>{mute.textContent=enabled?'♪ Table sound on':'♪ Table sound off';mute.setAttribute('aria-pressed',String(enabled))};label();
@@ -20,13 +20,13 @@ export function openTable(store,{open,body,result,t}){
  const dealerTitle=node('h3','seat-label','THE HOUSE'),dealerRow=node('div','royal-hand'),dealerScore=node('p','seat-score');
  const princess=node('div','princess-seat'),portrait=node('img','table-espurr');portrait.src=OUTFITS.find(o=>o.id===store.state.outfit)?.image||OUTFITS[0].image;portrait.alt='Princess Espurr holding her cards';
  const playerTitle=node('h3','seat-label','PRINCESS NAYLEEN'),yourRow=node('div','royal-hand held-hand'),yourScore=node('p','seat-score');
- princess.append(portrait,playerTitle,yourRow,yourScore);table.append(deck,mark,dealerTitle,dealerRow,dealerScore,princess);
- const controls=node('div','table-toolbar'),select=node('select','table-wager');select.setAttribute('aria-label',t('games.cards.bet'));
- [5,10,20,50].forEach(n=>{const o=node('option','',n+' pretend chips');o.value=n;select.append(o)});controls.append(node('label','', 'Your wager '),select);body.append(controls);
- const actions=node('div','game-actions royal-actions');body.insertBefore(actions,table);
+ const houseSeat=node('div','house-seat');houseSeat.append(dealerTitle,dealerRow,dealerScore);princess.append(portrait,playerTitle,yourRow,yourScore);table.append(deck,mark,houseSeat,princess);
+ const controls=node('div','table-toolbar table-wager-row'),select=node('select','table-wager');select.setAttribute('aria-label',t('games.cards.bet'));
+ [5,10,20,50].forEach(n=>{const o=node('option','',n+' pretend chips');o.value=n;select.append(o)});controls.append(node('label','', 'Your wager '),select);table.append(controls);
+ const actions=node('div','game-actions royal-actions');table.append(actions);
  const btn=(label,fn)=>{const b=node('button','button',label);b.onclick=fn;actions.append(b);return b};
  let deckCards=[],hand=[],dealer=[],active=false,busy=false,wager=0,revealed=false,hands=0,streak=0;
- const badge=node('p','table-session','Your royal seat is ready.');tools.after(badge);
+ const badge=node('p','table-session','Your royal seat is ready.');help.append(badge);
  const chipTray=node('div','chip-tray');chipTray.setAttribute('aria-hidden','true');for(let i=0;i<3;i++){const chip=node('span','decor-chip',String([5,10,50][i]));chipTray.append(chip)}table.append(chipTray);
  const card=(c,hidden,i)=>{const e=node('span','playing-card royal-playing-card'+(hidden?' back':['♥','♦'].includes(c.suit)?' red':''),hidden?'♛':({1:'A',11:'J',12:'Q',13:'K'}[c.rank]||c.rank)+c.suit);e.style.setProperty('--card-i',i);e.setAttribute('aria-label',hidden?'Face-down house card':e.textContent);if(!hidden){const corner=node('small','card-corner',e.textContent),pip=node('strong','card-pip',c.suit);e.replaceChildren(corner,pip)}return e};
  function paint(){dealerRow.replaceChildren(...dealer.map((c,i)=>card(c,active&&!revealed&&i>0,i)));yourRow.replaceChildren(...hand.map((c,i)=>card(c,false,i)));dealerScore.textContent=dealer.length?(active&&!revealed?'One card hidden':handTotal(dealer)+' points'):'';yourScore.textContent=hand.length?handTotal(hand)+' points · '+wager+' wagered':'';bank.textContent=t('games.cards.bank',{score:store.state.chips,best:store.state.stats.bestBank});boardBank.textContent='Your table score · '+store.state.chips.toLocaleString();deal.disabled=busy||active||store.state.chips<+select.value;select.disabled=busy||active;hit.disabled=stay.disabled=!active||busy;double.disabled=!active||busy||hand.length!==2||store.state.chips<wager*2;reset.disabled=busy||active;}
@@ -36,10 +36,10 @@ export function openTable(store,{open,body,result,t}){
  const hit=btn(t('games.cards.hit'),()=>{if(!active||busy)return;hand.push(deckCards.pop());sound('deal',enabled);paint();if(handTotal(hand)>21)finish();else if(handTotal(hand)===21)void house()});
  const stay=btn(t('games.cards.stay'),()=>void house());
  const double=btn(t('games.cards.double'),()=>{if(!active||busy||hand.length!==2||store.state.chips<wager*2)return;wager*=2;hand.push(deckCards.pop());sound('chips',enabled);paint();if(handTotal(hand)>21)finish();else void house()});
- const reset=btn(t('games.cards.reset'),()=>{if(active||busy)return;store.change(s=>s.chips=100);hand=[];dealer=[];wager=0;result.textContent='A fresh little start. Your best score and outfits stay safe. ♡';paint()});reset.classList.add('soft');
+ const reset=btn(t('games.cards.reset'),()=>{if(active||busy)return;store.change(s=>s.chips=100);hand=[];dealer=[];wager=0;result.textContent='A fresh little start. Your best score and outfits stay safe. ♡';paint()});reset.classList.add('soft');controls.append(reset);reset.textContent='Fresh 100';reset.setAttribute('aria-label','Reset my table to 100');
  const musicButton=node('button','text-button','♫ Lounge music off');tools.append(musicButton);let musicTimer=null,musicStep=0;const stopMusic=()=>{clearInterval(musicTimer);musicTimer=null;musicButton.textContent='♫ Lounge music off'};musicButton.onclick=()=>{if(musicTimer){try{localStorage.setItem('table21-music','off')}catch{}stopMusic();return}try{localStorage.setItem('table21-music','on')}catch{}sound('chips',true);musicButton.textContent='♫ Lounge music on';musicTimer=setInterval(()=>{if(document.hidden||!document.getElementById('game-dialog').open){stopMusic();return}if(!audio)return;const hz=[261.63,329.63,392,493.88,440,392,329.63,293.66][musicStep++%8],o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(.025,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.7);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.75);o.onended=()=>{o.disconnect();g.disconnect()};},480);};
  const close=document.getElementById('game-close'),dialog=document.getElementById('game-dialog'),oldClose=close.onclick;
  const cancel=e=>{e.preventDefault();close.click()};dialog.addEventListener('cancel',cancel);close.onclick=()=>{if(active){result.textContent='Finish this hand before leaving the table.';return}stopMusic();dialog.removeEventListener('cancel',cancel);close.onclick=oldClose;body.classList.remove('royal-table-body');oldClose()};
  try{if(localStorage.getItem('table21-music')!=='off')musicButton.click()}catch{musicButton.click()}
- body.append(node('p','rules',t('games.cards.resetHint')));select.onchange=paint;paint();
+ help.append(node('p','rules',t('games.cards.resetHint')));select.onchange=paint;paint();
 }
