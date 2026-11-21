@@ -36,6 +36,14 @@
       "file": "tracks/goddess-2d56e87c36.mp3",
       "sourceId": "Youtube:llwKxYAWaV0",
       "sha256": "f33ad0a1522ca98c3f07785c98943625501c34d3fd2bdf8790e3e7888adee1a9"
+    },
+    {
+      "id": "erika-3ac121fdc7",
+      "title": "Erika",
+      "artist": "God",
+      "file": "tracks/erika-3ac121fdc7.mp3",
+      "sourceId": "Youtube:cJz6Oqm4UoY",
+      "sha256": "903c44e40128822c7fc190f604def743c91560285b8fb0c3fd0362f09e93f40f"
     }
   ],
   "playlists": [
