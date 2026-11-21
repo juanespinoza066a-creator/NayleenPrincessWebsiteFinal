@@ -86,6 +86,14 @@
       "file": "tracks/my-love-mine-all-mine-4ac789bf9a.mp3",
       "sourceId": "Youtube:dOT_17goSck",
       "sha256": "db9f8cc78e6c1028e1b98d7d1548415008438343504814477a01f06da30e8f4c"
+    },
+    {
+      "id": "stupid-song-e9c825d2a9",
+      "title": "Stupid Song",
+      "artist": "Olivia Rodrigo",
+      "file": "tracks/stupid-song-e9c825d2a9.mp3",
+      "sourceId": "Youtube:DKaxuPbgyFM",
+      "sha256": "add0b087b405c4cd12695c03475c49f83d736816418ca67f5adc73b74e76a77e"
     }
   ],
   "playlists": [
