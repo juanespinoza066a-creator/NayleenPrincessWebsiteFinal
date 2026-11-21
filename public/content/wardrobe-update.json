@@ -1,48 +1,39 @@
 {
   "wardrobe": {
-    "journeyIntro": "Little journeys, lovely rewards. Days never need to be in a row. A play day means 3 finished hands, 100 hands-on squishes, opening a box, making a wish, or finishing a maze. Take your time, princess ♡"
+    "journeyIntro": "Open your Palace once a day to collect a login day. Days don’t need to be in a row ♡"
   },
   "outfits": {
     "jubilee": {
       "name": "Jubilee · Sparkle princess",
-      "hint": "Finish 5 hands on 7 different days"
+      "hint": "Log in on 15 days"
     },
     "jubilee-midnight": {
       "name": "Jubilee · Midnight Mutant",
-      "hint": "Escape in 8 different weeks, enjoy 21 play days & earn Jubilee"
+      "hint": "Log in on 30 days"
     },
     "rafayel": {
       "name": "Rafayel’s little artist",
-      "hint": "Enjoy 14 play days and 6 cozy squishy days"
+      "hint": "Reach 2,000 sparkle points in Princess Drop"
     },
     "pokemon-pack": {
       "name": "Princess booster pack",
-      "hint": "Open boxes in 4 different weeks & enjoy 14 play days"
+      "hint": "Open 10 weekly blind boxes"
     },
     "firestarter": {
       "name": "K/DA Firestarter",
-      "hint": "Finish 5 hands in each of 5 weeks & win 30 hands"
+      "hint": "Own all seven squishies and log in on 15 days"
     },
     "reze": {
-      "name": "Reze · Rainy-day ribbon",
-      "hint": "Enjoy 10 cozy squishy days & visit Ann in 2 weeks"
+      "name": "Reze",
+      "hint": "Escape IDV Hunt 10 times"
     },
     "cissia": {
       "name": "Cissia · Little case specialist",
-      "hint": "Visit Ann in 4 different weeks & enjoy 12 play days"
+      "hint": "Make 5 cabinet wishes and 3 roulette wishes"
     }
   },
   "journey": {
-    "labels": {
-      "sparkleDays": "Sparkle days · finish 5 hands",
-      "cozyDays": "Cozy days · 100 hands-on squishes",
-      "playDays": "Play days",
-      "escapeWeeks": "Weeks with an escape",
-      "boxWeeks": "Weeks with a box opened",
-      "mazeWeeks": "Weeks visiting Ann",
-      "tableWeeks": "Weeks with 5 finished hands",
-      "wins": "Hands won",
-      "jubilee": "Jubilee outfit earned"
-    }
+    "intro": "Open your Palace once a day to collect a login day. Days don’t need to be in a row ♡",
+    "labels": {}
   }
 }

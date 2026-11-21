@@ -23,10 +23,15 @@ export async function loadContent() {
     const mondayCopy=v=>typeof v==='string'?v.replaceAll('Wednesday','Monday'):Array.isArray(v)?v.map(mondayCopy):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mondayCopy(x)])):v;content=mondayCopy(content);
     document.querySelectorAll('[data-copy]').forEach(node => { const value = text(node.dataset.copy); if (value !== node.dataset.copy)
         node.textContent = value; });
-    PRIZES.forEach(p => { p.name = text('collection.names.' + p.id); });
+    PRIZES.forEach(p => { const key='collection.names.'+p.id;if(text(key)!==key)p.name=text(key); });
+    const rulesCopy=OUTFITS.map(o=>({id:o.id,name:o.name,hint:o.hint}));
     OUTFITS.forEach(o => { const nameKey='outfits.'+o.id+'.name',hintKey='outfits.'+o.id+'.hint';if(text(nameKey)!==nameKey)o.name=text(nameKey);if(text(hintKey)!==hintKey)o.hint=text(hintKey); });
     OUTFITS.forEach(o=>{o.hint=o.hint.replaceAll('Ann’s weekly maze','the weekly hunt').replaceAll('visit Ann','join the hunt').replaceAll('Visit Ann','Join the hunt')});if(content.journey?.labels)content.journey.labels.mazeWeeks='Weeks joining the hunt';
     UPGRADES.forEach(u => { u.name = text('upgrades.' + u.id + '.name'); u.detail = text('upgrades.' + u.id + '.detail'); });
+    OUTFITS.forEach(o=>{const rules=rulesCopy.find(x=>x.id===o.id);o.hint=rules.hint;if(o.id==='reze')o.name='Reze';});
+    content.wardrobe.journeyIntro='Open your Palace once a day to collect a login day. Days don’t need to be in a row ♡';
+    content.journey={intro:'Open your Palace once a day to collect a login day. Days don’t need to be in a row ♡',labels:{}};
+    document.querySelectorAll('[data-copy="journey.intro"]').forEach(n=>n.textContent=content.journey.intro);
     return true;
 }
 export async function readNotes() {

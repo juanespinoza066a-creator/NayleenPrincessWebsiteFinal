@@ -9,7 +9,7 @@ export default async function handler(req,res){
   if(id&&!/^[1-9][0-9]{0,18}$/.test(id))return reply(res,400,{error:'Choose a saved backup.'});
   const filter=`profile=eq.${auth.profile}`;
   if(req.method==='GET'){
-   const rows=await db(`carnival_backups?${filter}${id?'&id=eq.'+id:''}&select=${id?'id,state,revision,created_at,reason':'id,revision,created_at,reason'}&order=created_at.desc,id.desc&limit=${id?1:10}`);
+   const rows=await db(`carnival_backups?${filter}${id?'&id=eq.'+id:''}&select=${id?'id,state,revision,created_at,reason':'id,revision,created_at,reason'}&order=created_at.desc,id.desc&limit=${id?1:5}`);
    if(!id)return reply(res,200,{backups:rows,profile:auth.profile});
    if(!rows.length)return reply(res,404,{error:'That backup is no longer here.'});
    return reply(res,200,{kind:'nayleen-carnival-backup',version:3,profile:auth.profile,exportedAt:rows[0].created_at,state:rows[0].state});

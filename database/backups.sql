@@ -16,7 +16,7 @@ grant usage,select on sequence public.carnival_backups_id_seq to service_role;
 create or replace function public.carnival_trim_backups(p_profile text) returns void
 language sql security definer set search_path=public as $$
  delete from public.carnival_backups where profile=p_profile and id not in
- (select id from public.carnival_backups where profile=p_profile order by created_at desc,id desc limit 10);
+ (select id from public.carnival_backups where profile=p_profile order by created_at desc,id desc limit 5);
 $$;
 create or replace function public.carnival_snapshot_save() returns trigger
 language plpgsql security definer set search_path=public as $$

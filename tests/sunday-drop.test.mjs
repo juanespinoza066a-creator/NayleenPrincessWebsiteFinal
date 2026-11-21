@@ -5,7 +5,7 @@ assert(!unlockedRooms(s).includes('sunday'),'table score does not unlock Sunday 
 assert(unlockedOutfits(s).includes('sunday'),'Sunday outfit keeps its existing card requirement');
 const week='2026-11-16';const run=beginDrop(s,()=>0,week);run.score=3199;
 assert(!unlockedRooms(s).includes('sunday'));
-run.score=3200;assert(unlockedRooms(s).includes('sunday'));
+run.score=3200;assert(!unlockedRooms(s).includes('sunday'),'30 login days are also required');s.journey.loginDays=Array.from({length:30},(_,i)=>new Date(Date.UTC(2026,9,i+1)).toISOString().slice(0,10));assert(unlockedRooms(s).includes('sunday'));
 finishDrop(s,false,()=>0,week);assert.equal(s.stats.bestDrop,3200,'a qualifying score counts even on overflow');
 delete s.dropRuns[week];const kept=normalizeState(s);assert.equal(kept.stats.bestDrop,3200);assert(unlockedRooms(kept).includes('sunday'));
 assert(validState(kept));kept.tradedRooms=['sunday'];assert(!unlockedRooms(kept).includes('sunday'),'exchanging a room still removes it');

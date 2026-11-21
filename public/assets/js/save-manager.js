@@ -1,5 +1,5 @@
 import {CODE_LOGIN,ensureCodeLogin,onCodeLogout} from './code-login.js';
-import { SAVE_KEY, freshState, normalizeState, validState, tick, unlockedOutfits } from './game-rules.js';
+import { SAVE_KEY, freshState, normalizeState, validState, tick, unlockedOutfits, recordLogin } from './game-rules.js';
 export const STATIC = window.CARNIVAL_CONFIG?.mode === 'static';
 export async function api(path, options = {}) {
     const response = await fetch(CODE_LOGIN && path === 'api/player' ? 'api/code-save' : path, { cache: 'no-store', signal: AbortSignal.timeout(10000), ...options });
@@ -84,6 +84,7 @@ export class CarnivalStore {
             catch (error) {
                 this.status = error.status === 401 ? 'Saved in this browser. Account sync needs sign-in.' : 'Account save couldn’t load. Playing on this device until you retry.';
             }
+        if(recordLogin(this.state))this.dirty=true;
         const earned = tick(this.state);
         this.offlineEarnings = earned;
         this.ready = true;
@@ -95,7 +96,8 @@ export class CarnivalStore {
         this.timer = setInterval(() => {
             if (!this.ready)
                 return;
-            const previous = unlockedOutfits(this.state), amount = tick(this.state);
+            const previous = unlockedOutfits(this.state), login=recordLogin(this.state), amount = tick(this.state);
+            if(login){this.dirty=true;this.emit();this.schedule();}
             if (amount > 0)
                 this.dirty = true;
             this.remember();
