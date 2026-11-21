@@ -68,6 +68,14 @@
       "file": "tracks/promise-c3331b820d.mp3",
       "sourceId": "Youtube:Yq6qkq_TWAM",
       "sha256": "017ee7179a58a2ec4834621070e9fc9ad01e9806fd5f979727959d95d30ac988"
+    },
+    {
+      "id": "two-slow-dancers-46ee1088f0",
+      "title": "Two Slow Dancers",
+      "artist": "Mitski",
+      "file": "tracks/two-slow-dancers-46ee1088f0.mp3",
+      "sourceId": "Youtube:tav67nGjf9Y",
+      "sha256": "c360d3c998bf0dae1d128b803a7c6ab6ee59764a567215db17101f204f03e24f"
     }
   ],
   "playlists": [
