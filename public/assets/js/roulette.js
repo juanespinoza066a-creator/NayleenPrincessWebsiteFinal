@@ -1,3 +1,4 @@
+import {attachTradeScroll} from './trade-scroll.js';
 import {OUTFITS,ROOMS,PRIZES,ownedTradeItems,rouletteStatus,spinRoulette,mondayKey} from './game-rules.js';
 import {playBoxSound} from './box-audio.js';
 export function openRoulette(store,{open,body,result,button,p}){
@@ -12,5 +13,5 @@ export function openRoulette(store,{open,body,result,button,p}){
  const tabs=node('div',null,'game-actions');body.append(tabs);for(const kind of ['all','collectible','outfit','room'])button(kind==='all'?'All treasures':kind==='collectible'?'Collectibles':kind==='outfit'?'Outfits':'Rooms',()=>{filter=kind;refresh();},tabs);
  const grid=node('div',null,'trade-grid');body.append(grid);
  function refresh(){const state=rouletteStatus(store.state);const eligible=[...selected].some(key=>key.startsWith('room:')||key.startsWith('outfit:'));go.disabled=busy||selected.size!==2||!eligible||state.left===0;go.textContent=busy?'A little magic…':state.left===0?'A fresh wish opens Monday ♡':selected.size===2&&!eligible?'Choose an outfit or room too ♡':'Wish with '+selected.size+' / 2 treasures';count.textContent=state.left?'Your weekly wish is ready ♡':'This week’s wish is complete ♡';grid.replaceChildren();for(const item of ownedTradeItems(store.state).filter(x=>filter==='all'||x.kind===filter)){const b=node('button',null,'trade-choice');if(item.image){const img=node('img');img.src=item.image;img.alt=item.name;b.append(img);}else b.append(node('span','♛'));b.append(node('span',item.name),node('small',item.protected?'Stays with you ♡':item.kind));b.disabled=busy||item.protected||state.left===0;b.setAttribute('aria-pressed',String(selected.has(item.key)));b.onclick=()=>{review.hidden=true;if(selected.has(item.key))selected.delete(item.key);else if(selected.size<2)selected.add(item.key);refresh();if(selected.size===2)submit.scrollIntoView({block:'nearest',behavior:'smooth'});};grid.append(b);}}
- refresh();const last=store.state.rouletteResult;if(last?.week===mondayKey()&&last.reward)prizeView(last.reward);
+ attachTradeScroll(grid);refresh();const last=store.state.rouletteResult;if(last?.week===mondayKey()&&last.reward)prizeView(last.reward);
 }

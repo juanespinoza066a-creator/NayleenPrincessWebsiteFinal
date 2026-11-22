@@ -1,0 +1,9 @@
+# Exclusive weather wardrobe — combined5.7.5 update
+
+Eight different weather-only designs are now available as permanent game wardrobe rewards. Cloud and rain retain their exclusive weather illustrations from the prior weather feature; the six additional illustrations were generated with the built-in image tool using the princess Espurr reference, soft dimensional lavender mascot styling, transparent background, centered whole character and clear margins. No existing game wardrobe costume is reused.
+
+Prompt set: sun—peach/butter-yellow summer dress, straw sunhat, sun bag; wind—mint windbreaker, flowing lilac scarf, kite bag; cold—rose quilted winter coat, lilac beanie/mittens; storm—plum waterproof cape, gold lightning embroidery, rain boots and lantern; snow—icy blue snow princess coat with fluffy white trim/snowflake clasp/boots; night—midnight-blue celestial robe, golden stars, crescent nightcap and slippers. The invariants preserve the mascot's recognizable lavender fur/purple eyes and matching illustrated style. Each accepted image was inspected and converted to a640-pixel transparent WebP.
+
+Web assets: public/assets/images/outfits/weather-{sun,cloud,rain,storm,wind,cold,snow,night}.webp. Native counterparts: app/src/main/assets/artwork/outfits/weather-*.webp, with artwork-index entries for the room renderer/widget snapshot. WeatherPainter uses these costumes directly; no borrowed Jubilee/PJs or painted scarf substitutions remain.
+
+Ownership is based on companion.settings.value.weatherSeen, an eight-key bounded per-account history, also stored in automatic account backups. Native conflict merging unions discoveries from two devices; account switches keep separate local histories. Outfits have wardrobe progress, game powers using existing balanced effects, and favorite-design support.

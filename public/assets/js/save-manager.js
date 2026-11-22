@@ -1,3 +1,4 @@
+import {cleanCompanion} from './companion-model.js';
 import {CODE_LOGIN,ensureCodeLogin,onCodeLogout} from './code-login.js';
 import { SAVE_KEY, freshState, normalizeState, validState, tick, unlockedOutfits, recordLogin } from './game-rules.js';
 export const STATIC = window.CARNIVAL_CONFIG?.mode === 'static';
@@ -41,7 +42,7 @@ export class CarnivalStore {
         fn(this.state, { status: this.status, ...extra }); }
     remember() { try {
         localStorage.setItem(this.storageKey, JSON.stringify(this.state));
-        localStorage.setItem(this.storageKey + '-pending', JSON.stringify({ dirty: this.dirty, revision: this.revision, userId: this.userId }));
+        localStorage.setItem(this.storageKey + '-pending', JSON.stringify({ dirty: this.dirty || this.saving, revision: this.revision, userId: this.userId }));
         return true;
     }
     catch {
@@ -88,6 +89,7 @@ export class CarnivalStore {
         const earned = tick(this.state);
         this.offlineEarnings = earned;
         this.ready = true;
+        let companionRefresh;window.addEventListener('palace-companion-refresh',()=>{clearTimeout(companionRefresh);companionRefresh=setTimeout(()=>{void this.refreshCompanion();setTimeout(()=>void this.refreshCompanion(),4000);},2000);});
         if (earned > 0)
             this.dirty = true;
         this.remember();
@@ -139,8 +141,10 @@ export class CarnivalStore {
             }
         }
         this.saving = false;
+        this.remember();
         this.emit();
     }
+    async refreshCompanion(){if(!this.ready||!this.online||STATIC||!CODE_LOGIN)return;try{const profile=this.profile,data=await api('api/companion');if(profile!==this.profile||data.profile!==profile)return;this.state.companion=cleanCompanion(data.companion);this.remember();this.emit();}catch{}}
     async retry() {
         if (this.online && !this.conflict)
             return this.save();
