@@ -174,6 +174,14 @@
       "file": "tracks/i-wanna-be-yours-5b4723fd4a.mp3",
       "sourceId": "Youtube:nyuo9-OjNNg",
       "sha256": "e0940f7f5d256c803ca316522c11fc38f5895a0608ae651cf21c8555e862e548"
+    },
+    {
+      "id": "west-coast-eb1f3b2202",
+      "title": "West Coast",
+      "artist": "Lana Del Rey",
+      "file": "tracks/west-coast-eb1f3b2202.mp3",
+      "sourceId": "Youtube:o3SqUUoJjW8",
+      "sha256": "7775c7127e06afe9f207bc6bdca5a60b38894e4ab401688977779c44e4b62bca"
     }
   ],
   "playlists": []
