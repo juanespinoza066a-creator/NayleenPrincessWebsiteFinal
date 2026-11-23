@@ -230,6 +230,14 @@
       "file": "tracks/the-blonde-a2518632c5.mp3",
       "sourceId": "Youtube:viWfSucFk14",
       "sha256": "a1e8570aa0840a2023d5ea8cc5fb656a9a7d251abb8ad77d764e0ef5700f083d"
+    },
+    {
+      "id": "blue-c6c3ae4803",
+      "title": "BLUE",
+      "artist": "Billie Eillish",
+      "file": "tracks/blue-c6c3ae4803.mp3",
+      "sourceId": "Youtube:A5tIj1f7Zgs",
+      "sha256": "7840dfdedb30e369ac29a23f8ef4f18d5273a128b7515f0819007313bc62031c"
     }
   ],
   "playlists": []
