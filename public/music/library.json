@@ -102,15 +102,15 @@
       "file": "tracks/perfect-de4a00f221.mp3",
       "sourceId": "Youtube:CWG-GDfejmY",
       "sha256": "3098db81c31c0663d48d7e887cffda73aa60ccc1fddfcfd263d7d802a703af3b"
+    },
+    {
+      "id": "nobody-ed59583b2e",
+      "title": "Nobody",
+      "artist": "Mitski",
+      "file": "tracks/nobody-ed59583b2e.mp3",
+      "sourceId": "Youtube:K0-0AL4Wh00",
+      "sha256": "0218657c77da4baf055844b685b4ff476f6989902b56cef875e35ace9b301c4a"
     }
   ],
-  "playlists": [
-    {
-      "id": "palace-mix",
-      "name": "Palace mix",
-      "trackIds": [
-        "a-pearl"
-      ]
-    }
-  ]
+  "playlists": []
 }
