@@ -182,6 +182,14 @@
       "file": "tracks/west-coast-eb1f3b2202.mp3",
       "sourceId": "Youtube:o3SqUUoJjW8",
       "sha256": "7775c7127e06afe9f207bc6bdca5a60b38894e4ab401688977779c44e4b62bca"
+    },
+    {
+      "id": "duvet-2be68283a8",
+      "title": "Duvet",
+      "artist": "Boa",
+      "file": "tracks/duvet-2be68283a8.mp3",
+      "sourceId": "Youtube:adtntJCreYE",
+      "sha256": "d8631227ea13e9ccdf8046fdae18d1980c07aa7e787720b16abce4ee5d7f47f3"
     }
   ],
   "playlists": []
