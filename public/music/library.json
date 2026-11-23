@@ -206,6 +206,14 @@
       "file": "tracks/blue-hair-c74628a3f9.mp3",
       "sourceId": "Youtube:PzIXNqpCug0",
       "sha256": "0d4421046d4d59ba3461301cd6517a2845d803b21b9fcde5b156833fe5e638d4"
+    },
+    {
+      "id": "bad-habit-ec8294f2f4",
+      "title": "Bad Habit",
+      "artist": "Steve Lacy",
+      "file": "tracks/bad-habit-ec8294f2f4.mp3",
+      "sourceId": "Youtube:UGbDWUtqMsQ",
+      "sha256": "6aefbe476a88d0fce3a9b275553745386e611aca539854d6c44a984c0cb80d6f"
     }
   ],
   "playlists": []
