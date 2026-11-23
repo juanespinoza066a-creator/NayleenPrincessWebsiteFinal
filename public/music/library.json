@@ -166,6 +166,14 @@
       "file": "tracks/apocalypse-f5a7e2cbac.mp3",
       "sourceId": "Youtube:sElE_BfQ67s",
       "sha256": "f60040068a645a1bca71cf6ca996df389a85e5ca5cfa646cc808f5aef94c1379"
+    },
+    {
+      "id": "i-wanna-be-yours-5b4723fd4a",
+      "title": "I Wanna Be Yours",
+      "artist": "Arctic Monkeys",
+      "file": "tracks/i-wanna-be-yours-5b4723fd4a.mp3",
+      "sourceId": "Youtube:nyuo9-OjNNg",
+      "sha256": "e0940f7f5d256c803ca316522c11fc38f5895a0608ae651cf21c8555e862e548"
     }
   ],
   "playlists": []
