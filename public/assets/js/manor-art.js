@@ -439,7 +439,7 @@ function drawManor(v) {
             const f = calibration.elapsed / calibration.duration, a = -Math.PI / 2 + calibration.direction * f * Math.PI * 2;
             line([[cx, cy], [cx + Math.cos(a) * (r - 4), cy + Math.sin(a) * (r - 4)]], '#fff2ff', 2.5);
             oval(cx, cy, 4, 4, '#f8e8ff');
-            text(cx, cy + r + 26, 'TAP INTERACT · E', 9, '#ead5fb');
+            text(cx, cy + r + 26, 'TAP INTERACT', 9, '#ead5fb');
         }
         else {
             star(cx, cy, 10 + Math.sin(t * 12) * 2, '#e3c08d');

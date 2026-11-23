@@ -50,11 +50,47 @@ export const OUTFITS = [
     {"id": "firestarter", "name": "K/DA Firestarter", "hint": "Own all seven squishies and log in on 15 days", "icon": "🔥", "image": "assets/images/outfits/firestarter.webp"},
     {"id": "reze", "name": "Reze", "hint": "Escape IDV Hunt 10 times", "icon": "☂", "image": "assets/images/outfits/reze.webp"},
     {"id": "cissia", "name": "Cissia · Little case specialist", "hint": "Make 5 cabinet wishes and 3 roulette wishes", "icon": "✦", "image": "assets/images/outfits/cissia.webp"}
-].concat(WEATHER_KEYS.map((key,i)=>({id:'weather-'+key,name:WEATHER_NAMES[i],hint:'See '+(key==='night'?'nighttime':key==='sun'?'sunny':key==='cloud'?'cloudy':key==='cold'?'cold (below 46°F / 8°C)':key==='wind'?'windy (22 mph / 35 km/h or more)':key==='snow'?'snowy':key==='storm'?'thunderstorm':'rainy')+' weather in Espurr’s Weather',icon:'☁',image:'assets/images/outfits/weather-'+key+'.webp'})));
-export const ADVENT_GIFTS={"1": {"kind": "outfit", "id": "weather-night", "name": "Moonbeam dreamer", "ready": true}, "2": {"kind": "room", "id": "christmas-room", "name": "Christmas at the Palace", "ready": true}, "3": {"kind": "collectible", "id": "brew-mug", "name": "7 Brew keepsake mug", "ready": true}, "4": {"kind": "collectible", "id": "miku-xmas", "name": "Christmas Miku plushie", "ready": true}, "5": {"kind": "collectible", "id": "mimikyu-xmas", "name": "Christmas Mimikyu plushie", "ready": true}, "6": {"kind": "outfit", "id": "espurr-xmas", "name": "Christmas princess", "ready": true}, "8": {"kind": "collectible", "id": "nightcrawler", "name": "Nightcrawler plushie", "ready": true}, "9": {"kind": "collectible", "id": "sunday-xmas", "name": "Christmas Sunday plushie", "ready": true}, "10": {"kind": "collectible", "id": "damon-plush", "name": "Damon Salvatore plushie", "ready": true}, "11": {"kind": "room", "id": "damon-room", "name": "Salvatore fireside", "ready": true}, "12": {"kind": "outfit", "id": "damon-outfit", "name": "Mystic Falls princess", "ready": true}, "13": {"kind": "collectible", "id": "butter-gift", "name": "Butter squishy keepsake", "ready": true}, "15": {"kind": "collectible", "id": "jack-meal", "name": "Chicken Jr & cheesy curly fries", "ready": true}, "16": {"kind": "collectible", "id": "cloak-dagger", "name": "Cloak & Dagger dreamy duo plushies", "ready": true}, "18": {"kind": "collectible", "id": "sombr-album", "name": "sombr vinyl keepsake", "ready": true}, "19": {"kind": "collectible", "id": "varesa", "name": "Varesa plushie", "ready": true}, "20": {"kind": "collectible", "id": "cartman-plush", "name": "Cartman plushie", "ready": true}, "21": {"kind": "room", "id": "cartman-room", "name": "A little South Park winter", "ready": true}, "22": {"kind": "outfit", "id": "cartman-outfit", "name": "South Park snow day", "ready": true}};
+].concat(WEATHER_KEYS.map((key,i)=>({id:'weather-'+key,name:WEATHER_NAMES[i],hint:'Unlocks automatically when Espurr checks '+(key==='night'?'nighttime':key==='sun'?'sunny':key==='cloud'?'cloudy':key==='cold'?'cold (below 46°F / 8°C)':key==='wind'?'windy (22 mph / 35 km/h or more)':key==='snow'?'snowy':key==='storm'?'thunderstorm':'rainy')+' weather',icon:'☁',image:'assets/images/outfits/weather-'+key+'.webp'})));
+export const ADVENT_GIFTS={"1": {"kind": "outfit", "id": "weather-night", "name": "Moonbeam dreamer", "ready": true}, "2": {"kind": "room", "id": "christmas-room", "name": "Christmas at the Palace", "ready": true}, "3": {"kind": "collectible", "id": "brew-mug", "name": "7 Brew keepsake mug", "ready": true}, "4": {"kind": "collectible", "id": "miku-xmas", "name": "Christmas Miku plushie", "ready": true}, "5": {"kind": "collectible", "id": "mimikyu-xmas", "name": "Christmas Mimikyu plushie", "ready": true}, "6": {"kind": "outfit", "id": "espurr-xmas", "name": "Christmas princess", "ready": true}, "8": {"kind": "collectible", "id": "nightcrawler", "name": "Nightcrawler plushie", "ready": true}, "9": {"kind": "collectible", "id": "sunday-xmas", "name": "Christmas Sunday plushie", "ready": true}, "10": {"kind": "collectible", "id": "damon-plush", "name": "Damon Salvatore plushie", "ready": true}, "11": {"kind": "room", "id": "damon-room", "name": "Salvatore fireside", "ready": true}, "12": {"kind": "outfit", "id": "damon-outfit", "name": "Mystic Falls princess", "ready": true}, "13": {"kind": "collectible", "id": "butter-gift", "name": "Butter squishy keepsake", "ready": true}, "15": {"kind": "collectible", "id": "jack-meal", "name": "Chicken Jr & cheesy curly fries", "ready": true}, "16": {"kind": "collectible", "id": "cloak-dagger", "name": "Cloak & Dagger dreamy duo plushies", "ready": true}, "18": {"kind": "collectible", "id": "sombr-album", "name": "sombr vinyl keepsake", "ready": true}, "19": {"kind": "collectible", "id": "varesa", "name": "Varesa plushie", "ready": true}, "20": {"kind": "collectible", "id": "cartman-plush", "name": "Cartman plushie", "ready": true}, "21": {"kind": "room", "id": "cartman-room", "name": "A little South Park winter", "ready": true}, "22": {"kind": "outfit", "id": "cartman-outfit", "name": "South Park snow day", "ready": true}, "23": {"kind": "room", "id": "german-command-bunker", "name": "WWII War Room · Nazi Germany", "ready": true, "description": "A fictionalized German command bunker from World War II."}, "25": {"kind": "outfit", "id": "hitler-espurr", "name": "Espurr · Hitler period costume", "ready": true, "description": "An Espurr costume based on Hitler’s wartime clothing."}, "24": {"kind": "collectible", "id": "hitler-plush", "name": "Adolf Hitler plushie", "ready": true, "description": "A fabric interpretation of Adolf Hitler, dictator of Nazi Germany."}};
 for(const [day,g]of Object.entries(ADVENT_GIFTS)){if(!g.ready)continue;const items=g.kind==='outfit'?OUTFITS:g.kind==='room'?ROOMS:PRIZES;const old=items.find(x=>x.id===g.id);if(old){old.adventDay=Number(day);old.hint='Winter 2026 · December '+day;}else items.push({...g,adventDay:Number(day),hint:'Winter 2026 · December '+day,image:'assets/images/'+(g.kind==='outfit'?'outfits':g.kind==='room'?'rooms':'collectibles')+'/'+g.id+'.webp',wall:'#e5cef1',floor:'#c3a1d8'});}
 export const GAME_PRIZES=PRIZES.filter(x=>!x.adventDay);
-export function claimAdvent(s,day,preview=false,now=Date.now()){if(!Number.isInteger(day)||day<1||day>25||!ADVENT_GIFTS[day]?.ready)return null;const date=dayKey(now);if(!preview&&(date<'2026-12-'+String(day).padStart(2,'0')||date>'2026-12-31'))return null;s.advent??={year:2026,days:[]};if(s.advent.days.includes(day))return null;s.advent.days.push(day);s.advent.days.sort((a,b)=>a-b);const g=ADVENT_GIFTS[day];grantItem(s,g.kind,g.id);return g;}
+const TRADABLE_PRIZES = new Set(GAME_PRIZES.map(item => item.id));
+export const ADVENT_NOTE_DAYS = [7, 14, 17];
+const ADVENT_ORDER = 2;
+
+function cleanAdvent(saved) {
+    const days = Array.isArray(saved?.days) ? saved.days : [];
+    const updated = days.filter(day => Number.isInteger(day) && day >= 1 && day <= 25)
+        .map(day => saved.order === ADVENT_ORDER ? day : day === 23 ? 24 : day === 24 ? 23 : day);
+    return { year: 2026, order: ADVENT_ORDER, days: [...new Set(updated)].sort((a, b) => a - b) };
+}
+
+export function adventAvailable(day, preview = false, now = Date.now()) {
+    if (!Number.isInteger(day) || day < 1 || day > 25) return false;
+    const date = dayKey(now);
+    return preview || (date >= '2026-12-' + String(day).padStart(2, '0') && date <= '2026-12-31');
+}
+
+export function claimAdvent(s, day, preview = false, now = Date.now()) {
+    const gift = ADVENT_GIFTS[day];
+    if ((!gift?.ready && !ADVENT_NOTE_DAYS.includes(day)) || !adventAvailable(day, preview, now)) return null;
+    s.advent = cleanAdvent(s.advent);
+    if (s.advent.days.includes(day)) return null;
+    s.advent.days.push(day);
+    s.advent.days.sort((a, b) => a - b);
+    if (gift) grantItem(s, gift.kind, gift.id);
+    return gift || { kind: 'note' };
+}
+
+export function keepAdventClaims(target, previous) {
+    const days = [...cleanAdvent(target.advent).days, ...cleanAdvent(previous?.advent).days];
+    target.advent = cleanAdvent({ order: ADVENT_ORDER, days });
+    for (const day of target.advent.days) {
+        const gift = ADVENT_GIFTS[day];
+        if (gift?.ready) grantItem(target, gift.kind, gift.id);
+    }
+}
+
 export const UPGRADES = [
     { id: 'fingers', name: 'Extra-squishy fingers', detail: '+1 crunch per tap', base: 15, icon: '☝' },
     { id: 'helpers', name: 'Tiny peanut helper', detail: '+1 crunch every second', base: 30, icon: '🐥' },
@@ -76,12 +112,12 @@ const integer = (v, max = 1e9) => Math.floor(number(v, max));
 const weeks = v => [...new Set(Array.isArray(v) ? v.filter(n => Number.isInteger(n) && n >= 1 && n <= 52) : [])];
 export const MAX_CRUNCHES = 1e12;
 export function freshState(now = Date.now()) {
-    return { version: 3, advent:{year:2026,days:[]}, companion:cleanCompanion(), roomDesigns: [], tradedRooms: [], tradedOutfits: [], rouletteWeeks: {}, rouletteResult: null, dropRuns: {}, grantedRooms: [], grantedOutfits: [], journey: freshJourney(), room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', tradeWeeks: [], collectionHistory: [], weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100, bestDrop:0, wishes:0,roulette:0,hunts:0,dropPlays:0,blackjackHands:0 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
+    return { version: 3, advent:cleanAdvent(), companion:cleanCompanion(), roomDesigns: [], tradedRooms: [], tradedOutfits: [], rouletteWeeks: {}, rouletteResult: null, dropRuns: {}, grantedRooms: [], grantedOutfits: [], journey: freshJourney(), room: 'lavender', chips: 100, prizes: [], shelf: [null, null, null, null], outfit: 'royal', tradeWeeks: [], collectionHistory: [], weeklyClaims: [], mazeWeeks: [], weeklyBox: null, manorRun: null, manorPeanut: {found: false, count: 0}, stats: { rounds: 0, cardRounds: 0, cardWins: 0, boxes: 0, manorWins: 0, bestBank: 100, bestDrop:0, wishes:0,roulette:0,hunts:0,dropPlays:0,blackjackHands:0 }, clicker: { balance: 0, lifetime: 0, manual: 0, skin: 'peanut', ownedSkins: ['peanut'], upgrades: { fingers: 0, helpers: 0, press: 0, factory: 0, roaster: 0, caramel: 0, delivery: 0, musicbox: 0 }, lastTick: now } };
 }
 export function unlockedOutfits(s,counts=journeyCounts(s)) { return OUTFITS.filter(o => (s.grantedOutfits||[]).includes(o.id) || o.id === 'royal' || o.id === 'sunday' && s.stats.bestBank >= 200 || o.id === 'cozy' && s.clicker.lifetime >= 500 || o.id === 'espeon' && s.stats.boxes >= 1 || o.id === 'akali' && s.stats.manorWins >= 1 || o.id === 'kda' && s.stats.manorWins >= 5 || o.id === 'furina' && s.stats.cardRounds >= 1 || o.id === 'rogue' && s.stats.boxes >= 5 || o.id === 'ada' && s.clicker.lifetime >= 1000000 || OUTFIT_CHALLENGES[o.id] && ((s.journey?.earnedOutfits||[]).includes(o.id) || outfitProgress(s,o.id,counts).every(g=>g.value>=g.goal))).map(o => o.id).filter(id=>!(s.tradedOutfits||[]).includes(id)); }
 export function normalizeState(raw, now = Date.now()) {
     const s = freshState(now);
-    s.advent={year:2026,days:[...new Set((Array.isArray(raw?.advent?.days)?raw.advent.days:[]).filter(d=>Number.isInteger(d)&&d>=1&&d<=25))].sort((a,b)=>a-b)};
+    s.advent = cleanAdvent(raw?.advent);
     if (!raw || typeof raw !== 'object')
         return s;
     s.companion=cleanCompanion(raw.companion);
@@ -120,6 +156,7 @@ export function normalizeState(raw, now = Date.now()) {
     s.tradedRooms=cleanGrants(raw.tradedRooms,ROOMS).filter(id=>id!=='lavender');s.tradedOutfits=cleanGrants(raw.tradedOutfits,OUTFITS).filter(id=>id!=='royal');
     s.grantedRooms = cleanGrants(raw.grantedRooms,ROOMS);
     s.grantedOutfits = cleanGrants(raw.grantedOutfits,OUTFITS);
+    keepAdventClaims(s);
     s.journey = normalizeJourney(raw.journey,now);
     claimJourneyRewards(s);
     const oldOutfit = { ribbon: 'sunday', hearts: 'sunday', garden: 'espeon', moon: 'akali', starlight: 'cozy' }[raw.outfit] || raw.outfit;
@@ -138,7 +175,7 @@ export function normalizeCheckpoint(c) {
     return {timers,hazards,decoy:c.decoy?{...position(c.decoy),life:number(c.decoy.life,8)}:null,lastSeen:c.lastSeen?position(c.lastSeen):null,noiseTarget:c.noiseTarget?position(c.noiseTarget):null,locks:Array.from({length:3},(_,i)=>number(c.locks?.[i],3)),checks:Array.from({length:3},(_,i)=>number(c.checks?.[i]??8,12)), player: position(c.player), hunter: position(c.hunter), hp: Math.max(1, Math.min(3, integer(c.hp) || 3)), stamina: number(c.stamina, 100), charges: integer(c.charges, 3), elapsed: number(c.elapsed, 86400), rescued: c.rescued === true, peanutFound:c.peanutFound===true, machines: Array.from({ length: 3 }, (_, i) => number(c.machines?.[i], 40)), pallets: Array.from({ length: 3 }, (_, i) => c.pallets?.[i] === true) };
 }
 export function validState(raw) {
-    if(raw?.advent!==undefined&&(raw.advent?.year!==2026||!Array.isArray(raw.advent.days)||raw.advent.days.length>25||new Set(raw.advent.days).size!==raw.advent.days.length||raw.advent.days.some(d=>!Number.isInteger(d)||d<1||d>25)))return false;
+    if(raw?.advent!==undefined&&(raw.advent?.year!==2026||raw.advent.order!==undefined&&raw.advent.order!==ADVENT_ORDER||!Array.isArray(raw.advent.days)||raw.advent.days.length>25||new Set(raw.advent.days).size!==raw.advent.days.length||raw.advent.days.some(d=>!Number.isInteger(d)||d<1||d>25)))return false;
     if(raw?.companion!==undefined&&!validCompanion(raw.companion))return false;
     if (!raw || typeof raw !== 'object' || !Number.isSafeInteger(raw.chips) || raw.chips < 0 || raw.chips > 1e6 || !Array.isArray(raw.prizes) || raw.prizes.length > PRIZES.length + 1 || new Set(raw.prizes).size !== raw.prizes.length || !raw.prizes.every(id => knownPrize(id) || OLD_IDS.has(id)) || !Array.isArray(raw.shelf) || raw.shelf.length !== 4 || !raw.shelf.every(id => id === null || raw.prizes.includes(id)))
         return false;
@@ -189,7 +226,7 @@ const centralFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicag
 export function centralDate(now=Date.now()){const parts=centralFormatter.formatToParts(new Date(now)),p=t=>Number(parts.find(x=>x.type===t).value);return Date.UTC(p('year'),p('month')-1,p('day'));}
 export function weekNumber(now=Date.now()){return Math.max(1,Math.min(52,2+Math.floor((centralDate(now)-Date.UTC(2026,10,23))/604800000)));}
 export function buySquishy(s,id){const toy=SQUISHIES.find(x=>x.id===id);if(!toy||unlockedSquishies(s).includes(id)||s.clicker.balance<toy.goal)return false;s.clicker.balance-=toy.goal;s.clicker.ownedSkins??=['peanut'];s.clicker.ownedSkins.push(id);s.clicker.skin=id;return true;}
-export function tradeCollectibles(s,ids,week=weekNumber(),random=Math.random){if((s.tradeWeeks||[]).includes(week)||ids.length!==3||new Set(ids).size!==3||!ids.every(x=>s.prizes.includes(x)))return null;
+export function tradeCollectibles(s,ids,week=weekNumber(),random=Math.random){if((s.tradeWeeks||[]).includes(week)||!Array.isArray(ids)||ids.length!==3||new Set(ids).size!==3||!ids.every(x=>TRADABLE_PRIZES.has(x)&&s.prizes.includes(x)))return null;
  s.collectionHistory=[...new Set([...(s.collectionHistory||[]),...s.prizes])];s.prizes=s.prizes.filter(x=>!ids.includes(x));s.shelf=s.shelf.map(x=>ids.includes(x)?null:x);s.tradeWeeks??=[];s.tradeWeeks.push(week);s.stats.wishes=(s.stats.wishes||0)+1;const id=GAME_PRIZES[Math.min(GAME_PRIZES.length-1,Math.floor(random()*GAME_PRIZES.length))].id;const isNew=awardPrize(s,id);recordJourney(s,'wish');return {id,isNew};}
 
 export function awardPrize(s, id) { s.collectionHistory=[...new Set([...(s.collectionHistory||[]),id])];if (s.prizes.includes(id))
@@ -212,7 +249,7 @@ export function testingState(now = Date.now()) { const s = freshState(now); s.gr
 
 // A new collection may enter the cabinet, but needs three different treasures to wish.
 export function cabinetStatus(s,week=weekNumber()) {
- const used=(s.tradeWeeks||[]).includes(week),owned=new Set((s.prizes||[]).filter(id=>PRIZES.some(p=>p.id===id))).size;
+ const used=(s.tradeWeeks||[]).includes(week),owned=new Set((s.prizes||[]).filter(id=>TRADABLE_PRIZES.has(id))).size;
  return {used,owned,canEnter:!used,canExchange:!used&&owned>=3,needed:Math.max(0,3-owned)};
 }
 
@@ -261,8 +298,24 @@ const cleanGrants=(v,items)=>[...new Set((Array.isArray(v)?v:[]).filter(id=>item
 function cleanWeekMap(raw,clean){const out={};if(raw&&typeof raw==='object'&&!Array.isArray(raw))for(const key of Object.keys(raw).filter(dateKey).sort().slice(-104)){const value=clean(raw[key]);if(value!==null)out[key]=value;}return out;}
 function cleanRoulette(r){return r&&dateKey(r.week)&&Number.isInteger(r.number)&&r.number>=0&&r.number<=36&&['rose','violet'].includes(r.color)&&knownPrize(r.wager)&&Array.isArray(r.prizes)&&r.prizes.length<=2&&r.prizes.every(knownPrize)?{week:r.week,number:r.number,color:r.color,wager:r.wager,prizes:[...r.prizes],won:r.won===true,...(r.reward&&['collectible','room','outfit'].includes(r.reward.kind)&&(r.reward.kind==='collectible'?PRIZES:r.reward.kind==='room'?ROOMS:OUTFITS).some(x=>x.id===r.reward.id)?{reward:{kind:r.reward.kind,id:r.reward.id}}:{}),...(Array.isArray(r.offerings)?{offerings:r.offerings.filter(x=>x&&['collectible','room','outfit'].includes(x.kind)).slice(0,2).map(x=>({kind:x.kind,id:x.id}))}:{})}:null;}
 export const ROULETTE_ODDS={collectible:.85,room:.10,outfit:.05};
-export function ownedTradeItems(s){return [...PRIZES.filter(x=>s.prizes.includes(x.id)).map(x=>({...x,kind:'collectible'})),...ROOMS.filter(x=>unlockedRooms(s).includes(x.id)).map(x=>({...x,kind:'room'})),...OUTFITS.filter(x=>unlockedOutfits(s).includes(x.id)).map(x=>({...x,kind:'outfit'}))].map(x=>({...x,key:x.kind+':'+x.id,protected:x.kind==='room'&&(x.id==='lavender'||x.id===s.room)||x.kind==='outfit'&&(x.id==='royal'||x.id===s.outfit)}));}
-export function rouletteStatus(s,week=mondayKey()){const used=Math.min(1,s.rouletteWeeks?.[week]||0);return {used,left:1-used,canEnter:used===0,canSpin:used===0&&ownedTradeItems(s).filter(x=>!x.protected).length>=2&&ownedTradeItems(s).some(x=>!x.protected&&x.kind!=='collectible')};}
+export function ownedTradeItems(s) {
+    const ownedRooms = new Set(unlockedRooms(s));
+    const ownedOutfits = new Set(unlockedOutfits(s));
+    return [
+        ...GAME_PRIZES.filter(item => s.prizes.includes(item.id))
+            .map(item => ({ ...item, kind: 'collectible', protected: false })),
+        ...ROOMS.filter(item => !item.adventDay && ownedRooms.has(item.id))
+            .map(item => ({ ...item, kind: 'room', protected: item.id === 'lavender' || item.id === s.room })),
+        ...OUTFITS.filter(item => !item.adventDay && ownedOutfits.has(item.id))
+            .map(item => ({ ...item, kind: 'outfit', protected: item.id === 'royal' || item.id === s.outfit }))
+    ].map(item => ({ ...item, key: item.kind + ':' + item.id }));
+}
+export function rouletteStatus(s, week = mondayKey()) {
+    const used = Math.min(1, s.rouletteWeeks?.[week] || 0);
+    const offerings = ownedTradeItems(s).filter(item => !item.protected);
+    return { used, left: 1-used, canEnter: used === 0,
+        canSpin: used === 0 && offerings.length >= 2 && offerings.some(item => item.kind !== 'collectible') };
+}
 export function grantItem(s,kind,id){if(kind==='collectible')return awardPrize(s,id);const retired=kind==='room'?'tradedRooms':'tradedOutfits',grants=kind==='room'?'grantedRooms':'grantedOutfits';s[retired]=(s[retired]||[]).filter(x=>x!==id);s[grants]??=[];if(!s[grants].includes(id))s[grants].push(id);return true;}
 export function spinRoulette(s,offerings,color,random=Math.random,week=mondayKey()){
  if(!Array.isArray(offerings)||offerings.length!==2||!rouletteStatus(s,week).canSpin)return null;

@@ -1,19 +1,140 @@
-import {winterMusic} from './winter-music.js';
-import {OUTFITS,ROOMS,PRIZES,ADVENT_GIFTS,claimAdvent,dayKey} from './game-rules.js';
-// Winter preview only. Opening a door never grants items or changes account progress.
-export const ADVENT_YEAR=2026;
-export const ADVENT_DAYS=Array.from({length:25},(_,i)=>i+1);
-export function attachAdvent(store){
- const nav=document.querySelector('header nav');if(!nav)return;const tab=document.createElement('button');tab.type='button';tab.className='advent-tab';tab.textContent='❄ Winter 2026';nav.append(tab);
- const modal=document.createElement('dialog');modal.className='winter-advent';modal.setAttribute('aria-label','Winter 2026 Advent calendar');const close=document.createElement('button');close.type='button';close.className='button soft winter-close';close.textContent='‹ Palace';const music=document.createElement('button');music.type='button';music.className='button soft';music.textContent='♫ Christmas music on';music.setAttribute('aria-pressed','true');const top=document.createElement('div');top.className='winter-actions';top.append(close,music);const title=document.createElement('h1');title.textContent='A little Palace Christmas';const intro=document.createElement('p');intro.textContent='Winter 2026 · December 1–25';const note=document.createElement('p');note.className='winter-preview';note.textContent='Advent preview ♡ Every day is open for testing. Open a door to discover your surprise.';const grid=document.createElement('div');grid.className='winter-doors';const detail=document.createElement('section');detail.className='winter-day';detail.hidden=true;detail.setAttribute('aria-live','polite');
- const hero=document.createElement('div');hero.className='winter-mantel';hero.innerHTML='<span aria-hidden="true">✧ ❄ ✧</span><img src="assets/images/thumbs/outfits/weather-snow.webp" alt="Espurr dressed for a Palace Christmas"><span aria-hidden="true">♡ ❄ ♡</span>';const subtitle=document.createElement('p');subtitle.className='winter-whisper';subtitle.textContent='Twenty-five little doors. A whole lot of love.';
- const decorations=[...OUTFITS.filter(x=>x.image).slice(0,8),...ROOMS.filter(x=>x.image).slice(0,8),...PRIZES.filter(x=>x.image).slice(-9)];
- for(const day of ADVENT_DAYS){const b=document.createElement('button');b.type='button';b.className='winter-door'+(day===25?' christmas-door':'');b.setAttribute('aria-label','Open December '+day+' · secret surprise');const number=document.createElement('strong');number.textContent=day;const art=document.createElement('img');art.src=decorations[day-1].image.endsWith('.webp')&&decorations[day-1].id!=='royal'?decorations[day-1].image.replace('assets/images/','assets/images/thumbs/'):decorations[day-1].image;art.alt='';art.loading='lazy';art.decoding='async';const ribbon=document.createElement('i');ribbon.className='winter-ribbon';ribbon.setAttribute('aria-hidden','true');ribbon.textContent='୨୧';const bow=document.createElement('span');bow.textContent=day===25?'✧ Christmas ✧':'Open ♡';b.append(number,ribbon,art,bow);b.onclick=()=>{audio?.resumeFromGesture();grid.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));detail.hidden=false;detail.replaceChildren();const h=document.createElement('h2');h.textContent='December '+day;const empty=document.createElement('p');const gift=ADVENT_GIFTS[day],eligible=!store||store.profile==='testing'||(dayKey()>='2026-12-'+String(day).padStart(2,'0')&&dayKey()<='2026-12-31');
-if(!store){empty.textContent='An empty little door, waiting for its surprise ♡';}
-else if(!eligible){empty.textContent='Your surprise opens December '+day+' ♡';}
-else if(!gift){empty.textContent=[7,14,17].includes(day)?'A note from Juan is being written for this day ♡':'This surprise is still being chosen ♡';}
-else if(!gift.ready){empty.textContent=gift.name+' · Your illustration is being prepared ♡';}
-else {let reward;store.change(state=>reward=claimAdvent(state,day,store.profile==='testing'));empty.textContent=gift.name+(reward?' is yours ♡':' · Already saved to your account ♡');const item=(gift.kind==='outfit'?OUTFITS:gift.kind==='room'?ROOMS:PRIZES).find(x=>x.id===gift.id);if(item?.image){art.src=item.image;const reveal=document.createElement('img');reveal.src=item.image;reveal.alt=gift.name;reveal.style.cssText='display:block;max-width:90%;height:200px;object-fit:contain;margin:12px auto';detail.append(reveal);}b.querySelector('span').textContent='Opened ♡';}
-const back=document.createElement('button');back.type='button';back.className='button soft';back.textContent='Back to the calendar';back.onclick=()=>{detail.hidden=true;b.focus();};detail.prepend(h);detail.append(empty,back);detail.scrollIntoView({block:'nearest',behavior:'smooth'});};grid.append(b);}
- modal.append(top,hero,title,intro,subtitle,note,detail,grid);document.body.append(modal);let audio=null;tab.onclick=()=>{note.textContent=store?.profile==='testing'?'Advent preview ♡ Every day is open for testing.':'December 1–25 · A little surprise each day ♡';if(!modal.open)modal.showModal();audio?.dispose();audio=winterMusic();music.textContent=audio.enabled?'♫ Christmas music on':'♫ Christmas music off';music.setAttribute('aria-pressed',String(audio.enabled));audio.start();};close.onclick=()=>modal.close();music.onclick=()=>{const on=audio?.toggle();music.textContent=on?'♫ Christmas music on':'♫ Christmas music off';music.setAttribute('aria-pressed',String(!!on));};modal.addEventListener('close',()=>{audio?.dispose();audio=null;tab.focus();});document.addEventListener('visibilitychange',()=>{if(document.hidden)audio?.stop();else if(modal.open)audio?.start();});window.addEventListener('pagehide',()=>audio?.dispose());const fromHash=()=>{if(location.hash==='#winter-2026'){tab.click();}};window.addEventListener('hashchange',fromHash);fromHash();return {tab,modal};
+import { winterMusic } from './winter-music.js';
+import { OUTFITS, ROOMS, PRIZES, ADVENT_GIFTS, claimAdvent, adventAvailable } from './game-rules.js';
+
+export const ADVENT_YEAR = 2026;
+export const ADVENT_DAYS = Array.from({ length: 25 }, (_, i) => i + 1);
+
+function node(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text) element.textContent = text;
+    if (tag === 'button') element.type = 'button';
+    return element;
+}
+
+function giftImage(gift) {
+    if (!gift?.ready) return '';
+    const catalog = gift.kind === 'outfit' ? OUTFITS : gift.kind === 'room' ? ROOMS : PRIZES;
+    return catalog.find(item => item.id === gift.id)?.image || '';
+}
+
+export function attachAdvent(store) {
+    const nav = document.querySelector('header nav');
+    if (!nav) return;
+    const tab = node('button', 'advent-tab', '❄ Winter 2026');
+    nav.append(tab);
+    const modal = node('dialog', 'winter-advent');
+    modal.setAttribute('aria-label', 'Winter 2026 Advent calendar');
+    const close = node('button', 'button soft winter-close', '‹ Palace');
+    const music = node('button', 'button soft', '♫ Christmas music on');
+    const actions = node('div', 'winter-actions');
+    actions.append(close, music);
+    const hero = node('div', 'winter-mantel');
+    hero.innerHTML = '<span aria-hidden="true">✧ ❄ ✧</span><img src="assets/images/thumbs/outfits/weather-snow.webp" alt="Espurr dressed for a Palace Christmas"><span aria-hidden="true">♡ ❄ ♡</span>';
+    const notice = node('p', 'winter-preview');
+    const grid = node('div', 'winter-doors');
+    const detail = node('section', 'winter-day');
+    detail.hidden = true;
+    detail.setAttribute('aria-live', 'polite');
+    const doors = [];
+    const preview = () => store?.profile === 'testing';
+    let audio = null;
+
+    function refreshDoors() {
+        const opened = new Set(store?.state?.advent?.days || []);
+        for (const { day, button, label, art } of doors) {
+            const saved = opened.has(day);
+            const locked = !saved && !!store && !adventAvailable(day, preview());
+            button.dataset.opened = String(saved);
+            button.disabled = !!store && store.ready === false;
+            const title = saved ? 'Opened' : locked ? 'Opens December ' + day : 'Open';
+            label.textContent = saved ? 'Opened ♡' : locked ? 'Locked' : day === 25 ? '✧ Christmas ✧' : 'Open ♡';
+            button.setAttribute('aria-label', 'December ' + day + ' · ' + title);
+            const image = saved ? giftImage(ADVENT_GIFTS[day]) : '';
+            if (image) {
+                const thumb = image.replace('assets/images/', 'assets/images/thumbs/');
+                if (art.getAttribute('src') !== thumb) art.src = thumb;
+            } else art.removeAttribute('src');
+        }
+    }
+
+    for (const day of ADVENT_DAYS) {
+        const button = node('button', 'winter-door' + (day === 25 ? ' christmas-door' : ''));
+        const art = node('img');
+        art.alt = '';
+        art.loading = 'lazy';
+        art.decoding = 'async';
+        const ribbon = node('i', 'winter-ribbon', '୨୧');
+        ribbon.setAttribute('aria-hidden', 'true');
+        const label = node('span');
+        button.append(node('strong', '', String(day)), ribbon, art, label);
+        button.onclick = () => {
+            audio?.resumeFromGesture();
+            const gift = ADVENT_GIFTS[day];
+            const saved = store?.state?.advent?.days?.includes(day);
+            const eligible = saved || adventAvailable(day, preview());
+            let message;
+            detail.replaceChildren(node('h2', '', 'December ' + day));
+            if (!store) message = 'An empty little door, waiting for its surprise ♡';
+            else if (!eligible) message = 'Your surprise opens December ' + day + ' ♡';
+            else {
+                if (!saved) store.change(state => claimAdvent(state, day, preview()));
+                const src = giftImage(gift);
+                if (src) {
+                    const reveal = node('img', 'winter-gift-art');
+                    reveal.src = src;
+                    reveal.alt = gift.name;
+                    detail.append(reveal);
+                    message = saved ? gift.name + ' · Already opened ♡' : gift.name + ' is yours ♡';
+                } else message = 'A note from Juan is being written for this day ♡';
+            }
+            detail.append(node('p', '', message));
+            if (eligible && gift?.description && store) detail.append(node('p', '', gift.description));
+            const back = node('button', 'button soft', 'Back to the calendar');
+            back.onclick = () => { detail.hidden = true; button.focus(); };
+            detail.append(back);
+            detail.hidden = false;
+            refreshDoors();
+            detail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        };
+        doors.push({ day, button, label, art });
+        grid.append(button);
+    }
+    modal.append(actions, hero, node('h1', '', 'A little Palace Christmas'),
+        node('p', '', 'Winter 2026 · December 1–25'),
+        node('p', 'winter-whisper', 'Twenty-five little doors. A whole lot of love.'), notice, detail, grid);
+    document.body.append(modal);
+    const musicLabel = () => {
+        music.textContent = audio?.enabled ? '♫ Christmas music on' : '♫ Christmas music off';
+        music.setAttribute('aria-pressed', String(!!audio?.enabled));
+    };
+    tab.onclick = () => {
+        notice.textContent = preview() ? 'Testing preview · Every door is available ♡' : 'December 1–25 · A little surprise each day ♡';
+        refreshDoors();
+        if (!modal.open) modal.showModal();
+        audio?.dispose();
+        audio = winterMusic();
+        musicLabel();
+        audio.start();
+    };
+    close.onclick = () => modal.close();
+    music.onclick = () => { audio?.toggle(); musicLabel(); };
+    modal.addEventListener('close', () => {
+        audio?.dispose();
+        audio = null;
+        detail.hidden = true;
+        if (location.hash === '#winter-2026') window.history?.replaceState(null, '', location.pathname + location.search);
+        tab.focus();
+    });
+    store?.subscribe?.(() => { if (modal.open) refreshDoors(); });
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) audio?.stop();
+        else if (modal.open) { refreshDoors(); audio?.start(); }
+    });
+    window.addEventListener('pagehide', () => audio?.dispose());
+    const fromHash = () => { if (location.hash === '#winter-2026') tab.click(); };
+    window.addEventListener('hashchange', fromHash);
+    refreshDoors();
+    fromHash();
+    return { tab, modal };
 }

@@ -1,6 +1,6 @@
 import {dropAudio} from './drop-audio.js';
 import {dropRenderer} from './drop-renderer.js';
-import {OUTFITS,PRIZES,DROP_GOAL,DROP_FINAL_TIER,DROP_TRIES,dropAttempts,claimDropPrize,beginDrop,finishDrop,mondayKey} from './game-rules.js';
+import {OUTFITS,PRIZES,ROOMS,DROP_GOAL,DROP_FINAL_TIER,DROP_TRIES,dropAttempts,claimDropPrize,beginDrop,finishDrop,mondayKey} from './game-rules.js';
 import {playBoxSound} from './box-audio.js';
 const IDS=['duck','peanut','frog','rose','espurr','sunday','rafayel','furina','emil'];
 export const mergePoints=tier=>7*2**(tier-1);
@@ -16,7 +16,7 @@ export function openDrop(store,{open,body,result,button,p}){
  const start=button(used?.status==='active'?'Resume my basket ♡':'Begin my weekly basket ♡',()=>{let run;store.change(s=>{run=beginDrop(s)});if(!run)return;start.remove();play(run);});
  function play(run){body.classList.add('drop-playing');audio.start();
  const {Engine,Bodies,Body,Composite,Events}=window.Matter,engine=Engine.create({enableSleeping:true});engine.gravity.y=1;
- const canvas=document.createElement('canvas');const pixelRatio=Math.min(2,Math.max(1,window.devicePixelRatio||1));canvas.width=Math.round(400*pixelRatio);canvas.height=Math.round(650*pixelRatio);canvas.style.aspectRatio='400 / 650';canvas.className='princess-drop';canvas.setAttribute('aria-label','Treasure basket. Move left or right, then press Drop.');canvas.tabIndex=0;const arena=document.createElement('div');arena.className='drop-arena';body.append(arena);arena.append(canvas);
+ const canvas=document.createElement('canvas');const pixelRatio=Math.min(2,Math.max(1,window.devicePixelRatio||1));canvas.width=Math.round(400*pixelRatio);canvas.height=Math.round(650*pixelRatio);canvas.style.aspectRatio='400 / 650';canvas.className='princess-drop';canvas.setAttribute('aria-label','Treasure basket. Drag to aim, then release or tap Drop treasure.');canvas.tabIndex=0;const arena=document.createElement('div');arena.className='drop-arena';body.append(arena);arena.append(canvas);
  const nextCard=document.createElement('div');nextCard.className='drop-next';nextCard.innerHTML='<span>Next little treasure ♡</span><img alt="Next treasure">';arena.before(nextCard);
  const meter=document.createElement('p');meter.className='drop-score';meter.setAttribute('aria-live','polite');body.append(meter);
  let finishBasket;let aim=200,score=run.score,bestTier=run.bestTier||0,gameTime=2,held=run.held,next=run.next,active=true,last=0,acc=0,cooldown=0,overflow=0,saveAt=0,bursts=[];
@@ -27,7 +27,44 @@ export function openDrop(store,{open,body,result,button,p}){
  for(const b of run.pieces){const r=RADII[b.tier],x=run.layout===2?b.x:40+(b.x-5)*320/390,y=run.layout===2?b.y:145+(b.y-90)*455/545;spawn(b.tier,Math.max(40+r,Math.min(360-r,x)),Math.min(600-r,y),b);}
  const treasures=()=>Composite.allBodies(engine.world).filter(b=>b.label==='treasure');
  const checkpoint=(flush=false)=>{if(!active)return;let awarded;store.change(s=>{const r=s.dropRuns?.[week];if(!r||r.status!=='active')return;Object.assign(r,{layout:2,score,bestTier,held,next,pieces:treasures().map(b=>({tier:b.plugin.tier,x:b.position.x,y:b.position.y,vx:b.velocity.x,vy:b.velocity.y,angle:b.angle}))});awarded=claimDropPrize(s,Math.random,week);},{game:true});if(awarded){result.textContent=awarded.name+' is yours ♡ Keep going! Sunday’s room opens at 3,200 points.';audio.effect('win');welcome.classList.add('drop-celebrate');}if(flush)store.flushGame?.();if(score>=DROP_GOAL&&!finishBasket)finishBasket=button('Finish this basket ♡',()=>end(false,'finished'));};
- const end=(won,reason="overflow")=>{if(!active)return;const overflowEnd=reason==="overflow";checkpoint();active=false;let reward;store.change(s=>{reward=finishDrop(s,won,Math.random,week)});drop.disabled=true;won=!!reward?.won;const newPrize=won&&reward?.id;if(finishBasket)finishBasket.disabled=true;result.textContent=overflowEnd?'Basket full · '+score.toLocaleString()+' points. Try again! '+(DROP_TRIES-dropAttempts(store.state.dropRuns[week]))+' tries remain.':newPrize?`A royal surprise! ${reward.name} is yours ♡` :won?'A lovely win! This week’s collectible is already yours ♡':'A lovely little pile ♡ '+(DROP_TRIES-dropAttempts(store.state.dropRuns[week]))+' tries left this week.';audio.effect(won?'win':'lose');audio.stop();arena.classList.add(won?'drop-won':'drop-lost');welcome.classList.add(won?'drop-celebrate':'drop-sorry');const notice=document.createElement('div');notice.className='drop-finale';notice.setAttribute('role','alert');const title=document.createElement('strong'),copy=document.createElement('p');title.textContent=overflowEnd?'Basket full — try again ♡':won?(newPrize?'A royal surprise! ♡':'A lovely win! ♡'):'Oh! Your basket is full ♡';copy.textContent=overflowEnd?score.toLocaleString()+' points · '+(DROP_TRIES-dropAttempts(store.state.dropRuns[week]))+' tries left this week. '+(run.weeklyReward?'Your weekly collectible stays yours ♡':'Reach 1,500 for your weekly collectible.') :newPrize?reward.name+' is yours!':won?'This week’s collectible is already yours. Keep chasing your best score ♡':score.toLocaleString()+' sparkle points · '+(DROP_TRIES-dropAttempts(store.state.dropRuns[week]))+' tries left this week.';notice.append(title,copy);const back=button('Back to my games ♡',()=>document.getElementById('game-close')?.click(),notice);notice.append(back);arena.append(notice);notice.scrollIntoView({block:'center',behavior:'smooth'});cleanup();};
+ const end = (won, reason = 'overflow') => {
+    if (!active) return;
+    checkpoint();
+    active = false;
+    store.change(state => finishDrop(state, won, Math.random, week));
+    const completed = store.state.dropRuns[week];
+    const lost = reason === 'overflow';
+    const weekly = completed.weeklyReward;
+    const prize = weekly && (weekly.kind === 'room' ? ROOMS : weekly.kind === 'outfit' ? OUTFITS : PRIZES)
+        .find(item => item.id === weekly.id);
+    const remaining = DROP_TRIES - dropAttempts(completed);
+    const headline = lost ? 'You lost · Basket full' : 'Basket complete ♡';
+    const scoreLine = score.toLocaleString() + ' points · ' +
+        (remaining ? remaining + (remaining === 1 ? ' try left this week.' : ' tries left this week.') : 'A fresh basket opens Monday.');
+    const prizeLine = prize ? 'Your weekly ' + weekly.kind + ': ' + prize.name + ' ♡'
+        : 'Reach 1,500 points to earn this week’s collectible.';
+    drop.disabled = true;
+    if (finishBasket) finishBasket.disabled = true;
+    result.textContent = headline + '. ' + scoreLine + ' ' + prizeLine;
+    audio.effect(lost ? 'lose' : 'win');
+    audio.stop();
+    arena.classList.add(lost ? 'drop-lost' : 'drop-won');
+    welcome.classList.add(lost ? 'drop-sorry' : 'drop-celebrate');
+    const notice = document.createElement('div');
+    notice.className = 'drop-finale';
+    notice.setAttribute('role', 'alert');
+    const title = document.createElement('strong');
+    title.textContent = headline;
+    const summary = document.createElement('p');
+    summary.textContent = scoreLine;
+    const reward = document.createElement('p');
+    reward.textContent = prizeLine;
+    notice.append(title, summary, reward);
+    button('Back to my games ♡', () => document.getElementById('game-close')?.click(), notice);
+    arena.append(notice);
+    notice.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    cleanup();
+ };
  Events.on(engine,'collisionStart',event=>{const merges=[],seen=new Set();for(const {bodyA:a,bodyB:b} of event.pairs){if(a.label!=='treasure'||b.label!=='treasure'||seen.has(a.id)||seen.has(b.id)||a.plugin.merging||b.plugin.merging)continue;const tier=mergeTier(a.plugin.tier,b.plugin.tier);if(tier===null)continue;seen.add(a.id);seen.add(b.id);a.plugin.merging=b.plugin.merging=true;merges.push({a,b,tier,x:(a.position.x+b.position.x)/2,y:(a.position.y+b.position.y)/2});}for(const m of merges){Composite.remove(engine.world,[m.a,m.b]);spawn(m.tier,m.x,m.y);score+=mergePoints(m.tier);bestTier=Math.max(bestTier,m.tier);if(bursts.length<16)bursts.push({x:m.x,y:m.y,t:1,tier:m.tier});audio.effect('merge',m.tier);}if(merges.length){checkpoint();}});
  const drop=button('Drop treasure ♡',()=>{if(!active||cooldown>0||document.hidden)return;spawn(held,Math.max(40+RADII[held]+2,Math.min(358-RADII[held],aim)),92);held=next;next=Math.floor(Math.random()*4);cooldown=1.1;audio.effect('drop');checkpoint();});
  arena.before(drop);drop.classList.add('drop-control');arena.before(meter);

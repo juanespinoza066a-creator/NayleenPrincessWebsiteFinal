@@ -509,7 +509,7 @@ function hud() {
     const activePower=Math.max(hiddenTime,swiftTime,decodeTime,invincible,decoy?.life||0);$('power').textContent='✦ '+currentPower().name+' · '+charges+(activePower>0?' · '+Math.ceil(activePower)+'s':'');
     $('power').disabled = charges === 0;
     const c = context(), active = calibration?.phase === 'active';
-    $('interact').textContent = action ? 'Working…' : jammed ? 'Cipher locked…' : repairing ? (active ? 'Calibrate · E' : 'Decoding…') : c ? c.label : 'Find an objective';
+    $('interact').textContent = action ? 'Working…' : jammed ? 'Cipher locked…' : repairing ? (active ? 'Tap to calibrate' : 'Decoding…') : c ? c.label : 'Find an objective';
     $('interact').disabled = action || jammed ? true : repairing ? !active : !c;
     $('interact').classList.toggle('calibrate', active);
 }
@@ -631,7 +631,7 @@ $('help').addEventListener('click', () => {
     if (state !== 'playing')
         return;
     pause();
-    modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Move with the stick or WASD. Tap Interact near a cipher and wait for the occasional gold calibration arc. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Leave a glowing warning area before it fills. Cat spells freeze your steps; music and camera flashes take one heart. Staying in rising water takes a heart too.', 'Resume adventure');
+    modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Drag the on-screen stick to move. Tap Interact near a cipher and wait for the occasional gold calibration arc. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Leave a glowing warning area before it fills. Cat spells freeze your steps; music and camera flashes take one heart. Staying in rising water takes a heart too.', 'Resume adventure');
 });
 $('interact').addEventListener('click', interact);
 $('power').addEventListener('click', power);

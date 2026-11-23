@@ -1,12 +1,13 @@
 import {attachTradeScroll} from './trade-scroll.js';
 import {attachAdvent} from './winter-advent.js';
+import {attachPalaceNews} from './palace-news.js';
 import {updateProgress} from './progress-view.js';
 import {openDrop} from './princess-drop.js';
 import {openRoulette} from './roulette.js';
 import {HUNTERS,weeklyHunt} from './hunt-config.js';
 import { openTable } from './table21.js';
 import { makeStudio, resetEstimate } from './room-studio.js';
-import { freshState, unlockTestingItems, PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus, outfitProgress, journeyCounts, mondayKey, rouletteStatus, keepWeeklyUses,dropAttempts,DROP_TRIES, WEEKLY_RESET } from './game-rules.js';
+import { freshState, unlockTestingItems, PRIZES, GAME_PRIZES, OUTFITS, unlockedOutfits, weekNumber, startBox, revealBox, handTotal, validState, normalizeState, tradeCollectibles, cabinetStatus, outfitProgress, journeyCounts, mondayKey, rouletteStatus, keepWeeklyUses,dropAttempts,DROP_TRIES, WEEKLY_RESET } from './game-rules.js';
 import {attachRecovery} from './recovery-panel.js';
 import { CarnivalStore, STATIC, downloadJSON } from './save-manager.js';
 import { loadContent, text as t, readNotes } from './content-loader.js';
@@ -150,7 +151,7 @@ function cards(){
   });
   body.insertBefore(go,review);
   const refresh=()=>{review.hidden=true;delete go.dataset.review;cabinet.querySelector('small').textContent=selected.size+' / 3 offerings chosen · one surprise awaits';go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
-  for(const item of PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item,'collectible-image inventory-thumbnail'),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh();if(selected.size===3)go.scrollIntoView({block:'nearest',behavior:'smooth'});};grid.append(b)}refresh();attachTradeScroll(grid);
+  for(const item of GAME_PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item,'collectible-image inventory-thumbnail'),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh();if(selected.size===3)go.scrollIntoView({block:'nearest',behavior:'smooth'});};grid.append(b)}refresh();attachTradeScroll(grid);
  },seats);
  const wheel=button('♡ Princess roulette · '+rouletteStatus(store.state).left+' / 1 weekly wish',()=>openRoulette(store,{open,body,result,button,p}),seats);wheel.disabled=!rouletteStatus(store.state).canEnter;wheel.title=rouletteStatus(store.state).left===0?'A fresh wheel opens Monday ♡':rouletteStatus(store.state).canSpin?'Offer two treasures for one surprise.':'Choose two treasures, including an outfit or room ♡';
  const cabinetState=cabinetStatus(store.state);
@@ -174,6 +175,7 @@ $('test-reset').onclick = () => {
 };
 $('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This unlocks outfits and rooms as testing gifts and completes their bars. Your real login/game counts, saved favorites and weekly turns stay as they are.'); button('Unlock everything', async () => {store.change(s => unlockTestingItems(s)); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
 attachAdvent(store);
+attachPalaceNews();
 await loadContent();
 const journeyIntro=el('p',t('wardrobe.journeyIntro'),'section-copy journey-intro');$('outfits').before(journeyIntro);
 store.subscribe(render);

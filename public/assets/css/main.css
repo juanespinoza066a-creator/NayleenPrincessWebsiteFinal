@@ -300,6 +300,33 @@ dialog::backdrop{backdrop-filter:none}.espurr-room .room-label{backdrop-filter:n
 #outfits .outfit-image,.room-grid img{max-width:100%;height:90px;object-fit:contain}
 #outfits .outfit-goals,.room-grid .outfit-goals{font-size:.66rem;line-height:1.3}
 #outfits .outfit-goals p,.room-grid .outfit-goals p{margin:7px 0}
-.winter-door:not([aria-pressed=true]) img{visibility:hidden}
+.winter-door:not([data-opened=true]) img{visibility:hidden}
+.winter-door[data-opened=true]{background:#f6edf9;border-color:#a780b3}
+.winter-gift-art{display:block;width:90%;height:200px;object-fit:contain;margin:12px auto}
 
 #rooms-panel>.outfits{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}#rooms-panel>.outfits>.room-option{min-width:0;padding:8px 4px;font-size:.72rem;overflow-wrap:anywhere}.room-option .room-preview{height:65px;min-height:0}.inventory-item .collectible-image{width:100%;max-width:90px;height:85px}#outfits .outfit-thumbnail{max-width:100%;height:100px;object-fit:contain}#collection{gap:7px}#collection>.inventory-item{padding:8px 4px;font-size:.72rem}.outfit-goals{min-width:0}.outfit-goals progress{max-width:100%}
+
+/* Let galleries grow to fit whole words on narrow app screens. */
+:is(#outfits,#rooms-panel .outfits,#collection,.collection-grid,.outfits-grid,.trade-grid,.collectible-picker) :is(button,span,strong,small,p),
+:is(#collection .inventory-item,#rooms-panel .room-option) {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+@media (max-width: 540px) {
+  #outfits,#rooms-panel>.outfits,#collection,.collection-grid,.outfits-grid,
+  #game-dialog.treasure-dialog .trade-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  }
+}
+.palace-news {
+  width: min(92vw, 34rem);
+  max-height: 85dvh;
+  padding: clamp(1.25rem,5vw,2rem);
+  border: 1px solid #cfabc8;
+  border-radius: 24px;
+  background: #fbf3ff;
+  color: #563665;
+}
+.palace-news ul { padding-inline-start: 1.25rem; line-height: 1.55; }
+.palace-news li + li { margin-top: .6rem; }

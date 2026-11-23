@@ -123,5 +123,29 @@
     "image": "assets/images/outfits/cartman-outfit.webp",
     "bytes": 65910,
     "generator": "built-in image generator"
+  },
+  {
+    "id": "hitler-plush",
+    "image": "assets/images/collectibles/hitler-plush.webp",
+    "source": "exec-dcf75046-4bb3-4e8b-badf-51fffcec5700.png",
+    "prompt": "Create a single historical figure plush sprite for a historically contextualized WWII museum collection in a private game. Subject: a seated fabric doll representing Adolf Hitler as a historical figure, recognizably side-parted dark hair and small square toothbrush moustache, sober neutral expression, simple buttoned olive-brown 1940s jacket, dark trousers and shoes. No insignia, armband, flags, salutes, slogan, weapons, pedestal, heroic lighting or political messaging. Reference image is for the plush textile rendering style and seated proportions only, do not copy the character. Sewn felt and tidy stitching, readable silhouette, centered whole figure with clear margins, actual transparent alpha background.",
+    "ref": "collectibles/damon-plush.webp",
+    "generator": "built-in image generator"
+  },
+  {
+    "id": "hitler-espurr",
+    "image": "assets/images/outfits/hitler-espurr.webp",
+    "source": "exec-0734b877-dc6f-4114-a3ad-960326d09174.png",
+    "prompt": "Create a cartoony period-costume sprite for a historically contextualized WWII museum collection in a game. Use the provided Espurr character as exact face, shape and watercolor style reference: lilac face, round violet eyes, drooped ears, compact full body. It wears a simple olive-brown 1940s-era buttoned jacket, plain dark trousers and black boots, and understated costume details evoking the historical figure Adolf Hitler: dark side-parted hairpiece and a small square toothbrush moustache. Neutral standing pose with paws resting, no salute, no insignia, symbols, armband, medals, weapon, text, propaganda or glorification. Full body centered with padding, actual transparent alpha background.",
+    "ref": "espurr-princess.webp",
+    "generator": "built-in image generator"
+  },
+  {
+    "id": "german-command-bunker",
+    "image": "assets/images/rooms/german-command-bunker.webp",
+    "source": "exec-2cad9dec-1650-4040-a32a-ad7c499cf0fc.png",
+    "prompt": "Use case: historical-scene. A fictionalized Nazi Germany headquarters war room during World War II, as an atmospheric landscape 4:3 game-room backdrop. Neutral documentary presentation of the interior, no propaganda or heroic framing. A plain, low-ceilinged concrete bunker with muted olive-gray walls, warm desk lamps, a large campaign map board of Europe with no readable text, arrows or granular operational detail, big dark wooden planning table with scattered blank folders, a black rotary telephone, 1940s radio cabinets, analog wall clock and paper files. Front-facing composition with wide uncluttered center foreground (mascot placement), main command table in the midground, and four visually distinct lower tables and supply boxes near the two outer edges to place small sprites. Painterly 3D room illustration, soft vignette at edges. No people, symbols, banners, salutes, weapons or typography.",
+    "ref": null,
+    "generator": "built-in image generator"
   }
 ]
