@@ -24,7 +24,8 @@ export const POWERS={
  cissia:{name:'Case closed',hint:'Finish a treasure, pallet or gate action, or boost a cipher by 6 points. Hide for 4 seconds.',type:'case'}
 };
 for(const [key,base] of Object.entries({sun:'firestarter',cloud:'akali',rain:'furina',storm:'royal',wind:'kda',cold:'cozy',snow:'sunday',night:'jubilee-midnight'}))POWERS['weather-'+key]={...POWERS[base]};
-for(const [id,base] of Object.entries({'espurr-xmas':'sunday','damon-outfit':'jubilee-midnight','cartman-outfit':'cozy','hitler-espurr':'royal'}))POWERS[id]={...POWERS[base]};
+for(const [id,base] of Object.entries({'espurr-xmas':'sunday','damon-outfit':'jubilee-midnight','cartman-outfit':'cozy'}))POWERS[id]={...POWERS[base]};
+POWERS['hitler-espurr']={name:'Stun shot',hint:'Fire a stun shot at a nearby hunter you can see.',type:'shot'};
 const BASE=[[4,3,1,6],[8,1,1,5],[8,8,5,1],[13,3,1,5],[17,5,5,1],[18,9,1,5],[3,12,5,1],[10,12,1,5],[13,15,5,1],[21,13,1,4]];
 const PATTERNS=[BASE,[[5,2,1,5],[9,4,5,1],[16,2,1,6],[3,11,5,1],[12,8,1,6],[18,11,4,1],[7,14,1,3]],[[3,5,5,1],[10,2,1,5],[15,4,5,1],[6,9,1,6],[11,10,6,1],[20,8,1,7],[12,15,5,1]],[[5,3,1,5],[9,7,7,1],[18,2,1,5],[3,12,6,1],[12,11,1,5],[17,14,5,1]],[[3,4,7,1],[12,2,1,5],[17,7,5,1],[7,8,1,6],[11,12,6,1],[20,12,1,5]],[[5,2,1,6],[9,5,6,1],[18,3,1,6],[3,13,5,1],[11,9,1,6],[15,15,5,1]],[[3,5,6,1],[11,2,1,5],[15,8,7,1],[7,10,1,5],[11,13,5,1],[20,11,1,4]],[[6,2,1,5],[10,4,6,1],[19,3,1,5],[3,11,6,1],[12,8,1,6],[16,15,5,1]],[[4,3,1,5],[8,7,8,1],[18,2,1,5],[3,12,6,1],[11,11,1,5],[16,14,6,1]],[[5,2,1,5],[9,5,6,1],[18,3,1,6],[3,11,5,1],[11,10,1,6],[16,14,5,1]],[[3,5,6,1],[11,2,1,5],[16,7,6,1],[6,10,1,6],[10,12,6,1],[20,11,1,5]],[[5,3,1,5],[9,6,7,1],[18,2,1,5],[3,12,6,1],[12,10,1,6],[17,14,5,1]]];
 const fixed=[[2,9],[21,10],[3,3],[21,3],[14,13],[23,16],[6,6],[6,10],[5,9],[15,8],[18,15],[15,2],[11,5],[6,3],[2,7],[5,15],[12,17],[16,12],[22,16],[22,8]];

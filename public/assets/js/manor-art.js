@@ -377,6 +377,11 @@ function drawManor(v) {
         const f = 1 - effect.life / effect.duration;
         c.globalAlpha = Math.max(0, 1 - f);
         if(effect.kind==='ability'){
+ if(effect.ability==='shot'&&f<.15){
+  line([[effect.x,effect.y-20],[effect.targetX,effect.targetY-20]],'#fff1cc',Math.max(1,4*(1-f/.15)));
+  text(effect.targetX,effect.targetY-22,'✦',24,'#ffe9a8');
+ }
+
  if(['blink','dash'].includes(effect.ability)&&Number.isFinite(effect.fromX)){line([[effect.fromX,effect.fromY],[effect.x,effect.y]],'#f1d7a8',Math.max(1,6*(1-f)));}const color=effect.ability==='hurt'?'#f298b4':['heal','focus'].includes(effect.ability)?'#abdcb9':['energy','warm','dash','blink'].includes(effect.ability)?'#f2d29d':'#dbb4ef';c.strokeStyle=color;c.lineWidth=3;c.beginPath();c.ellipse(effect.x,effect.y-12,15+f*65,12+f*35,0,0,Math.PI*2);c.stroke();for(let k=0;k<8;k++){const a=k*Math.PI/4+t;const x=effect.x+Math.cos(a)*(20+f*40),y=effect.y-20+Math.sin(a)*(20+f*30);text(x,y,['heal','focus'].includes(effect.ability)?'♥':effect.ability==='decoy'?'🎀':'✦',12,color);}text(effect.x,effect.y-70-f*12,effect.label||'✦',11,'#f7e7ff');
  }else if (effect.kind === 'stun') {
             c.strokeStyle = '#e1b9ff';

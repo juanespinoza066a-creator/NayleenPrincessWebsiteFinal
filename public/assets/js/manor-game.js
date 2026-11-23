@@ -215,7 +215,7 @@ function interact() {
     if (!c) return;
     if (c.type === 'machine') {
         repairing = c.item;
-        message(repairing.lockRemaining > 0 ? 'Cipher jammed. Wait for the countdown, or move away.' : 'Decoding automatically. Watch for occasional calibration rings. Move any time to run.');
+        message(repairing.lockRemaining > 0 ? 'Cipher jammed. Wait for the countdown, or move away.' : 'Espurr is fixing the machine. Watch for a gold ring. Move any time to run.');
         return;
     }
     if (c.type === 'gate' && !exitUnlocked()) {
@@ -278,9 +278,10 @@ function takeHit(copy){
 function power() {
  if(state!=='playing'||charges<1)return;const power=currentPower(),kind=power.type;
  if(['stun','fireworks','borrow'].includes(kind)&&distance(player,hunter)>(kind==='fireworks'?260:155)){message('The hunter is too far away. Save your power for a closer chase.');return;}
+ if(kind==='shot'&&(distance(player,hunter)>250||!clearSight())){message('Get a clear view of the hunter before firing.');return;}
  if(kind==='luck'&&machines.every(m=>m.progress>=40)){message('All ciphers are ready. Save your charge.');return;}
  charges--;window.ManorAudio?.effect('stun');
- if(kind==='stun')stunned=5;
+ if(kind==='stun'||kind==='shot')stunned=5;
  if(kind==='heal'){hp=Math.min(3,hp+1);invincible=4;}
  if(kind==='energy'){stamina=100;swiftTime=6;}
  const origin={...player};
@@ -296,7 +297,7 @@ function power() {
  if(kind==='warm'){swiftTime=8;hiddenTime=3;stamina=100;forgetHunterTrail();}
  if(kind==='decoy'){const candidates=[];for(let y=1;y<18;y++)for(let x=1;x<24;x++){const q=center(x,y);if(!blocked(x,y)&&distance(q,hunter)>90&&distance(q,hunter)<300&&distance(q,player)>100)candidates.push(q);}candidates.sort((a,b)=>distance(b,player)-distance(a,player));const target=candidates.find(q=>findPath(hunter,q).length)||center(...tile(player));decoy={...target,life:8};hiddenTime=8;lastSeen=null;searchTime=0;chase=false;path=[];pathClock=0;patrolGoal=null;}
  if(kind==='case'){if(action){const done=action;action=null;completeInteraction(done);}else if(repairing&&!(repairing.lockRemaining>0)){const m=repairing;m.progress=Math.min(40,m.progress+6);completeCipher(m);}hiddenTime=4;forgetHunterTrail();}
- effects.push({kind:'ability',ability:kind,label:power.name,x:player.x,y:player.y,fromX:origin.x,fromY:origin.y,life:2.5,duration:2.5});message(power.name+'! '+power.hint);saveCheckpoint();hud();
+ effects.push({kind:'ability',ability:kind,label:power.name,x:player.x,y:player.y,fromX:origin.x,fromY:origin.y,...(kind==='shot'?{targetX:hunter.x,targetY:hunter.y}:{}),life:2.5,duration:2.5});message(power.name+'! '+power.hint);saveCheckpoint();hud();
 }
 function hazardContains(h,p){return h.kind==='joseph'?Math.abs(p.x-h.x)<=h.r&&Math.abs(p.y-h.y)<=h.r:distance(p,h)<=h.r;}
 function updateHazards(dt){
@@ -340,7 +341,7 @@ function beginCalibration() {
         zoneWidth: randomBetween(.18, .25), direction: Math.random() < .5 ? -1 : 1
     };
     repairing.nextCheck = randomBetween(5.5, 11.5);
-    message('A calibration is coming. Get ready…');
+    message('Get ready to tap the gold ring…');
 }
 function resolveCalibration(success) {
     if (!calibration || !repairing)
@@ -349,7 +350,7 @@ function resolveCalibration(success) {
         window.ManorAudio?.effect('success');
         repairing.progress = Math.min(40, repairing.progress + 3);
         effects.push({ kind: 'spark', x: repairing.x, y: repairing.y, life: .6, duration: .6 });
-        message('Perfect calibration! The cipher gained a boost.');
+        message('Nice timing! The machine is closer to ready.');
     }
     else {
         window.ManorAudio?.effect('miss');
@@ -505,7 +506,7 @@ function hud() {
     $('repair').value = action ? action.elapsed : jammed ? 3 - repairing.lockRemaining : repairing?.progress || 0;
     $('repair-note').hidden = !repairing && !action;
     $('repair-note').classList.toggle('jammed', Boolean(jammed));
-    $('repair-label').textContent = action ? action.label.toUpperCase() + ' · ' + Math.floor(action.elapsed / action.duration * 100) + '%' : jammed ? 'CIPHER LOCKED · ' + repairing.lockRemaining.toFixed(1) + 's' : calibration ? 'CALIBRATION ' + (calibration.phase === 'warning' ? 'INCOMING' : 'ACTIVE') : 'DECODING · ' + Math.floor((repairing?.progress || 0) / 40 * 100) + '%';
+    $('repair-label').textContent = action ? action.label.toUpperCase() + ' · ' + Math.floor(action.elapsed / action.duration * 100) + '%' : jammed ? 'CIPHER LOCKED · ' + repairing.lockRemaining.toFixed(1) + 's' : calibration ? (calibration.phase === 'warning' ? 'GET READY TO TAP' : 'TAP IN THE GOLD') : 'DECODING · ' + Math.floor((repairing?.progress || 0) / 40 * 100) + '%';
     const activePower=Math.max(hiddenTime,swiftTime,decodeTime,invincible,decoy?.life||0);$('power').textContent='✦ '+currentPower().name+' · '+charges+(activePower>0?' · '+Math.ceil(activePower)+'s':'');
     $('power').disabled = charges === 0;
     const c = context(), active = calibration?.phase === 'active';
@@ -631,7 +632,7 @@ $('help').addEventListener('click', () => {
     if (state !== 'playing')
         return;
     pause();
-    modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Drag the on-screen stick to move. Tap Interact near a cipher and wait for the occasional gold calibration arc. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Leave a glowing warning area before it fills. Cat spells freeze your steps; music and camera flashes take one heart. Staying in rising water takes a heart too.', 'Resume adventure');
+    modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Drag the on-screen stick to move. Tap Interact near a cipher and watch for the gold ring and tap when the needle crosses the gold part. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Leave a glowing warning area before it fills. Cat spells freeze your steps; music and camera flashes take one heart. Staying in rising water takes a heart too.', 'Resume adventure');
 });
 $('interact').addEventListener('click', interact);
 $('power').addEventListener('click', power);

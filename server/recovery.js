@@ -9,5 +9,5 @@ export function recoveryState(file,current,profile){
  for(const key of ['tradeWeeks','weeklyClaims','mazeWeeks'])restored[key]=[...new Set([...(restored[key]||[]),...(now[key]||[])])];
  if(now.weeklyBox&&(!restored.weeklyBox||now.weeklyBox.week>=restored.weeklyBox.week))restored.weeklyBox=now.weeklyBox;
  if(now.manorRun&&(!restored.manorRun||now.manorRun.week>=restored.manorRun.week))restored.manorRun=now.manorRun;
- restored.clicker.lastTick=Date.now();return restored;
+ restored.clicker.lastTick=Date.now();return normalizeState(restored);
 }

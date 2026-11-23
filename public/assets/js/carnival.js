@@ -138,27 +138,83 @@ $('weekly-box').onclick = blind;
 function cards(){
  open(t('games.cards.title'));p('A little luck, a little sparkle. Choose your table.');
  const seats=document.createElement('div');seats.className='casino-seats';body.append(seats);button('♠ 21 · Princess blackjack',()=>openTable(store,{open,body,result,t}),seats);
- const trade=button('✦ The wishing cabinet · Weekly 3-for-1',()=>{
-  open('The wishing cabinet');body.classList.add('wishing-cabinet');const cabinet=el('div',undefined,'wish-altar');cabinet.innerHTML='<span aria-hidden="true">✧ ♛ ✧</span><strong>Sacrifice three collectibles, get one muahahah</strong><small>Choose your offerings below</small>';body.append(cabinet);p('Offer 3 different owned collectibles for 1 random collectible. The offered items leave your collection and room. Duplicates are possible, with no reroll. Once per week.');
-  const selected=new Set(),grid=el('div',undefined,'trade-grid');body.append(grid);const review=el('div',undefined,'exchange-review');review.hidden=true;review.setAttribute('role','alertdialog');review.append(el('p','These three collectibles will leave your room for one random collectible. Duplicates are possible.'));body.insertBefore(review,grid);button('Keep my treasures',()=>{review.hidden=true;delete go.dataset.review;},review);button('Make my wish ♡',()=>go.click(),review);
-  const available=cabinetStatus(store.state);
-  if(available.needed){const empty=el('div',undefined,'wish-empty');empty.append(el('span','✧ ♡ ✧'),el('strong',available.owned+' / 3 collectibles ready'),el('p','Find treasures in the weekly blind box or Ann’s garden. Your wish will be waiting here.'));grid.append(empty);}
-  const go=button('Choose 3 treasures',()=>{
-   if(selected.size!==3)return;
-   if(!go.dataset.review){go.dataset.review='yes';review.hidden=false;review.scrollIntoView({block:'nearest',behavior:'smooth'});return;}
-   let reward;store.change(s=>reward=tradeCollectibles(s,[...selected]));if(!reward)return;review.hidden=true;
-   grid.replaceChildren();cabinet.classList.add('wish-granted');cabinet.querySelector('small').textContent='Your wish has arrived ♡';go.disabled=true;go.textContent='This week’s wish is complete ♡';const item=prize(reward.id);grid.append(image(item));p(item.name+(reward.isNew?' · A new treasure!':' · A duplicate, no extra roll.'));playBoxSound('reveal');
-  });
-  body.insertBefore(go,review);
-  const refresh=()=>{review.hidden=true;delete go.dataset.review;cabinet.querySelector('small').textContent=selected.size+' / 3 offerings chosen · one surprise awaits';go.disabled=selected.size!==3||(store.state.tradeWeeks||[]).includes(weekNumber());go.textContent=(store.state.tradeWeeks||[]).includes(weekNumber())?'This week’s wish is complete ♡':'Wish with '+selected.size+' / 3 treasures';};
-  for(const item of GAME_PRIZES.filter(x=>store.state.prizes.includes(x.id))){const b=el('button',undefined,'trade-choice');b.append(image(item,'collectible-image inventory-thumbnail'),el('span',item.name));b.setAttribute('aria-pressed','false');b.onclick=()=>{if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);b.setAttribute('aria-pressed',String(selected.has(item.id)));refresh();if(selected.size===3)go.scrollIntoView({block:'nearest',behavior:'smooth'});};grid.append(b)}refresh();attachTradeScroll(grid);
- },seats);
- const wheel=button('♡ Princess roulette · '+rouletteStatus(store.state).left+' / 1 weekly wish',()=>openRoulette(store,{open,body,result,button,p}),seats);wheel.disabled=!rouletteStatus(store.state).canEnter;wheel.title=rouletteStatus(store.state).left===0?'A fresh wheel opens Monday ♡':rouletteStatus(store.state).canSpin?'Offer two treasures for one surprise.':'Choose two treasures, including an outfit or room ♡';
  const cabinetState=cabinetStatus(store.state);
+ const trade=button('✦ The wishing cabinet · '+cabinetState.left+' / 2 wishes left',()=>{
+  open('The wishing cabinet');
+  body.classList.add('wishing-cabinet');
+  const cabinet=el('div',undefined,'wish-altar');
+  const count=el('small');
+  count.setAttribute('role','status');
+  cabinet.append(el('span','✧ ♛ ✧'),el('strong','Sacrifice three collectibles, get one muahahah'),count);
+  body.append(cabinet);
+  p('Offer three different collectibles for one random collectible. It might be one you already own. You can earn the treasures you give up again after 14 days.');
+  const selected=new Set(),notice=el('div'),grid=el('div',undefined,'trade-grid'),review=el('div',undefined,'exchange-review');
+  notice.setAttribute('role','status');
+  review.hidden=true;
+  review.setAttribute('role','alertdialog');
+  review.setAttribute('aria-label','Confirm your wish');
+  body.append(notice);
+  const go=button('Choose 3 treasures',()=>{
+   if(selected.size!==3||!cabinetStatus(store.state).canExchange)return;
+   review.hidden=false;
+   review.scrollIntoView({block:'nearest',behavior:'smooth'});
+  });
+  body.append(review,grid);
+  review.append(el('p','Give up these three treasures for one random collectible?'));
+  button('Keep my treasures',()=>{review.hidden=true;},review);
+  button('Make my wish ♡',()=>{
+   let reward;
+   store.change(s=>{reward=tradeCollectibles(s,[...selected]);});
+   if(!reward){renderChoices();return;}
+   const item=prize(reward.id);
+   notice.replaceChildren(el('p',item.name+(reward.isNew?' · A new treasure!':' · Already in your collection.')));
+   cabinet.classList.add('wish-granted');
+   selected.clear();
+   renderChoices();
+   playBoxSound('reveal');
+  },review);
+  function refreshSelection(){
+   review.hidden=true;
+   const state=cabinetStatus(store.state);
+   count.textContent=state.left+' / 2 wishes left this week';
+   go.disabled=selected.size!==3||!state.canExchange;
+   go.textContent=state.left===0?'A fresh wish opens Monday ♡':'Wish with '+selected.size+' / 3 treasures';
+  }
+  function renderChoices(){
+   grid.replaceChildren();
+   const state=cabinetStatus(store.state),items=GAME_PRIZES.filter(x=>store.state.prizes.includes(x.id));
+   for(const id of selected)if(!items.some(x=>x.id===id))selected.delete(id);
+   if(!state.left){refreshSelection();return;}
+   if(state.needed){
+    const empty=el('div',undefined,'wish-empty');
+    empty.append(el('span','✧ ♡ ✧'),el('strong',state.owned+' / 3 collectibles ready'),el('p','Find more treasures in the weekly blind box or Ann’s garden.'));
+    grid.append(empty);
+   }
+   for(const item of items){
+    const choice=el('button',undefined,'trade-choice');
+    choice.append(image(item,'collectible-image inventory-thumbnail'),el('span',item.name));
+    choice.setAttribute('aria-pressed',String(selected.has(item.id)));
+    choice.onclick=()=>{
+     if(selected.has(item.id))selected.delete(item.id);else if(selected.size<3)selected.add(item.id);
+     choice.setAttribute('aria-pressed',String(selected.has(item.id)));
+     refreshSelection();
+     if(selected.size===3)go.scrollIntoView({block:'nearest',behavior:'smooth'});
+    };
+    grid.append(choice);
+   }
+   grid.scrollTop=0;
+   refreshSelection();
+  }
+  attachTradeScroll(grid);
+  renderChoices();
+ },seats);
+ const roulette=rouletteStatus(store.state);
+ const wheel=button('♡ Princess roulette · '+roulette.left+' / 1 wish left',()=>openRoulette(store,{open,body,result,button,p}),seats);
+ wheel.disabled=!roulette.canEnter;
+ wheel.title=roulette.left===0?'A fresh wish opens Monday ♡':'Offer two treasures, including an outfit or room.';
  trade.disabled=!store.ready||!cabinetState.canEnter;
- trade.title=cabinetState.used?'Your next wish opens Monday.':cabinetState.needed?'Come peek inside! Collect '+cabinetState.needed+' more treasure'+(cabinetState.needed===1?'':'s')+' to make a wish.':'Choose three collectibles for your wish.';
- if(cabinetState.used)p('This week’s wish is complete ♡ A fresh wish opens Monday.');
- else if(cabinetState.needed)p('Your cabinet is open ♡ Find '+cabinetState.needed+' more collectible'+(cabinetState.needed===1?'':'s')+' before making a wish.');
+ trade.title=cabinetState.left===0?'Fresh wishes open Monday.':'Choose three collectibles for your wish.';
+ if(cabinetState.left>0&&cabinetState.needed)p('Find '+cabinetState.needed+' more collectible'+(cabinetState.needed===1?'':'s')+' to make a cabinet wish.');
  p(WEEKLY_RESET);
 }
 $('cards-open').onclick = cards;

@@ -109,7 +109,7 @@ export function attachAdvent(store) {
         music.setAttribute('aria-pressed', String(!!audio?.enabled));
     };
     tab.onclick = () => {
-        notice.textContent = preview() ? 'Testing preview · Every door is available ♡' : 'December 1–25 · A little surprise each day ♡';
+        notice.textContent = preview() ? 'Advent preview · Every door is available ♡' : 'December 1–25 · A little surprise each day ♡';
         refreshDoors();
         if (!modal.open) modal.showModal();
         audio?.dispose();
