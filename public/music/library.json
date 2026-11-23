@@ -222,6 +222,14 @@
       "file": "tracks/from-the-start-28d830dab6.mp3",
       "sourceId": "Youtube:VArOUfVOjqI",
       "sha256": "3e3afe8f5005ad23b55375d1644310d5e496007bf6d2854ad33e194f8aa3c37d"
+    },
+    {
+      "id": "the-blonde-a2518632c5",
+      "title": "The Blonde",
+      "artist": "TV Girl",
+      "file": "tracks/the-blonde-a2518632c5.mp3",
+      "sourceId": "Youtube:viWfSucFk14",
+      "sha256": "a1e8570aa0840a2023d5ea8cc5fb656a9a7d251abb8ad77d764e0ef5700f083d"
     }
   ],
   "playlists": []
