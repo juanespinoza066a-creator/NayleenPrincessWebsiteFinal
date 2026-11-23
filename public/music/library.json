@@ -238,6 +238,14 @@
       "file": "tracks/blue-c6c3ae4803.mp3",
       "sourceId": "Youtube:A5tIj1f7Zgs",
       "sha256": "7840dfdedb30e369ac29a23f8ef4f18d5273a128b7515f0819007313bc62031c"
+    },
+    {
+      "id": "creep-0cff1d34bf",
+      "title": "Creep",
+      "artist": "Radiohead",
+      "file": "tracks/creep-0cff1d34bf.mp3",
+      "sourceId": "Youtube:fAuT8_dboWo",
+      "sha256": "e905f5571e6c3db3d048667453620eedc580cb37b64c4dc4ffacdba1d1d26c7c"
     }
   ],
   "playlists": []
