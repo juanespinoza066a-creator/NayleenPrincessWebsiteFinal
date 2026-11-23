@@ -198,6 +198,14 @@
       "file": "tracks/washing-machine-heart-76aff0d00e.mp3",
       "sourceId": "Youtube:-047ko4v05s",
       "sha256": "0ae61fb229cb1221448bf907dd909df31f7eb02161a212e157c4de0e4ac1562f"
+    },
+    {
+      "id": "blue-hair-c74628a3f9",
+      "title": "Blue Hair",
+      "artist": "TV Girl",
+      "file": "tracks/blue-hair-c74628a3f9.mp3",
+      "sourceId": "Youtube:PzIXNqpCug0",
+      "sha256": "0d4421046d4d59ba3461301cd6517a2845d803b21b9fcde5b156833fe5e638d4"
     }
   ],
   "playlists": []
