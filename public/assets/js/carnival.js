@@ -14,6 +14,7 @@ import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
 const $ = id => document.getElementById(id), store = new CarnivalStore(), prize = id => PRIZES.find(p => p.id === id);
 const dialog = $('game-dialog'), body = $('game-body'), result = $('game-result');
+const syncProgress = $('sync-progress');
 let roomSignature = '', wardrobeSignature='', collectionSignature='', toastTimer;
 const renderStudio = makeStudio(store);
 const resetNote = document.createElement('p'); resetNote.className='section-copy'; resetNote.id='weekly-reset-estimate'; $('weekly-box').parentElement.prepend(resetNote);
@@ -34,7 +35,8 @@ function render(s, event = {}) {
     if(dialog.open)return; // Game UI updates itself; paint the room once on closing.
     const counts=journeyCounts(s);
     $('save-status').textContent = event.status || store.status;
-    $('sync-retry').hidden = STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
+    syncProgress.hidden = STATIC || !store.ready;
+    $('sync-retry').hidden = STATIC || !store.ready || (!store.conflict && store.online && !store.retryAfter);
     const estimate = weekNumber() >= 52 ? 'The final week of this year’s carnival ♡' : resetEstimate();
     resetNote.textContent = WEEKLY_RESET+' '+estimate; mazeReset.textContent = WEEKLY_RESET;
     const week = weekNumber(), pending = s.weeklyBox && !s.weeklyBox.revealed, claimed = s.weeklyClaims.includes(week);
@@ -219,6 +221,16 @@ function cards(){
 }
 $('cards-open').onclick = cards;
 $('sync-retry').onclick = () => { if(!store.conflict)return store.retry();open('Choose your saved progress');p('Another device saved a different copy. Download this device’s progress before loading the account copy.');button('Download this device’s copy',()=>downloadJSON('palace-device-backup.json',{kind:'nayleen-carnival-backup',version:3,profile:store.profile,state:store.state}));button('Load account copy',async()=>{await store.retry();close();});button('Keep this device’s copy',close); };
+syncProgress.onclick = async () => {
+    if (syncProgress.disabled) return;
+    syncProgress.disabled = true;
+    try {
+        await store.syncProgress();
+        if (store.conflict) $('sync-retry').onclick();
+    } finally {
+        syncProgress.disabled = false;
+    }
+};
 attachRecovery(store,{open,close,body});
 $('test-tools').hidden = true;
 const canUseTestingTools = () => store.ready && (store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true));

@@ -26,12 +26,13 @@ export function openDrop(store,{open,body,result,button,p}){
  Composite.add(engine.world,[Bodies.rectangle(25,370,30,540,{isStatic:true}),Bodies.rectangle(375,370,30,540,{isStatic:true}),Bodies.rectangle(200,615,360,30,{isStatic:true})]);
  for(const b of run.pieces){const r=RADII[b.tier],x=run.layout===2?b.x:40+(b.x-5)*320/390,y=run.layout===2?b.y:145+(b.y-90)*455/545;spawn(b.tier,Math.max(40+r,Math.min(360-r,x)),Math.min(600-r,y),b);}
  const treasures=()=>Composite.allBodies(engine.world).filter(b=>b.label==='treasure');
- const checkpoint=(flush=false)=>{if(!active)return;let awarded;store.change(s=>{const r=s.dropRuns?.[week];if(!r||r.status!=='active')return;Object.assign(r,{layout:2,score,bestTier,held,next,pieces:treasures().map(b=>({tier:b.plugin.tier,x:b.position.x,y:b.position.y,vx:b.velocity.x,vy:b.velocity.y,angle:b.angle}))});awarded=claimDropPrize(s,Math.random,week);},{game:true});if(awarded){result.textContent=awarded.name+' is yours ♡ Keep going! Sunday’s room opens at 3,200 points.';audio.effect('win');welcome.classList.add('drop-celebrate');}if(flush)store.flushGame?.();if(score>=DROP_GOAL&&!finishBasket)finishBasket=button('Finish this basket ♡',()=>end(false,'finished'));};
+ const checkpoint=(flush=false, ending=false)=>{if(!active)return;let awarded;store.change(s=>{const r=s.dropRuns?.[week];if(!r||r.status!=='active')return;Object.assign(r,{layout:2,score,bestTier,held,next,pieces:treasures().map(b=>({tier:b.plugin.tier,x:b.position.x,y:b.position.y,vx:b.velocity.x,vy:b.velocity.y,angle:b.angle}))});awarded=claimDropPrize(s,Math.random,week);},{game:true});if(awarded){result.textContent=awarded.name+' is yours ♡ Keep going! Sunday’s room opens at 3,200 points.';audio.effect('win');welcome.classList.add('drop-celebrate');}if(flush||(awarded&&!ending))store.flushGame?.();if(score>=DROP_GOAL&&!finishBasket)finishBasket=button('Finish this basket ♡',()=>end(false,'finished'));};
  const end = (won, reason = 'overflow') => {
     if (!active) return;
-    checkpoint();
+    checkpoint(false, true);
     active = false;
     store.change(state => finishDrop(state, won, Math.random, week));
+    store.flushGame?.();
     const completed = store.state.dropRuns[week];
     const lost = reason === 'overflow';
     const weekly = completed.weeklyReward;
@@ -69,9 +70,9 @@ export function openDrop(store,{open,body,result,button,p}){
  const drop=button('Drop treasure ♡',()=>{if(!active||cooldown>0||document.hidden)return;spawn(held,Math.max(40+RADII[held]+2,Math.min(358-RADII[held],aim)),92);held=next;next=Math.floor(Math.random()*4);cooldown=1.1;audio.effect('drop');checkpoint();});
  arena.before(drop);drop.classList.add('drop-control');arena.before(meter);
  const point=e=>{const r=canvas.getBoundingClientRect();aim=Math.max(55,Math.min(345,(e.clientX-r.left)*400/r.width));};canvas.onpointerdown=e=>{point(e);canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(e.buttons)point(e)};canvas.onpointerup=()=>drop.click();canvas.onkeydown=e=>{if(['ArrowLeft','ArrowRight',' ','Enter'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft')aim=Math.max(55,aim-16);if(e.key==='ArrowRight')aim=Math.min(345,aim+16);if(e.key===' '||e.key==='Enter')drop.click();};
- const onHide=()=>{if(document.hidden){checkpoint(true);last=0;acc=0;}},onClose=()=>{checkpoint(true);active=false;audio.stop();cleanup();};const dialog=body.closest('dialog');
- document.addEventListener('visibilitychange',onHide);window.addEventListener('pagehide',checkpoint);dialog?.addEventListener('close',onClose,{once:true});
- function cleanup(){document.removeEventListener('visibilitychange',onHide);window.removeEventListener('pagehide',checkpoint);dialog?.removeEventListener('close',onClose);Engine.clear(engine);}
+ const onHide=()=>{if(document.hidden){checkpoint(true);last=0;acc=0;}},onPageHide=()=>checkpoint(true),onClose=()=>{checkpoint(true);active=false;audio.stop();cleanup();};const dialog=body.closest('dialog');
+ document.addEventListener('visibilitychange',onHide);window.addEventListener('pagehide',onPageHide);dialog?.addEventListener('close',onClose,{once:true});
+ function cleanup(){document.removeEventListener('visibilitychange',onHide);window.removeEventListener('pagehide',onPageHide);dialog?.removeEventListener('close',onClose);Engine.clear(engine);}
  function draw(now){if(!active)return;if(!canvas.isConnected||!dialog?.open){onClose();return;}const dt=document.hidden?0:Math.min(.05,last?(now-last)/1000:0);last=now;acc+=dt;gameTime+=dt;while(acc>=1/60&&active){Engine.update(engine,1000/60);acc-=1/60;}if(!active)return;cooldown=Math.max(0,cooldown-dt);drop.disabled=cooldown>0;overflow=overflowing(treasures(),gameTime)?overflow+dt:0;if(overflow>2){end(false);return;}saveAt+=dt;if(saveAt>4){checkpoint();saveAt=0;}
  renderer.background(overflow);if(shownNext!==next){shownNext=next;nextImage.src=images[next].src;}
  const paint=renderer.paint;

@@ -30,7 +30,11 @@ function saveCheckpoint() {
         return;
     window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY, travelX:player.travelX||0,travelY:player.travelY||0 }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, peanutFound, timers:{hiddenTime,swiftTime,decodeTime,snareTime,photoTime,rootTime,waterTime,invincible,stunned,hazardClock,calmTime,searchTime,noiseTime}, hazards:hazards.map(h=>({...h})),decoy,lastSeen,noiseTarget,locks:machines.map(m=>m.lockRemaining||0),checks:machines.map(m=>m.nextCheck), machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
 }
-window.addEventListener('pagehide', saveCheckpoint);
+window.addEventListener('pagehide', () => {
+    if (state === 'paused') return; // Pause already recorded and flushed this position.
+    saveCheckpoint();
+    window.CarnivalManor?.flush?.();
+});
 let peanutFound = false, peanutCount = 0, peanutSound = true, peanutAudio;
 const pallets = [[5, 9], [15, 8], [18, 15]].map(([x, y]) => ({ ...center(x, y), down: false }));
 const patrol = [[21, 3], [15, 2], [11, 5], [6, 3], [2, 7], [6, 10], [5, 15], [12, 17], [16, 12], [22, 16], [22, 8]].map(([x, y]) => center(x, y));
@@ -159,6 +163,7 @@ function pause() {
         return;
     state = 'paused';
     saveCheckpoint();
+    window.CarnivalManor?.flush?.();
     keys.clear();
     joy = { x: 0, y: 0 };
     $('stick').style.transform = '';

@@ -1,8 +1,14 @@
-# Palace 5.7.7 — Winter gifts, weather and Hunt polish (build 34)
+# Palace 5.7.7 — Winter gifts, weather and Hunt polish (build 35)
 
-Apply the website patch AND install the APK. This replaces the earlier 5.7.7 download and includes all earlier fixes and the New Horizons testing changes. The web ZIP opens directly to everything to copy: public/, api/, server/, tests/ and these notes. Copy its contents into your existing repository root on the **testing** branch, merge folders, replace matching files, commit, Push origin and wait for the Testing Vercel deployment. Install Nayleen-Palace-5.7.7-build34.apk over the existing app. Do not uninstall. No new Supabase SQL is needed if the earlier 5.7.3 backup migration is already installed. Live main and account data were not changed while preparing this update.
+Apply the website patch. If build 35 is already installed, keep it. This replaces the earlier 5.7.7 download and includes all earlier fixes and the New Horizons testing changes. The web ZIP opens directly to everything to copy: public/, api/, server/, tests/ and these notes. Copy its contents into your existing repository root on the **testing** branch, merge folders, replace matching files, commit, Push origin and wait for the Testing Vercel deployment. If you are on an older build, install Nayleen-Palace-5.7.7-build35.apk over the existing app. Do not uninstall. No new Supabase SQL is needed if the earlier 5.7.3 backup migration is already installed. Live main and account data were not changed while preparing this update.
 
 The patch excludes your music files/catalog, weekly notes, special dates, sayings and personalized site-text files. Keep your current versions. A complete source ZIP is available for reference; use the incremental patch if you have added music since the last uploaded source.
+
+## Build 35 performance update
+
+- Routine Hunt and Princess Drop checkpoints, rapid squishes, and passive earnings still save on the device first. The web app groups routine cloud writes at roughly 30 minutes. Tap Sync progress at the bottom of the Palace to save now or load newer progress from your account. Rewards and completed runs still sync promptly, and leaving the game attempts to send the latest pending progress.
+- The Android app checks companion data every three minutes during steady idle use. It checks sooner when you return, edit something, or a sync needs a retry.
+- The save server does less repeated date and outfit calculation. Account login, backups, multi-device conflict detection, and the existing game and website screens use the same rules.
 
 ## Build 34
 
