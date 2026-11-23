@@ -158,6 +158,14 @@
       "file": "tracks/cry-842e73fc58.mp3",
       "sourceId": "Youtube:3XqqkrJENB4",
       "sha256": "86b604510153ba139fe0927b62f57c2dff2dbadf89f40a937e03bb13032689d7"
+    },
+    {
+      "id": "apocalypse-f5a7e2cbac",
+      "title": "Apocalypse",
+      "artist": "Cigarettes After Sex",
+      "file": "tracks/apocalypse-f5a7e2cbac.mp3",
+      "sourceId": "Youtube:sElE_BfQ67s",
+      "sha256": "f60040068a645a1bca71cf6ca996df389a85e5ca5cfa646cc808f5aef94c1379"
     }
   ],
   "playlists": []
