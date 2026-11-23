@@ -262,6 +262,14 @@
       "file": "tracks/no-surprises-76c22c448b.mp3",
       "sourceId": "Youtube:LBt60dfwEBY",
       "sha256": "98ec0f664452a886f5ccf6eac023314972ccf984a9100371a47ca829ce391242"
+    },
+    {
+      "id": "happier-than-ever-5956886ab5",
+      "title": "Happier Than Ever",
+      "artist": "Billie Eilish",
+      "file": "tracks/happier-than-ever-5956886ab5.mp3",
+      "sourceId": "Youtube:DG8o24dFq7w",
+      "sha256": "bc2a480b63dd15b650f5f93037bc456f054f7d8c27bdad19950295c986717052"
     }
   ],
   "playlists": []
