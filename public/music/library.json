@@ -190,6 +190,14 @@
       "file": "tracks/duvet-2be68283a8.mp3",
       "sourceId": "Youtube:adtntJCreYE",
       "sha256": "d8631227ea13e9ccdf8046fdae18d1980c07aa7e787720b16abce4ee5d7f47f3"
+    },
+    {
+      "id": "washing-machine-heart-76aff0d00e",
+      "title": "Washing Machine Heart",
+      "artist": "Mitski",
+      "file": "tracks/washing-machine-heart-76aff0d00e.mp3",
+      "sourceId": "Youtube:-047ko4v05s",
+      "sha256": "0ae61fb229cb1221448bf907dd909df31f7eb02161a212e157c4de0e4ac1562f"
     }
   ],
   "playlists": []
