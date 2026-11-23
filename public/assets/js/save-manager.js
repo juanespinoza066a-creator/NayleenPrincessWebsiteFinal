@@ -96,7 +96,7 @@ export class CarnivalStore {
         this.emit({ offlineEarnings: earned });
         this.schedule();
         this.timer = setInterval(() => {
-            if (!this.ready)
+            if (!this.ready||this.resetting)
                 return;
             const previous = unlockedOutfits(this.state), login=recordLogin(this.state), amount = tick(this.state);
             if(login){this.dirty=true;this.emit();this.schedule();}
@@ -115,8 +115,12 @@ export class CarnivalStore {
         } });
         return this;
     }
-    change(fn) { if (!this.ready)
-        return; tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.status = this.online ? 'Saving your treasures…' : 'Kept on this device. Try saving again when you’re connected.'; this.remember(); this.emit({ unlocked: unlockedOutfits(this.state).filter(id => !before.includes(id)) }); this.schedule(); }
+    rememberSoon(){if(this.rememberTimer)return;this.rememberTimer=setTimeout(()=>{this.rememberTimer=null;this.remember();},200);}
+    emitFrame(extra){this.frameExtra??={unlocked:[]};this.frameExtra.unlocked.push(...(extra.unlocked||[]));if(this.frame)return;if(typeof requestAnimationFrame!=='function'){const event=this.frameExtra;this.frameExtra=null;this.emit(event);return;}this.frame=requestAnimationFrame(()=>{this.frame=null;const event=this.frameExtra;this.frameExtra=null;this.emit(event);});}
+    change(fn,options={}) { if (!this.ready)
+        return;
+        if(options.game){fn(this.state);this.dirty=true;this.rememberSoon();if(!this.gameSaveTimer)this.gameSaveTimer=setTimeout(()=>{this.gameSaveTimer=null;void this.save();},5000);return;}
+        tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.status = this.online ? 'Saving your treasures…' : 'Kept on this device. Try saving again when you’re connected.'; const event={unlocked:unlockedOutfits(this.state).filter(id=>!before.includes(id))};if(options.rapid){this.rememberSoon();this.emitFrame(event);}else{this.remember();this.emit(event);}this.schedule(); }
     schedule() { clearTimeout(this.debounce); this.debounce = setTimeout(() => void this.save(), 750); }
     async save() {
         if (!this.online || this.saving || this.conflict || !this.dirty)
@@ -143,6 +147,23 @@ export class CarnivalStore {
         this.saving = false;
         this.remember();
         this.emit();
+    }
+    flushGame(){clearTimeout(this.rememberTimer);this.rememberTimer=null;clearTimeout(this.gameSaveTimer);this.gameSaveTimer=null;this.remember();void this.save();}
+    async resetTesting(){
+        if(this.profile!=='testing'||!this.online||STATIC)throw new Error('Connect to the Testing account before resetting.');
+        if(this.resetting)throw new Error('The Testing reset is already finishing.');
+        this.resetting=true;
+        try{
+            clearTimeout(this.debounce);
+            // Let an acknowledged in-flight write finish before choosing a revision.
+            while(this.saving)await new Promise(resolve=>setTimeout(resolve,25));
+            await this.save();
+            if(this.conflict||this.dirty)throw new Error('Finish syncing this device before resetting.');
+            const data=await api('api/player',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset-testing',revision:this.revision})});
+            this.state=normalizeState(data.state);this.revision=data.revision;this.dirty=false;
+            this.status='Testing reset ♡ Today is login day 1.';this.remember();this.emit();
+            window.dispatchEvent(new Event('palace-companion-refresh'));
+        }finally{this.resetting=false;}
     }
     async refreshCompanion(){if(!this.ready||!this.online||STATIC||!CODE_LOGIN)return;try{const profile=this.profile,data=await api('api/companion');if(profile!==this.profile||data.profile!==profile)return;this.state.companion=cleanCompanion(data.companion);this.remember();this.emit();}catch{}}
     async retry() {

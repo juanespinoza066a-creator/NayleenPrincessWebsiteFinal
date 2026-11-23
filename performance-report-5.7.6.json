@@ -1,0 +1,7 @@
+{
+  "scenario": "6 full wardrobe/room progress passes with60 historical activity dates",
+  "beforeMs": 1077.27,
+  "afterMs": 4.6,
+  "reductionPercent": 99.6,
+  "note": "CPU-only synthetic benchmark, not a phone FPS measurement; progress values match exactly."
+}

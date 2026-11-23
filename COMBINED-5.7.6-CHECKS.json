@@ -1,0 +1,21 @@
+{
+  "version": "5.7.6",
+  "build": 27,
+  "web_suites": 34,
+  "local_checkpoint_window_ms": 200,
+  "continuous_game_cloud_interval_ms": 5000,
+  "same_burst_100_game_checkpoints": {
+    "immediate_blocking_local_writes": 0,
+    "hidden_room_repaints": 0,
+    "all_state_changes_counted": true
+  },
+  "rendered_100_frames": {
+    "background_gradients": 1,
+    "sprite_shadow_builds": 9
+  },
+  "canvas_pixels_before": 2340000,
+  "canvas_pixels_after": 1040000,
+  "testing_reset": "Existing atomic recovery RPC resets server dates to today, protects revisions and personal data; isolated PostgreSQL verified. No SQL change.",
+  "visual_test": "Chromium process socket blocked; Samsung FPS unmeasured.",
+  "testing_reset_save_race": "In-flight saves finish before reset; duplicate resets are rejected; verified in store/API regression tests."
+}

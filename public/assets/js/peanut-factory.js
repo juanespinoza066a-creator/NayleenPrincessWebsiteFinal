@@ -14,7 +14,7 @@ $('haptic-toggle').onclick=()=>{haptics=!haptics;try{localStorage.setItem('nayle
 function vibrate(pattern){if(haptics&&vibrationSupported)try{navigator.vibrate(pattern)}catch{}}
 const skin=()=>SQUISHIES.find(x=>x.id===store.state.clicker.skin)||SQUISHIES[0];
 function toast(message){$('factory-toast').textContent=message;$('factory-toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('factory-toast').hidden=true,5500)}
-function particles(big=false){if(reduced)return;for(let i=0;i<(big?18:5);i++){const e=document.createElement('span');e.className='peanut-crumb';e.textContent=big?['♡','✦','♥'][i%3]:'♡';e.style.color=skin().color;e.style.setProperty('--dx',Math.random()*240-120+'px');e.style.setProperty('--dy',-35-Math.random()*150+'px');$('crunch-particles').append(e);setTimeout(()=>e.remove(),850)}}
+function particles(big=false){if(reduced||$('crunch-particles').childElementCount>36)return;for(let i=0;i<(big?18:5);i++){const e=document.createElement('span');e.className='peanut-crumb';e.textContent=big?['♡','✦','♥'][i%3]:'♡';e.style.color=skin().color;e.style.setProperty('--dx',Math.random()*240-120+'px');e.style.setProperty('--dy',-35-Math.random()*150+'px');$('crunch-particles').append(e);setTimeout(()=>e.remove(),850)}}
 const upgradeButtons=new Map();
 for(const u of UPGRADES){const b=document.createElement('button');b.className='upgrade-buy';b.disabled=true;
  const icon=document.createElement('span');icon.className='upgrade-symbol';icon.textContent=u.icon;icon.setAttribute('aria-hidden','true');
@@ -40,7 +40,7 @@ store.subscribe((s,event)=>{
 $('crunch-button').onclick=()=>{
  if(!store.ready)return;const now=performance.now();combo=now-lastTap<800?combo+1:1;lastTap=now;
  const bonus=combo%10===0?10+(store.state.clicker.upgrades.musicbox||0)*2:0,amount=tapPower(store.state)+bonus;
- store.change(s=>{s.clicker.manual++;addCrunches(s,amount);recordJourney(s,'squish')});$('combo-heat').value=combo%10||10;vibrate(bonus?[12,24,12]:8);
+ store.change(s=>{s.clicker.manual++;addCrunches(s,amount);recordJourney(s,'squish')},{rapid:true});$('combo-heat').value=combo%10||10;vibrate(bonus?[12,24,12]:8);
  if(store.state.clicker.manual%25===0){clearTimeout(goldenTimer);$('golden-peanut').hidden=false;goldenTimer=setTimeout(()=>$('golden-peanut').hidden=true,10000)}
  particles(!!bonus);$('combo-copy').textContent=t(bonus?'peanut.bonus':'peanut.combo',{count:combo,left:10-combo%10});
  if(!reduced)$('crunch-button').animate([{transform:'scale(1.18,.78) rotate(-3deg)'},{transform:'scale(.94,1.06)'},{transform:'scale(1)'}],{duration:260});

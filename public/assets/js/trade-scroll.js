@@ -1,7 +1,9 @@
-// A visible rail and a real scroll button also work on phones that hide scrollbars.
+// The dialog owns the only vertical scroll area. Cards flow together in a grid.
 export function attachTradeScroll(grid){
  const frame=document.createElement('section');frame.className='treasure-browser';frame.setAttribute('aria-label','Choose your treasures');grid.before(frame);
- const hint=document.createElement('p');hint.className='treasure-scroll-hint';hint.textContent='Your treasures · scroll to see more ↓';const rail=document.createElement('div');rail.className='treasure-scroll-rail';rail.setAttribute('aria-hidden','true');const thumb=document.createElement('span');rail.append(thumb);const more=document.createElement('button');more.type='button';more.className='text-button treasure-more';more.textContent='More treasures ↓';grid.tabIndex=0;grid.setAttribute('aria-label','Treasure list. Scroll for more items.');frame.append(hint,grid,rail,more);
- const update=()=>{const total=grid.scrollHeight,visible=grid.clientHeight,overflow=total>visible+2;rail.hidden=!overflow;more.hidden=!overflow;hint.textContent=overflow?'Your treasures · scroll to see more ↓':'Your treasures ♡';thumb.style.height=Math.max(16,visible/Math.max(1,total)*100)+'%';thumb.style.top=(grid.scrollTop/Math.max(1,total-visible)*(100-Math.max(16,visible/Math.max(1,total)*100)))+'%';more.textContent=grid.scrollTop+visible>=total-3?'Back to first treasures ↑':'More treasures ↓';};
- grid.addEventListener('scroll',update,{passive:true});more.onclick=()=>grid.scrollTo({top:grid.scrollTop+grid.clientHeight>=grid.scrollHeight-3?0:grid.scrollTop+grid.clientHeight*.75,behavior:'smooth'});const observer=typeof ResizeObserver==='function'?new ResizeObserver(update):null;observer?.observe(grid);const mutation=typeof MutationObserver==='function'?new MutationObserver(update):null;mutation?.observe(grid,{childList:true,subtree:true});grid.closest('dialog')?.addEventListener('close',()=>{observer?.disconnect();mutation?.disconnect();},{once:true});if(typeof requestAnimationFrame==='function')requestAnimationFrame(update);else update();return frame;
+ const hint=document.createElement('p');hint.className='treasure-scroll-hint';hint.textContent='Your treasures · scroll down for more ↓';grid.setAttribute('aria-label','Treasure collection');frame.append(hint,grid);
+ const dialog=grid.closest('dialog');dialog?.classList.add('treasure-dialog');
+ const body=grid.closest('#game-body');
+ for(const rule of body?.querySelectorAll(':scope > .rules')||[]){const help=document.createElement('details'),summary=document.createElement('summary');help.className='treasure-help';summary.textContent='How this wish works';rule.before(help);help.append(summary,rule);}
+ return frame;
 }

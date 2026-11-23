@@ -252,3 +252,43 @@ button:disabled,.button:disabled,.game-card:disabled{background:#e3d2ee!importan
 .advent-tab{font:inherit;white-space:nowrap;border:1px solid #c9a4c9;background:#f9edf7;border-radius:999px;color:#764c7e;padding:8px 13px;cursor:pointer}
 .winter-advent{width:min(900px,96vw);max-width:96vw;max-height:92dvh;padding:clamp(16px,4vw,32px);border:2px solid #cfabc8;border-radius:30px;background:radial-gradient(circle at 10% 5%,#fffaf0,transparent 45%),linear-gradient(145deg,#f4e1ee,#e4edf0);color:#613e70;overflow-y:auto}.winter-advent::backdrop{background:#35233799}.winter-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}.winter-actions .button{padding:10px 16px;font-size:.9rem}.winter-advent h1{text-align:center;font-size:clamp(1.8rem,6vw,3.2rem);line-height:1.12;margin:24px 0 10px}.winter-advent>p{text-align:center}.winter-preview{font-size:.9rem;color:#6e5477}.winter-doors{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:20px}.winter-door{position:relative;min-width:0;border:1px solid #bd9ec5;border-radius:18px;padding:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;background:linear-gradient(145deg,#fff8fc,#e2cce8);color:#64406b;box-shadow:0 4px 0 #ccb6d5}.winter-door:nth-child(3n+2){background:linear-gradient(145deg,#fff9e9,#eee0ca)}.winter-door:nth-child(3n){background:linear-gradient(145deg,#eff9f2,#d4e5dc)}.winter-door strong{align-self:flex-start;font:700 1.5rem Georgia}.winter-door img{width:100%;height:85px;object-fit:contain;filter:drop-shadow(0 3px 3px #75547722)}.winter-door span{font-size:.75rem;font-weight:600}.winter-door[aria-pressed=true]{outline:3px solid #9666aa;outline-offset:2px}.christmas-door{grid-column:span 1;border:2px solid #bc945c;background:linear-gradient(145deg,#fff7db,#eecfdc)}.winter-day{border:1px solid #baa0ca;background:#fffcf3d9;border-radius:22px;padding:20px;text-align:center;margin-top:16px}.winter-day[hidden]{display:none}.winter-day h2{font-size:1.6rem}.winter-day .button{padding:10px 18px;font-size:.9rem}@media(max-width:540px){.winter-doors{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.winter-door img{height:72px}.christmas-door{grid-column:span 3}.christmas-door img{height:100px}.winter-actions{gap:8px}}@media(prefers-reduced-motion:reduce){.winter-advent *{scroll-behavior:auto!important}}
 header{flex-wrap:wrap;padding-block:12px}header nav{flex-wrap:wrap;align-items:center;gap:12px}
+/*5.7.6 winter gift-box calendar: static decoration, brief interaction animation only. */
+.winter-advent{border:2px solid #d9b9d5;background:radial-gradient(circle at 15% 0,#fff6e6,transparent 45%),linear-gradient(150deg,#f8edf5,#eae4f7);box-shadow:inset 0 0 0 6px #fff8fc,0 12px 40px #36243b33;padding:clamp(16px,4vw,30px)}
+.winter-mantel{display:flex;align-items:center;justify-content:center;gap:20px;margin:8px auto -10px;color:#ae85b9;font-size:1.5rem}.winter-mantel img{height:108px;width:108px;object-fit:contain;filter:none}.winter-advent h1{margin:12px 0 10px;font-size:clamp(1.8rem,6vw,2.7rem)}.winter-whisper{font-family:Georgia,serif;font-style:italic;color:#896477;font-size:1rem}.winter-preview{max-width:480px;margin:12px auto 20px;border-radius:16px;background:#fffbf2;padding:10px 14px;font-size:.78rem;line-height:1.5}
+.winter-doors{gap:15px;padding:4px}.winter-door{min-height:165px;padding:10px;border:1px solid #cbaacb;border-radius:20px;box-shadow:inset 0 0 0 4px #fff7fbcc,0 3px 0 #cdb1d5;background:linear-gradient(150deg,#fff9fc,#ecd7ee);transition:transform .15s ease,box-shadow .15s ease;overflow:hidden}.winter-door:active{transform:scale(.97)}.winter-door strong{z-index:1;font-size:1.35rem;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;color:#79517c;background:#fff8f4d9}.winter-door img{height:82px;filter:none;position:relative;z-index:1}.winter-door span{color:#805d79;font-size:.75rem}.winter-door .winter-ribbon{position:absolute;top:8px;right:12px;color:#ae789e;font-style:normal;font-size:1.9rem;line-height:1}.winter-door::before{content:'';position:absolute;left:calc(50% - 5px);top:0;bottom:0;width:10px;background:#fff6fc77}.winter-door:nth-child(3n+2){background:linear-gradient(150deg,#fffbef,#efe2c7)}.winter-door:nth-child(3n){background:linear-gradient(150deg,#f5fcf7,#dcebe1)}.winter-door[aria-pressed=true]{outline:2px solid #a676b6;box-shadow:inset 0 0 0 4px #fff8fccc,0 3px 0 #a381b3}.christmas-door{background:linear-gradient(145deg,#fff7dd,#f2d9e8)!important;border:2px solid #c5a572;grid-column:span 5;min-height:190px}.christmas-door img{height:110px}.christmas-door .winter-ribbon{font-size:2.6rem;color:#b28755;right:25px}.winter-day{background:#fffaf6;border:1px solid #c4a6cc;box-shadow:inset 0 0 0 5px #f3e8f3}.winter-day p{line-height:1.6;color:#896477}
+@media(max-width:540px){.winter-doors{gap:12px}.winter-door{min-height:140px;padding:8px}.winter-door img{height:65px}.winter-door .winter-ribbon{right:7px;font-size:1.5rem}.christmas-door{grid-column:span 3;min-height:180px}.christmas-door img{height:100px}}
+/* Expensive backdrop blur is unnecessary behind an opaque modal; retain its colors. */
+dialog::backdrop{backdrop-filter:none}.espurr-room .room-label{backdrop-filter:none!important}
+
+/* 5.7.6 combined revision: one scroll surface and compact treasure cards. */
+#game-dialog.treasure-dialog{width:min(760px,calc(100% - 20px));overflow-y:auto;overflow-x:hidden;scrollbar-width:auto;scrollbar-color:#9160af #ecdef2;scrollbar-gutter:stable;padding:18px 14px}
+#game-dialog.treasure-dialog::-webkit-scrollbar{width:9px}
+#game-dialog.treasure-dialog::-webkit-scrollbar-thumb{background:#9160af;border-radius:9px}
+#game-dialog.treasure-dialog::-webkit-scrollbar-track{background:#ecdef2}
+#game-dialog.treasure-dialog>.eyebrow{display:none}
+#game-dialog.treasure-dialog h2{font-size:1.35rem;padding:0 24px}
+#game-dialog.treasure-dialog #game-body{overflow:visible;max-height:none}
+#game-dialog.treasure-dialog .treasure-browser{padding:0;overflow:visible}
+#game-dialog.treasure-dialog .trade-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:none;overflow:visible;margin:8px 0;padding:4px}
+#game-dialog.treasure-dialog .trade-choice{padding:7px 4px;gap:5px;min-width:0;min-height:112px;font-size:.72rem;line-height:1.25;border-radius:12px;overflow-wrap:anywhere;justify-content:flex-start}
+#game-dialog.treasure-dialog .trade-choice img{width:100%;max-width:80px;height:64px}
+#game-dialog.treasure-dialog .trade-choice small{font-size:.65rem}
+#game-dialog.treasure-dialog .trade-choice>span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+#game-dialog.treasure-dialog .game-actions{gap:6px;margin:10px 0;flex-wrap:nowrap}
+#game-dialog.treasure-dialog .game-actions .button{padding:8px 6px;min-width:0;min-height:40px;font-size:.72rem}
+#game-dialog.treasure-dialog .roulette-stage{margin:8px 0}
+#game-dialog.treasure-dialog .royal-wheel{width:78px;height:78px;border-width:5px;font-size:2rem}
+#game-dialog.treasure-dialog .roulette-stage img{height:82px;width:64px}
+#game-dialog.treasure-dialog .roulette-stage:after{font-size:19px;top:-7px;left:calc(50% + 35px)}
+#game-dialog.treasure-dialog .game-host{height:70px;width:65px}
+#game-dialog.treasure-dialog .roulette-submit{margin-bottom:8px;gap:7px}
+#game-dialog.treasure-dialog .roulette-submit p{font-size:.8rem;margin:8px 0}
+#game-dialog.treasure-dialog .weekly-reset-note{font-size:.68rem;margin:6px 0}
+#game-dialog.treasure-dialog .wish-altar{padding:8px;gap:5px;margin:6px 0}
+#game-dialog.treasure-dialog .wish-altar>strong{font-size:1rem}
+#game-dialog.treasure-dialog .wish-altar>span{font-size:1.2rem}
+.treasure-help{font-size:.8rem;line-height:1.4;text-align:left;margin:8px 0;color:var(--muted)}
+.treasure-help summary{cursor:pointer;min-height:32px;padding:5px}
+#game-dialog.treasure-dialog .treasure-scroll-hint{font-size:.78rem;margin:8px 0}
+@media(min-width:650px){#game-dialog.treasure-dialog .trade-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:340px){#game-dialog.treasure-dialog .trade-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
