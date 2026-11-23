@@ -1,5 +1,6 @@
 /* A small animated 2D puppet, drawn with Espurr's broad folded ears and round eyes. */
 function drawPrincessEspurr(c, p, time, outfit = 'royal', repairing = false) {
+    const sprite=window.CarnivalManor?.outfitImages?.get(outfit);if(sprite?.complete&&sprite.naturalWidth&&sprite.naturalHeight){const bob=p.moving?Math.abs(Math.sin(p.walk||0))*1.5:Math.sin(time*2)*.6,scale=Math.min(48/sprite.naturalWidth,60/sprite.naturalHeight),w=sprite.naturalWidth*scale,h=sprite.naturalHeight*scale;c.save();c.translate(p.x,p.y-bob);c.drawImage(sprite,-w/2,-h,w,h);c.restore();return;}
     c.save();
     c.translate(p.x, p.y);
     const step = p.moving ? Math.sin(p.walk || 0) : 0, bob = p.moving ? Math.abs(step) * 1.5 : Math.sin(time * 2) * .6;

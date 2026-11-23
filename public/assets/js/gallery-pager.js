@@ -1,6 +1,6 @@
 let serial=0;
 // Keeps the existing tabbed galleries short as new rewards are added.
-export function galleryPager(grid,label,pageSize=6){
+export function galleryPager(grid,label,pageSize=8){
  if(!grid)return;
  grid.id ||= 'palace-gallery-'+(++serial);
  const controls=document.createElement('div');controls.className='gallery-pager';

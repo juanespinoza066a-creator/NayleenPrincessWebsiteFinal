@@ -13,7 +13,7 @@ export default async function handler(req,res) {
    if(!Number.isSafeInteger(data.revision)||data.revision<0)return reply(res,400,{error:'Reload Testing before resetting.'});
    const current=(await db('carnival_saves?profile=eq.testing&select=state,revision&limit=1'))[0];
    if(!current||current.revision!==data.revision)return reply(res,409,{error:'Another device saved newer progress. Reload Testing before resetting.'});
-   const state=freshState();state.companion=normalizeState(current.state).companion;recordLogin(state);
+   const state=freshState();state.companion=normalizeState(current.state).companion;state.companion.settings.value.weatherSeen=[];recordLogin(state);
    const rows=await db('rpc/carnival_restore_save',{method:'POST',body:{p_state:state,p_revision:data.revision,p_profile:'testing'}});
    if(!rows.length)return reply(res,409,{error:'Another device saved newer progress. Reload Testing before resetting.'});
    return reply(res,200,{state:normalizeState(rows[0].state),revision:rows[0].revision});

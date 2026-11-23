@@ -3,10 +3,10 @@ import { CarnivalStore } from './save-manager.js';
 import { PRIZES, OUTFITS, weekNumber, beginMaze,recordJourney, WEEKLY_RESET, claimMazePrize } from './game-rules.js';
 import { loadContent, text } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
-const store = new CarnivalStore(), images = new Map();
-PRIZES.forEach(item => { const image = new Image(); image.src = item.image; images.set(item.id, image); });
+class HuntArt extends Map {constructor(catalog){super();this.catalog=catalog;}get(id){if(!this.has(id)){const item=this.catalog.find(x=>x.id===id);if(!item?.image)return;const image=new Image();image.src=item.image.endsWith('.webp')?item.image.replace('assets/images/','assets/images/thumbs/'):item.image;this.set(id,image);}return super.get(id);}}
+const store=new CarnivalStore(),images=new HuntArt(PRIZES),outfitImages=new HuntArt(OUTFITS);
 const bridge = {
-    outfit: 'royal', loot: [], images, hunt:weeklyHunt(weekNumber()), practice:false, practiceRun:null, powers:POWERS, get map(){return huntMap(this.hunt)},
+    outfit: 'royal', loot: [], images, outfitImages, hunt:weeklyHunt(weekNumber()), practice:false, practiceRun:null, powers:POWERS, get map(){return huntMap(this.hunt)},
     get peanut() { return this.practice?{found:false,count:0}:store.state.manorPeanut; },
     savePeanut(found, count) { if(this.practice)return;store.change(s => { s.manorPeanut = {found, count}; }); },
     async begin() { await ready;this.practice=store.profile==='testing'&&document.getElementById('practice-toggle')?.checked;if(this.practice){this.hunt={hunter:document.getElementById('hunter-select').value,map:Number(document.getElementById('map-select').value)};this.outfit=document.getElementById('power-select').value;this.practiceRun={peanutSeed:Math.floor(Math.random()*1e6),week:weekNumber(),hunt:this.hunt,outfit:this.outfit,status:'active',loot:[{id:'frog',claimed:false}],checkpoint:null};this.loot=this.practiceRun.loot;document.querySelector('.player-card img').src=OUTFITS.find(o=>o.id===this.outfit)?.image||OUTFITS[0].image;return structuredClone(this.practiceRun);}let run; store.change(s => { run = beginMaze(s, weekNumber()); }); if(run){this.hunt=run.hunt;this.outfit=run.outfit||store.state.outfit;}return run ? structuredClone(run) : null; },
