@@ -118,6 +118,14 @@
       "file": "tracks/wildflower-42a09b70aa.mp3",
       "sourceId": "Youtube:l08Zw-RY__Q",
       "sha256": "42a2eae281561a3d6479fb7400c982f58ba768fda8fa573187d2b721649c74ff"
+    },
+    {
+      "id": "the-night-we-met-59c6a577fa",
+      "title": "The Night We Met",
+      "artist": "Lord Huron",
+      "file": "tracks/the-night-we-met-59c6a577fa.mp3",
+      "sourceId": "Youtube:KtlgYxa6BMU",
+      "sha256": "3390b8d653fb650a51749e9de0f3579ac7447e98dfab10020e4518bc8407857e"
     }
   ],
   "playlists": []
