@@ -13,7 +13,7 @@
       "emoji": "🌷",
       "title": "Test",
       "message": "test",
-      "published": true
+      "published": true,
       "image": "week2image.avif",
       "imageAlt": "Describe what the photo shows."
     },
