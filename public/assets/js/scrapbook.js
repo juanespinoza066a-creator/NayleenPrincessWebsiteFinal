@@ -1,9 +1,20 @@
-// Read-only on purpose. Juan publishes by editing content/weekly-notes.json in GitHub.
+// Read-only on purpose. Juan publishes by editing server/weekly-notes.json in GitHub.
 import { loadContent, text, readNotes } from './content-loader.js';
 const $ = id => document.getElementById(id);
 let start = '2026-11-18';
 function dates(week) { const first = new Date(start + 'T12:00:00Z'); first.setUTCDate(first.getUTCDate() + (week - 1) * 7); const last = new Date(+first + 6 * 86400000), format = d => new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }).format(d); return `${format(first)} – ${format(last)}`; }
-function openNote(note) { $('note-emoji').textContent = note.emoji; $('read-week').textContent = `WEEK ${note.week} · ${dates(note.week)}`; $('read-title').textContent = note.title || text('scrapbook.heading'); $('read-copy').textContent = note.message; $('note-dialog').showModal(); }
+function openNote(note) { $('note-emoji').textContent = note.emoji; $('read-week').textContent = `WEEK ${note.week} · ${dates(note.week)}`; $('read-title').textContent = note.title || text('scrapbook.heading'); $('read-copy').textContent = note.message; renderNotePhoto(note); $('note-dialog').showModal(); }
+function renderNotePhoto(note) {
+    const container = $('note-photo');
+    container.replaceChildren();
+    if (!note.hasImage) return;
+    const photo = document.createElement('img');
+    photo.alt = typeof note.imageAlt === 'string' ? note.imageAlt : 'Photo from week ' + note.week;
+    photo.decoding = 'async';
+    photo.addEventListener('error', () => photo.remove(), { once: true });
+    photo.src = 'api/weekly-notes?image=' + note.week;
+    container.append(photo);
+}
 async function load() {
     $('retry-load').hidden = true;
     try {

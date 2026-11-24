@@ -1,3 +1,4 @@
+import {ensureCodeLogin} from './code-login.js';
 // Text is intentionally separate from layout and game rules.
 import { PRIZES, OUTFITS, UPGRADES } from './game-rules.js';
 import { DEFAULT_TEXT } from './default-text.js';
@@ -23,13 +24,21 @@ export async function loadContent() {
     UPGRADES.forEach(u => { u.name = text('upgrades.' + u.id + '.name'); u.detail = text('upgrades.' + u.id + '.detail'); });
     return true;
 }
-export async function readNotes() {
-    const response = await fetch('content/weekly-notes.json', { cache: 'no-store' });
+let notesRequest;
+export function readNotes() {
+    return notesRequest ??= fetchNotes().catch(error => {
+        notesRequest = null;
+        throw error;
+    });
+}
+async function fetchNotes() {
+    await ensureCodeLogin();
+    const response = await fetch('api/weekly-notes', { cache: 'no-store' });
     if (!response.ok)
         throw new Error('The scrapbook couldn’t load.');
     const data = await response.json();
     if (!Array.isArray(data.notes))
-        throw new Error('The notes file needs a notes list.');
+        throw new Error('Your scrapbook couldn’t open just now. Please try again soon.');
     const notes = data.notes.filter(n => Number.isInteger(n.week) && n.week >= 1 && n.week <= 52).map(n => ({ ...n, emoji: typeof n.emoji === 'string' ? n.emoji : '💜', title: typeof n.title === 'string' ? n.title : '', message: typeof n.message === 'string' ? n.message : [n.highlight, n.detail, n.lookingForward].filter(Boolean).join('\n\n'), published: n.published === true }));
     return { startDate: data.startDate || '2026-11-18', notes };
 }
