@@ -11,8 +11,8 @@
     {
       "week": 2,
       "emoji": "🌷",
-      "title": "",
-      "message": "",
+      "title": "Test",
+      "message": "test",
       "published": true
       "image": "week2image.avif",
       "imageAlt": "Describe what the photo shows."
