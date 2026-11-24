@@ -13,7 +13,9 @@
       "emoji": "🌷",
       "title": "",
       "message": "",
-      "published": false
+      "published": true
+      "image": "week2image.avif",
+      "imageAlt": "Describe what the photo shows."
     },
     {
       "week": 3,
