@@ -1,3 +1,4 @@
+import { huntFreePlay } from './hunt-mode.js';
 import { thumbnail } from './artwork.js';
 import {attachTradeScroll} from './trade-scroll.js';
 import {attachAdvent} from './winter-advent.js';
@@ -54,9 +55,10 @@ function render(s, event = {}) {
     $('test-reset').disabled = $('test-unlock').disabled = !store.ready || !canTest;
     const mazeActive = s.manorRun?.status === 'active';
     const mazeUnavailable = !mazeActive && s.mazeWeeks.includes(week);
-    $('manor-open').disabled = !store.ready || mazeUnavailable&&store.profile!=='testing';
-    $('manor-open').title = mazeUnavailable ? 'A new maze adventure opens next Monday.' : '';
-    $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : s.mazeWeeks.includes(week) ? 'This week’s run is complete ♡' : t('games.manor.action');
+    const freeHunt = huntFreePlay(store.profile);
+    $('manor-open').disabled = !store.ready || (mazeUnavailable && !freeHunt);
+    $('manor-open').title = mazeUnavailable && !freeHunt ? 'A new maze adventure opens next Monday.' : '';
+    $('manor-availability').textContent = s.manorRun?.status === 'active' ? 'Resume your weekly run →' : mazeUnavailable ? (freeHunt ? 'Explore in free play →' : 'This week’s run is complete ♡') : t('games.manor.action');
     const unlocked = unlockedOutfits(s,counts), signature = JSON.stringify([s.prizes,s.shelf,s.outfit,store.ready]);
     if (signature !== roomSignature) {
         roomSignature = signature;

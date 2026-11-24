@@ -51,10 +51,13 @@
   ],
   "functions": {
     "api/weekly-notes.js": {
-      "includeFiles": "server/weekly-notes.json"
+      "includeFiles": "server/**"
     },
     "api/updates.js": {
       "includeFiles": "server/*.json"
+    },
+    "api/advent-note.js": {
+      "includeFiles": "server/advent-notes.json"
     }
   }
 }

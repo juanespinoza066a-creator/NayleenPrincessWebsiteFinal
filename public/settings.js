@@ -3,5 +3,6 @@
 window.CARNIVAL_CONFIG = {
   mode: 'code',
   saveTools: false,
-  testingTools: true
+  testingTools: true,
+  huntFreePlay: true // Set false to use the once-a-week Hunt on the testing profile.
 };

@@ -42,6 +42,12 @@ const keys = new Set();
 let player, hunter, state = 'intro', elapsed = 0, hp = 3, stamina = 100, charges = 3;
 let action = null;
 let repairing = null, invincible = 0, stunned = 0, sprinting = false;
+let sprintExhausted = false;
+const sprintHeld = () => sprinting || keys.has('Shift');
+
+function clearSprintExhaustion() {
+    if (!sprintHeld()) sprintExhausted = false;
+}
 let calibration = null, noiseTime = 0, noiseTarget = null, chase = false;
 let lastSeen = null, searchTime = 0, calmTime = 6, patrolGoal = null;
 const effects = [];
@@ -120,6 +126,7 @@ async function reset() {
     patrolIndex = 0;
     joy = { x: 0, y: 0 };
     sprinting = false;
+    sprintExhausted = false;
     machines.forEach(m => { m.completed=false; m.progress = 0; m.lockRemaining = 0; m.nextCheck = randomBetween(5.5, 11.5); });
     pallets.forEach(p => p.down = false);
     if (access.checkpoint) {
@@ -168,6 +175,7 @@ function pause() {
     joy = { x: 0, y: 0 };
     $('stick').style.transform = '';
     sprinting = false;
+    sprintExhausted = false;
     modal('Take a little breather.', 'Your garden is paused. Espurr and Ann will wait for you.', 'Resume adventure');
 }
 function finish(won) {
@@ -179,14 +187,20 @@ function finish(won) {
     keys.clear();
     joy = { x: 0, y: 0 };
     sprinting = false;
+    sprintExhausted = false;
     const time = Math.floor(elapsed / 60) + ':' + String(Math.floor(elapsed % 60)).padStart(2, '0');
+    const practice=window.CarnivalManor?.practice;
     if (won) {
         window.CarnivalManor?.finish(true);
-        modal('You escaped, princesa!', 'Three ciphers repaired, the moon gate opened, and a very annoyed Ann. Escape time ' + time + '. Your maze outfit reward is earned, and your weekly treasure is waiting in your room. ♛', 'Back to Espurr’s room');
+        modal('You escaped, princesa!', 'You repaired three ciphers and escaped '+hunterName()+' in '+time+'. '+
+            (practice?'Free play does not affect your weekly adventure or rewards.':'Any treasures you found are waiting in your room. ♛'),
+            'Back to Espurr’s room');
     }
     else {
         window.CarnivalManor?.finish(false);
-        modal(hunterName()+' caught up this time.', 'Use hedges to break sight, guard your sprint energy, and stun Ann when she gets close. Your found treasures stay in your room. A new weekly adventure opens next Monday.', 'Back to Espurr’s room');
+        modal(hunterName()+' caught up this time.', 'Use hedges to break sight, save your sprint energy, and stun '+hunterName()+' when the hunter gets close. '+
+            (practice?'Free play does not affect your weekly adventure or rewards.':'Any treasures you found stay in your room. A new adventure opens Monday.'),
+            'Back to Espurr’s room');
     }
 }
 function context() {
@@ -392,8 +406,12 @@ function update(dt) {
         dx /= mag;
         dy /= mag;
     }
-    const sprint = (sprinting || keys.has('Shift')) && stamina > 1 && mag > 0;
+    clearSprintExhaustion();
+    if (sprintHeld() && stamina <= 0) sprintExhausted = true;
+    const sprint = sprintHeld() && !sprintExhausted && mag > 0;
     stamina = Math.max(0, Math.min(100, stamina + (waterTime>0 ? -25 : sprint ? -20 : 23) * dt));
+    // A held button must not spend the stamina that regenerates after exhaustion.
+    if (sprintHeld() && stamina <= 0) sprintExhausted = true;
     const px = player.x, py = player.y;
     const pace=(swiftTime>0?205:sprint?174:112)*(rootTime>0?0:photoTime>0?.3:snareTime>0||waterTime>0?.6:1);move(player,dx*pace*dt,dy*pace*dt);
     player.moving = distance(player, { x: px, y: py }) > .01;
@@ -545,6 +563,7 @@ function openPeanut() {
     keys.clear();
     joy = { x: 0, y: 0 };
     sprinting = false;
+    sprintExhausted = false;
     $('stick').style.transform = '';
     $('peanut-count').textContent = peanutCount + ' happy crunches';
     $('peanut-dialog').showModal();
@@ -620,7 +639,10 @@ window.addEventListener('keydown', e => {
     if (key === 'Escape')
         pause();
 });
-window.addEventListener('keyup', e => keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key));
+window.addEventListener('keyup', e => {
+    keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key);
+    clearSprintExhaustion();
+});
 window.addEventListener('blur', pause);
 document.addEventListener('visibilitychange', () => { if (document.hidden)
     pause(); });
@@ -675,7 +697,10 @@ pad.addEventListener('pointercancel', release);
 pad.addEventListener('lostpointercapture', release);
 $('sprint').addEventListener('pointerdown', e => { sprinting = true; $('sprint').setPointerCapture(e.pointerId); });
 for (const name of ['pointerup', 'pointercancel', 'lostpointercapture'])
-    $('sprint').addEventListener(name, () => sprinting = false);
+    $('sprint').addEventListener(name, () => {
+        sprinting = false;
+        clearSprintExhaustion();
+    });
 player = center(2, 9);
 hunter = center(21, 10);
 hud();

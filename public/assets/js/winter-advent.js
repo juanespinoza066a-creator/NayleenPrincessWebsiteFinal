@@ -1,5 +1,5 @@
 import { winterMusic } from './winter-music.js';
-import { OUTFITS, ROOMS, PRIZES, ADVENT_GIFTS, claimAdvent, adventAvailable } from './game-rules.js';
+import { OUTFITS, ROOMS, PRIZES, ADVENT_GIFTS, ADVENT_NOTE_DAYS, claimAdvent, adventAvailable } from './game-rules.js';
 
 export const ADVENT_YEAR = 2026;
 export const ADVENT_DAYS = Array.from({ length: 25 }, (_, i) => i + 1);
@@ -39,6 +39,17 @@ export function attachAdvent(store) {
     const doors = [];
     const preview = () => store?.profile === 'testing';
     let audio = null;
+
+    async function readAdventNote(day, line) {
+        try {
+            const response = await fetch('api/advent-note?day=' + day, {cache: 'no-store'});
+            if (!response.ok) throw new Error();
+            const {message} = await response.json();
+            line.textContent = message || 'A note from Juan is being written for this day ♡';
+        } catch {
+            line.textContent = 'Your note couldn’t open just now. Reopen this door to try again ♡';
+        }
+    }
 
     function refreshDoors() {
         const opened = new Set(store?.state?.advent?.days || []);
@@ -86,9 +97,14 @@ export function attachAdvent(store) {
                     reveal.alt = gift.name;
                     detail.append(reveal);
                     message = saved ? gift.name + ' · Already opened ♡' : gift.name + ' is yours ♡';
-                } else message = 'A note from Juan is being written for this day ♡';
+                } else message = 'Opening your note ♡';
             }
-            detail.append(node('p', '', message));
+            const line = node('p', '', message);
+            detail.append(line);
+            if (store && eligible && ADVENT_NOTE_DAYS.includes(day)) {
+                line.style.whiteSpace = 'pre-wrap';
+                void readAdventNote(day, line);
+            }
             if (eligible && gift?.description && store) detail.append(node('p', '', gift.description));
             const back = node('button', 'button soft', 'Back to the calendar');
             back.onclick = () => { detail.hidden = true; button.focus(); };

@@ -10,3 +10,10 @@ s=r.testingState();const run=r.beginMaze(s,2,()=>.123);assert.equal(run.peanutSe
 const original=r.testingState();r.spinRoulette(original,[{kind:'collectible',id:'frog'},{kind:'outfit',id:'cozy'}],'rose',()=>0,week);r.beginDrop(original,()=>0,week);const restored=r.freshState();r.keepWeeklyUses(restored,original);assert.equal(restored.rouletteWeeks[week],1);assert(restored.dropRuns[week]);
 assert.equal(fs.readFileSync(new URL('../server/hunt-config.js',import.meta.url),'utf8'),fs.readFileSync(new URL('../public/assets/js/hunt-config.js',import.meta.url),'utf8'));
 console.log('PASS: roulette offerings/guaranteed prize/duplicate/one weekly exchange, Drop resume/merge/overflow/collectible milestone/immediate equip/single reward/reset/backup, 12 unique reachable maps, 12-week rotation, 17 distinct power types, old and new save normalization.');
+
+for (let week=1; week<=52; week++) {
+ const current=weeklyHunt(week),next=weeklyHunt(week+1);
+ assert.notEqual(current.hunter,next.hunter);
+ assert.notEqual(huntMap(current).name,huntMap(next).name);
+ assert.deepEqual(weeklyHunt(week),current);
+}
