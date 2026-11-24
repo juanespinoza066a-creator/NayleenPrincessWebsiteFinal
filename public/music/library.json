@@ -102,15 +102,175 @@
       "file": "tracks/perfect-de4a00f221.mp3",
       "sourceId": "Youtube:CWG-GDfejmY",
       "sha256": "3098db81c31c0663d48d7e887cffda73aa60ccc1fddfcfd263d7d802a703af3b"
+    },
+    {
+      "id": "nobody-ed59583b2e",
+      "title": "Nobody",
+      "artist": "Mitski",
+      "file": "tracks/nobody-ed59583b2e.mp3",
+      "sourceId": "Youtube:K0-0AL4Wh00",
+      "sha256": "0218657c77da4baf055844b685b4ff476f6989902b56cef875e35ace9b301c4a"
+    },
+    {
+      "id": "wildflower-42a09b70aa",
+      "title": "WILDFLOWER",
+      "artist": "Billie Eilish",
+      "file": "tracks/wildflower-42a09b70aa.mp3",
+      "sourceId": "Youtube:l08Zw-RY__Q",
+      "sha256": "42a2eae281561a3d6479fb7400c982f58ba768fda8fa573187d2b721649c74ff"
+    },
+    {
+      "id": "the-night-we-met-59c6a577fa",
+      "title": "The Night We Met",
+      "artist": "Lord Huron",
+      "file": "tracks/the-night-we-met-59c6a577fa.mp3",
+      "sourceId": "Youtube:KtlgYxa6BMU",
+      "sha256": "3390b8d653fb650a51749e9de0f3579ac7447e98dfab10020e4518bc8407857e"
+    },
+    {
+      "id": "family-line-751ffd88b1",
+      "title": "Family Line",
+      "artist": "Conan Gray",
+      "file": "tracks/family-line-751ffd88b1.mp3",
+      "sourceId": "Youtube:0siR6U54-iE",
+      "sha256": "c2e04efd1f6160a0ef3463f36aa59058730712c0b10d7063c889f76edeed8523"
+    },
+    {
+      "id": "we-never-dated-8d6d6f8692",
+      "title": "We Never Dated",
+      "artist": "sombr",
+      "file": "tracks/we-never-dated-8d6d6f8692.mp3",
+      "sourceId": "Youtube:W5eGd_3-BDs",
+      "sha256": "934cd494fbea57ca0dc93312c33e705933b81c9f910a0d06e2757c0e4dcc8941"
+    },
+    {
+      "id": "salvatore-8302e939c2",
+      "title": "Salvatore",
+      "artist": "Lana Del Rey",
+      "file": "tracks/salvatore-8302e939c2.mp3",
+      "sourceId": "Youtube:GVQON-muEFc",
+      "sha256": "b4194212636e73b83b23d75d2c55c97b5f7e6bcdcc4a342eb6e91089b8656473"
+    },
+    {
+      "id": "cry-842e73fc58",
+      "title": "Cry",
+      "artist": "Cigarettes After Sex",
+      "file": "tracks/cry-842e73fc58.mp3",
+      "sourceId": "Youtube:3XqqkrJENB4",
+      "sha256": "86b604510153ba139fe0927b62f57c2dff2dbadf89f40a937e03bb13032689d7"
+    },
+    {
+      "id": "apocalypse-f5a7e2cbac",
+      "title": "Apocalypse",
+      "artist": "Cigarettes After Sex",
+      "file": "tracks/apocalypse-f5a7e2cbac.mp3",
+      "sourceId": "Youtube:sElE_BfQ67s",
+      "sha256": "f60040068a645a1bca71cf6ca996df389a85e5ca5cfa646cc808f5aef94c1379"
+    },
+    {
+      "id": "i-wanna-be-yours-5b4723fd4a",
+      "title": "I Wanna Be Yours",
+      "artist": "Arctic Monkeys",
+      "file": "tracks/i-wanna-be-yours-5b4723fd4a.mp3",
+      "sourceId": "Youtube:nyuo9-OjNNg",
+      "sha256": "e0940f7f5d256c803ca316522c11fc38f5895a0608ae651cf21c8555e862e548"
+    },
+    {
+      "id": "west-coast-eb1f3b2202",
+      "title": "West Coast",
+      "artist": "Lana Del Rey",
+      "file": "tracks/west-coast-eb1f3b2202.mp3",
+      "sourceId": "Youtube:o3SqUUoJjW8",
+      "sha256": "7775c7127e06afe9f207bc6bdca5a60b38894e4ab401688977779c44e4b62bca"
+    },
+    {
+      "id": "duvet-2be68283a8",
+      "title": "Duvet",
+      "artist": "Boa",
+      "file": "tracks/duvet-2be68283a8.mp3",
+      "sourceId": "Youtube:adtntJCreYE",
+      "sha256": "d8631227ea13e9ccdf8046fdae18d1980c07aa7e787720b16abce4ee5d7f47f3"
+    },
+    {
+      "id": "washing-machine-heart-76aff0d00e",
+      "title": "Washing Machine Heart",
+      "artist": "Mitski",
+      "file": "tracks/washing-machine-heart-76aff0d00e.mp3",
+      "sourceId": "Youtube:-047ko4v05s",
+      "sha256": "0ae61fb229cb1221448bf907dd909df31f7eb02161a212e157c4de0e4ac1562f"
+    },
+    {
+      "id": "blue-hair-c74628a3f9",
+      "title": "Blue Hair",
+      "artist": "TV Girl",
+      "file": "tracks/blue-hair-c74628a3f9.mp3",
+      "sourceId": "Youtube:PzIXNqpCug0",
+      "sha256": "0d4421046d4d59ba3461301cd6517a2845d803b21b9fcde5b156833fe5e638d4"
+    },
+    {
+      "id": "bad-habit-ec8294f2f4",
+      "title": "Bad Habit",
+      "artist": "Steve Lacy",
+      "file": "tracks/bad-habit-ec8294f2f4.mp3",
+      "sourceId": "Youtube:UGbDWUtqMsQ",
+      "sha256": "6aefbe476a88d0fce3a9b275553745386e611aca539854d6c44a984c0cb80d6f"
+    },
+    {
+      "id": "from-the-start-28d830dab6",
+      "title": "From The Start",
+      "artist": "Laufey",
+      "file": "tracks/from-the-start-28d830dab6.mp3",
+      "sourceId": "Youtube:VArOUfVOjqI",
+      "sha256": "3e3afe8f5005ad23b55375d1644310d5e496007bf6d2854ad33e194f8aa3c37d"
+    },
+    {
+      "id": "the-blonde-a2518632c5",
+      "title": "The Blonde",
+      "artist": "TV Girl",
+      "file": "tracks/the-blonde-a2518632c5.mp3",
+      "sourceId": "Youtube:viWfSucFk14",
+      "sha256": "a1e8570aa0840a2023d5ea8cc5fb656a9a7d251abb8ad77d764e0ef5700f083d"
+    },
+    {
+      "id": "blue-c6c3ae4803",
+      "title": "BLUE",
+      "artist": "Billie Eillish",
+      "file": "tracks/blue-c6c3ae4803.mp3",
+      "sourceId": "Youtube:A5tIj1f7Zgs",
+      "sha256": "7840dfdedb30e369ac29a23f8ef4f18d5273a128b7515f0819007313bc62031c"
+    },
+    {
+      "id": "creep-0cff1d34bf",
+      "title": "Creep",
+      "artist": "Radiohead",
+      "file": "tracks/creep-0cff1d34bf.mp3",
+      "sourceId": "Youtube:fAuT8_dboWo",
+      "sha256": "e905f5571e6c3db3d048667453620eedc580cb37b64c4dc4ffacdba1d1d26c7c"
+    },
+    {
+      "id": "all-i-need-fcfc5185cb",
+      "title": "All I Need",
+      "artist": "Radiohead",
+      "file": "tracks/all-i-need-fcfc5185cb.mp3",
+      "sourceId": "Youtube:OOLMuK74fVw",
+      "sha256": "aa5f5430e238432ade4b7c27feed76f144cfdab28f4563ed435fd6f5e975f60e"
+    },
+    {
+      "id": "no-surprises-76c22c448b",
+      "title": "No Surprises",
+      "artist": "Radiohead",
+      "file": "tracks/no-surprises-76c22c448b.mp3",
+      "sourceId": "Youtube:LBt60dfwEBY",
+      "sha256": "98ec0f664452a886f5ccf6eac023314972ccf984a9100371a47ca829ce391242"
+    },
+    {
+      "id": "happier-than-ever-5956886ab5",
+      "title": "Happier Than Ever",
+      "artist": "Billie Eilish",
+      "file": "tracks/happier-than-ever-5956886ab5.mp3",
+      "sourceId": "Youtube:DG8o24dFq7w",
+      "sha256": "bc2a480b63dd15b650f5f93037bc456f054f7d8c27bdad19950295c986717052"
     }
   ],
-  "playlists": [
-    {
-      "id": "palace-mix",
-      "name": "Palace mix",
-      "trackIds": [
-        "a-pearl"
-      ]
-    }
-  ]
+  "playlists": []
 }
