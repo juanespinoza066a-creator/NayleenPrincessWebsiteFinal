@@ -152,7 +152,7 @@ function cards(){
   count.setAttribute('role','status');
   cabinet.append(el('span','✧ ♛ ✧'),el('strong','Sacrifice three collectibles, get one muahahah'),count);
   body.append(cabinet);
-  p('Offer three different collectibles for one random collectible. It might be one you already own. You can earn the treasures you give up again after 14 days.');
+  p('Offer three different collectibles for one random collectible. It might be one you already own. You can earn the collectibles you give up again right away.');
   const selected=new Set(),notice=el('div'),grid=el('div',undefined,'trade-grid'),review=el('div',undefined,'exchange-review');
   notice.setAttribute('role','status');
   review.hidden=true;

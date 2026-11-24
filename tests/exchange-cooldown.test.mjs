@@ -14,7 +14,19 @@ try {
     assert.equal(rules.cabinetStatus(save).left, 1);
     assert(rules.tradeCollectibles(save, offerings, week, () => 0));
     assert.equal(rules.cabinetStatus(save).left, 0);
-    for (const id of offerings) assert.equal(rules.awardPrize(save, id), false);
+    for (const id of offerings) {
+        assert(!save.prizes.includes(id), 'offerings leave the collection');
+        assert.equal(save.sacrificeUntil['collectible:'+id], undefined);
+    }
+    const legacy = structuredClone(save);
+    legacy.sacrificeUntil['collectible:frog'] = time + 14 * 86400000;
+    assert(rules.validState(legacy), 'old saves and backups still load');
+    assert(!rules.sacrificeLocked(legacy, 'collectible', 'frog'));
+    assert(!rules.normalizeState(legacy).prizes.includes('frog'), 'migration does not undo the trade');
+    assert.deepEqual(rules.normalizeState(legacy).sacrificeUntil, {});
+    assert(rules.awardPrize(legacy, 'frog'), 'a collectible with a legacy lock can be won back');
+    const restoredLegacy = recoveryState({kind: 'nayleen-carnival-backup', state: save}, legacy, 'testing');
+    assert.deepEqual(restoredLegacy.sacrificeUntil, {}, 'recovery also drops legacy collectible locks');
     assert.equal(rules.tradeCollectibles(save, ['mimikyu', 'sunday', 'peanut']), null);
 
     const coolOutfit = 'weather-cloud';
@@ -32,25 +44,26 @@ try {
     assert(!rules.unlockedOutfits(save).includes(coolOutfit));
     assert(!rules.grantItem(save, 'room', 'cafe'));
     assert.equal(rules.beginMaze(save, rules.weekNumber()).outfit, 'royal');
-    assert(!offerings.includes(rules.claimMazePrize(save, 0, () => 0).id));
-    assert(!offerings.includes(rules.revealBox(save, () => 0).id));
+    assert.deepEqual(rules.claimMazePrize(save, 0), {id:'frog',isNew:true});
+    assert.deepEqual(rules.revealBox(save), {id:'rose',isNew:true});
     rules.beginDrop(save, () => 0, week).score = 1500;
-    assert(!offerings.includes(rules.claimDropPrize(save, () => 0, week).id));
+    assert.equal(rules.claimDropPrize(save, () => 0, week).id, 'espurr');
+    assert(save.prizes.includes('espurr'), 'Princess Drop can immediately re-award a sacrificed collectible');
 
     const restored = recoveryState({ kind: 'nayleen-carnival-backup', state: previous }, save, 'testing');
     assert.equal(rules.cabinetStatus(restored).left, 0);
     assert.equal(rules.rouletteStatus(restored).left, 0);
-    assert(!restored.prizes.includes('frog'));
+    assert(restored.prizes.includes('frog'));
     assert(!rules.unlockedRooms(restored).includes('cafe'));
     assert(!rules.unlockedOutfits(restored).includes(coolOutfit));
     time += 86400000;
     assert.equal(rules.cabinetStatus(restored).left, 2);
     assert.equal(rules.rouletteStatus(restored).left, 1);
     time += 13 * 86400000 - 1;
-    assert(!rules.awardPrize(save, 'frog'));
+    assert(rules.sacrificeLocked(save, 'room', 'cafe'));
     assert(!rules.unlockedOutfits(save).includes(coolOutfit));
     time++;
-    assert(rules.awardPrize(save, 'frog'));
+    assert(!rules.sacrificeLocked(save, 'room', 'cafe'));
     assert(rules.unlockedOutfits(save).includes(coolOutfit));
     assert(rules.grantItem(save, 'room', 'cafe'));
     assert(rules.unlockedRooms(save).includes('cafe'));
@@ -59,7 +72,7 @@ try {
 } finally {
     Date.now = clock;
 }
-console.log('PASS: two cabinet wishes, a legacy wish carries over, weekly exchanges reset, pending drops reroll, recovery preserves cooldowns, Hunt uses owned outfits, and all three categories can return at 14 days.');
+console.log('PASS: two cabinet wishes, a legacy wish carries over, weekly exchanges reset, collectibles can return immediately and legacy locks are dropped, recovery preserves room and outfit cooldowns, and those cooldowns expire after 14 days.');
 
 const {parseHTML} = await import('linkedom');
 const {updateSacrificeBars} = await import('../public/assets/js/progress-view.js');

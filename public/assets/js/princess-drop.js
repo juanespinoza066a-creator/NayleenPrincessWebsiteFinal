@@ -3,6 +3,7 @@ import {dropRenderer} from './drop-renderer.js';
 import {OUTFITS,PRIZES,ROOMS,DROP_GOAL,DROP_FINAL_TIER,DROP_TRIES,dropAttempts,claimDropPrize,beginDrop,finishDrop,mondayKey} from './game-rules.js';
 import {playBoxSound} from './box-audio.js';
 const IDS=['duck','peanut','frog','rose','espurr','sunday','rafayel','furina','emil'];
+const ALREADY_CLAIMED = 'Weekly reward already claimed ♡';
 export const mergePoints=tier=>7*2**(tier-1);
 export const RADII=[15,22,31,42,55,70,88,108,130];
 export const mergeTier=(a,b)=>a===b&&a<8?a+1:null;
@@ -11,10 +12,10 @@ export function openDrop(store,{open,body,result,button,p}){
  open('Princess Drop');body.querySelector('.game-host')?.remove();p('Drop little treasures into the basket. Matching treasures join into a bigger one! Reach 1,500 sparkle points for one surprise collectible on your first win each week. Sunday’s room opens as soon as you reach 3,500 points. Keep the pile below the ribbon. Five attempts each week; you can return to an unfinished basket without using another try.');
  const audio=dropAudio(),tools=document.createElement('div');tools.className='game-actions drop-tools';body.append(tools);const music=button('',()=>{audio.toggleMusic();labels()},tools),sfx=button('',()=>{audio.toggleSfx();labels()},tools);function labels(){music.textContent=audio.music?'♫ Basket music on':'♫ Basket music off';sfx.textContent=audio.sfx?'♪ Little sounds on':'♪ Little sounds off';}labels();const stopAudio=()=>audio.stop();body.closest('dialog')?.addEventListener('close',stopAudio,{once:true});window.addEventListener('pagehide',stopAudio,{once:true});
  const week=mondayKey(),used=store.state.dropRuns?.[week];
- if(used&&used.status!=='active'&&dropAttempts(used)>=DROP_TRIES){const notice=document.createElement('div');notice.className='drop-end-card';notice.innerHTML='<strong></strong><p></p>';notice.querySelector('strong').textContent=used.status==='won'?'A royal surprise is yours! ♡':'Your basket is full ♡';notice.querySelector('p').textContent=used.score.toLocaleString()+' sparkle points · A fresh basket opens Monday.';body.append(notice);return;}
+ if(used&&used.status!=='active'&&dropAttempts(used)>=DROP_TRIES){const notice=document.createElement('div');notice.className='drop-end-card';notice.innerHTML='<strong></strong><p></p>';notice.querySelector('strong').textContent=used.weeklyReward||used.reward?ALREADY_CLAIMED:'All five baskets played ♡';notice.querySelector('p').textContent=used.score.toLocaleString()+' sparkle points · A fresh basket opens Monday.';body.append(notice);return;}
  const welcome=document.createElement('div');welcome.className='drop-welcome';welcome.innerHTML='<img src="assets/images/espurr-princess.webp" alt="Espurr cheering beside your basket"><span>Little treasures, big hugs ♡</span>';body.append(welcome);const ladder=document.createElement('div');ladder.className='drop-ladder';ladder.setAttribute('aria-label','Merge matching treasures from duck to Emil plushie');for(const id of IDS){const image=document.createElement('img');const item=PRIZES.find(p=>p.id===id);image.src=item.image;image.alt=item.name;ladder.append(image);}body.append(ladder);welcome.querySelector('img').src=OUTFITS.find(o=>o.id===store.state.outfit)?.image||OUTFITS[0].image;
  const start=button(used?.status==='active'?'Resume my basket ♡':'Begin my weekly basket ♡',()=>{let run;store.change(s=>{run=beginDrop(s)});if(!run)return;start.remove();play(run);});
- function play(run){body.classList.add('drop-playing');audio.start();
+ function play(run){const claimedBeforePlay=Boolean(run.weeklyReward||run.reward);body.classList.add('drop-playing');audio.start();
  const {Engine,Bodies,Body,Composite,Events}=window.Matter,engine=Engine.create({enableSleeping:true});engine.gravity.y=1;
  const canvas=document.createElement('canvas');const pixelRatio=Math.min(2,Math.max(1,window.devicePixelRatio||1));canvas.width=Math.round(400*pixelRatio);canvas.height=Math.round(650*pixelRatio);canvas.style.aspectRatio='400 / 650';canvas.className='princess-drop';canvas.setAttribute('aria-label','Treasure basket. Drag to aim, then release or tap Drop treasure.');canvas.tabIndex=0;const arena=document.createElement('div');arena.className='drop-arena';body.append(arena);arena.append(canvas);
  const nextCard=document.createElement('div');nextCard.className='drop-next';nextCard.innerHTML='<span>Next little treasure ♡</span><img alt="Next treasure">';arena.before(nextCard);
@@ -35,15 +36,15 @@ export function openDrop(store,{open,body,result,button,p}){
     store.flushGame?.();
     const completed = store.state.dropRuns[week];
     const lost = reason === 'overflow';
-    const weekly = completed.weeklyReward;
-    const prize = weekly && (weekly.kind === 'room' ? ROOMS : weekly.kind === 'outfit' ? OUTFITS : PRIZES)
-        .find(item => item.id === weekly.id);
+    const reward = completed.reward;
+    const prize = !claimedBeforePlay && reward && (reward.kind === 'room' ? ROOMS : reward.kind === 'outfit' ? OUTFITS : PRIZES)
+        .find(item => item.id === reward.id);
     const remaining = DROP_TRIES - dropAttempts(completed);
     const headline = lost ? 'You lost · Basket full' : 'Basket complete ♡';
     const scoreLine = score.toLocaleString() + ' points · ' +
         (remaining ? remaining + (remaining === 1 ? ' try left this week.' : ' tries left this week.') : 'A fresh basket opens Monday.');
-    const prizeLine = prize ? 'Your weekly ' + weekly.kind + ': ' + prize.name + ' ♡'
-        : 'Reach 1,500 points to earn this week’s collectible.';
+    const prizeLine = prize ? 'Earned in this basket: ' + prize.name + ' ♡'
+        : completed.weeklyReward ? ALREADY_CLAIMED : 'Reach 1,500 points to earn this week’s collectible.';
     drop.disabled = true;
     if (finishBasket) finishBasket.disabled = true;
     result.textContent = headline + '. ' + scoreLine + ' ' + prizeLine;
@@ -58,9 +59,9 @@ export function openDrop(store,{open,body,result,button,p}){
     title.textContent = headline;
     const summary = document.createElement('p');
     summary.textContent = scoreLine;
-    const reward = document.createElement('p');
-    reward.textContent = prizeLine;
-    notice.append(title, summary, reward);
+    const rewardMessage = document.createElement('p');
+    rewardMessage.textContent = prizeLine;
+    notice.append(title, summary, rewardMessage);
     button('Back to my games ♡', () => document.getElementById('game-close')?.click(), notice);
     arena.append(notice);
     notice.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -77,7 +78,7 @@ export function openDrop(store,{open,body,result,button,p}){
  renderer.background(overflow);if(shownNext!==next){shownNext=next;nextImage.src=images[next].src;}
  const paint=renderer.paint;
  for(const b of treasures())paint(b.plugin.tier,b.position.x,b.position.y,b.angle);paint(held,Math.max(40+RADII[held]+2,Math.min(358-RADII[held],aim)),70);
- for(const b of bursts){b.t-=dt;context.globalAlpha=Math.max(0,b.t);context.font=(20+b.t*12)+'px serif';context.fillText('♡ ✧ +'+mergePoints(b.tier),b.x-22,b.y-(1-b.t)*65);}context.globalAlpha=1;bursts=bursts.filter(b=>b.t>0);const meterText=`✧ ${score.toLocaleString()} · ${store.state.dropRuns[week]?.weeklyReward?'Weekly collectible earned ♡':'Prize at 1,500'} · ${score>=3500?'Sunday room unlocked ♡':'Sunday room at 3,500'}`;if(meterText!==shownMeter){shownMeter=meterText;meter.textContent=meterText;}requestAnimationFrame(draw);}
+ for(const b of bursts){b.t-=dt;context.globalAlpha=Math.max(0,b.t);context.font=(20+b.t*12)+'px serif';context.fillText('♡ ✧ +'+mergePoints(b.tier),b.x-22,b.y-(1-b.t)*65);}context.globalAlpha=1;bursts=bursts.filter(b=>b.t>0);const meterText=`✧ ${score.toLocaleString()} · ${claimedBeforePlay?ALREADY_CLAIMED:store.state.dropRuns[week]?.reward?'Weekly reward earned in this basket ♡':'Prize at 1,500'} · ${score>=3500?'Sunday room unlocked ♡':'Sunday room at 3,500'}`;if(meterText!==shownMeter){shownMeter=meterText;meter.textContent=meterText;}requestAnimationFrame(draw);}
  requestAnimationFrame(draw);canvas.focus();
  }
 }

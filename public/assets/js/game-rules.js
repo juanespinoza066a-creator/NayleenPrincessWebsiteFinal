@@ -124,7 +124,7 @@ export function normalizeState(raw, now = Date.now()) {
     s.manorPeanut = {found: raw.manorPeanut?.found === true, count: integer(raw.manorPeanut?.count)};
     s.chips = Number.isSafeInteger(raw.chips) ? integer(raw.chips, 1e6) : 100;
     s.sacrificeUntil = cleanSacrifices(raw.sacrificeUntil, now);
-    s.prizes = [...new Set((Array.isArray(raw.prizes) ? raw.prizes : []).map(prizeID).filter(id=>id&&!sacrificeLocked(s,'collectible',id,now)))];
+    s.prizes = [...new Set((Array.isArray(raw.prizes) ? raw.prizes : []).map(prizeID).filter(Boolean))];
     s.shelf = Array.from({ length: 4 }, (_, i) => { const id = prizeID(raw.shelf?.[i]); return s.prizes.includes(id) ? id : null; });
     for (const k of Object.keys(s.stats))
         s.stats[k] = integer(raw.stats?.[k]);
@@ -235,9 +235,9 @@ export function weekNumber(now=Date.now()){return Math.max(1,Math.min(52,2+Math.
 export function buySquishy(s,id){const toy=SQUISHIES.find(x=>x.id===id);if(!toy||unlockedSquishies(s).includes(id)||s.clicker.balance<toy.goal)return false;s.clicker.balance-=toy.goal;s.clicker.ownedSkins??=['peanut'];s.clicker.ownedSkins.push(id);s.clicker.skin=id;return true;}
 const SACRIFICE_MS = 14 * 86400000;
 const tradeKey=(kind,id)=>kind+':'+id;
-const validSacrificeKey=key=>{
+const validSacrificeKey=(key,allowLegacyCollectibles=false)=>{
  const [kind,id]=key.split(':');
- return key===tradeKey(kind,id) && (kind==='collectible' ? TRADABLE_PRIZES.has(id)
+ return key===tradeKey(kind,id) && (kind==='collectible' ? allowLegacyCollectibles&&TRADABLE_PRIZES.has(id)
     : kind==='room' ? id!=='lavender' && ROOMS.some(x=>x.id===id&&!x.adventDay)
     : kind==='outfit' && id!=='royal' && OUTFITS.some(x=>x.id===id&&!x.adventDay));
 };
@@ -245,25 +245,25 @@ function cleanSacrifices(raw,now=Date.now()){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return {};
  return Object.fromEntries(Object.entries(raw).filter(([key,until])=>validSacrificeKey(key)&&Number.isSafeInteger(until)&&until>now).map(([key,until])=>[key,Math.min(until,now+SACRIFICE_MS)]));
 }
-export function sacrificeLocked(s,kind,id,now=Date.now()){return (s.sacrificeUntil?.[tradeKey(kind,id)]||0)>now;}
+export function sacrificeLocked(s,kind,id,now=Date.now()){return (kind==='room'||kind==='outfit')&&(s.sacrificeUntil?.[tradeKey(kind,id)]||0)>now;}
 function sacrifice(s,kind,id){
- s.sacrificeUntil=cleanSacrifices(s.sacrificeUntil);
- s.sacrificeUntil[tradeKey(kind,id)]=Date.now()+SACRIFICE_MS;
  if(kind==='collectible'){
   s.collectionHistory=[...new Set([...(s.collectionHistory||[]),id])];
   s.prizes=s.prizes.filter(x=>x!==id);
   s.shelf=s.shelf.map(x=>x===id?null:x);
  }else{
+  s.sacrificeUntil=cleanSacrifices(s.sacrificeUntil);
+  s.sacrificeUntil[tradeKey(kind,id)]=Date.now()+SACRIFICE_MS;
   const grants=kind==='room'?'grantedRooms':'grantedOutfits';
   s[grants]=(s[grants]||[]).filter(x=>x!==id);
  }
 }
 function randomItem(items,random){return items[Math.min(items.length-1,Math.floor(random()*items.length))];}
-const availablePrizes=(s,excluding=[])=>GAME_PRIZES.filter(x=>!excluding.includes(x.id)&&!sacrificeLocked(s,'collectible',x.id));
+const availablePrizes=(s,excluding=[])=>GAME_PRIZES.filter(x=>!excluding.includes(x.id));
 const cabinetWeekKey=week=>typeof week==='number'?new Date(Date.UTC(2026,10,16)+(week-1)*604800000).toISOString().slice(0,10):week;
 export function tradeCollectibles(s,ids,week=mondayKey(),random=Math.random){
  const {used,left}=cabinetStatus(s,week);
- if(!left||!Array.isArray(ids)||ids.length!==3||new Set(ids).size!==3||!ids.every(id=>TRADABLE_PRIZES.has(id)&&s.prizes.includes(id)&&!sacrificeLocked(s,'collectible',id)))return null;
+ if(!left||!Array.isArray(ids)||ids.length!==3||new Set(ids).size!==3||!ids.every(id=>TRADABLE_PRIZES.has(id)&&s.prizes.includes(id)))return null;
  const item=randomItem(availablePrizes(s,ids),random);
  if(!item)return null;
  for(const id of ids)sacrifice(s,'collectible',id);
@@ -275,7 +275,6 @@ export function tradeCollectibles(s,ids,week=mondayKey(),random=Math.random){
  return {id:item.id,isNew};
 }
 export function awardPrize(s,id){
- if(sacrificeLocked(s,'collectible',id))return false;
  s.collectionHistory=[...new Set([...(s.collectionHistory||[]),id])];
  if(s.prizes.includes(id))return false;
  s.prizes.push(id);
@@ -291,14 +290,9 @@ export function startBox(s,week,random=Math.random){
  s.weeklyClaims.push(week);
  return s.weeklyBox={week,id:item.id,revealed:false};
 }
-export function revealBox(s,random=Math.random){
+export function revealBox(s){
  const box=s.weeklyBox;
  if(!box||box.revealed)return null;
- if(sacrificeLocked(s,'collectible',box.id)){
-  const replacement=randomItem(availablePrizes(s),random);
-  if(!replacement)return null;
-  box.id=replacement.id;
- }
  box.revealed=true;
  s.stats.boxes++;s.stats.rounds++;
  recordJourney(s,'box');
@@ -321,14 +315,9 @@ export function beginMaze(s,week,random=Math.random){
  recordJourney(s,'maze-start');
  return s.manorRun;
 }
-export function claimMazePrize(s,index,random=Math.random){
+export function claimMazePrize(s,index){
  const loot=s.manorRun?.status==='active'&&s.manorRun.loot[index];
  if(!loot||loot.claimed||s.manorRun.loot.some(x=>x.claimed))return null;
- if(sacrificeLocked(s,'collectible',loot.id)){
-  const replacement=randomItem(availablePrizes(s),random);
-  if(!replacement)return null;
-  loot.id=replacement.id;
- }
  loot.claimed=true;
  return {id:loot.id,isNew:awardPrize(s,loot.id)};
 }
@@ -341,12 +330,12 @@ export function testingState(now = Date.now()) { const s = freshState(now); s.gr
 export function cabinetStatus(s,week=mondayKey()){
  const key=cabinetWeekKey(week),legacy=(s.tradeWeeks||[]).some(n=>cabinetWeekKey(n)===key)?1:0;
  const used=Math.max(legacy,Math.min(2,s.cabinetWeeks?.[key]||0)),left=2-used;
- const owned=new Set((s.prizes||[]).filter(id=>TRADABLE_PRIZES.has(id)&&!sacrificeLocked(s,'collectible',id))).size;
+ const owned=new Set((s.prizes||[]).filter(id=>TRADABLE_PRIZES.has(id))).size;
  return {used,left,owned,canEnter:left>0,canExchange:left>0&&owned>=3,needed:Math.max(0,3-owned)};
 }
 
 // Long-term rewards use non-consecutive Central-time days and Monday weeks.
-export function unlockTestingItems(s){s.grantedRooms=ROOMS.map(r=>r.id);s.grantedOutfits=OUTFITS.map(o=>o.id);s.tradedRooms=[];s.tradedOutfits=[];s.prizes=PRIZES.filter(p=>!sacrificeLocked(s,'collectible',p.id)).map(p=>p.id);s.clicker.ownedSkins=SQUISHIES.map(x=>x.id);return s;}
+export function unlockTestingItems(s){s.grantedRooms=ROOMS.map(r=>r.id);s.grantedOutfits=OUTFITS.map(o=>o.id);s.tradedRooms=[];s.tradedOutfits=[];s.prizes=PRIZES.map(p=>p.id);s.clicker.ownedSkins=SQUISHIES.map(x=>x.id);return s;}
 export const LOGIN_START='2026-11-18';
 export function loginDates(j,now=Date.now()){const today=dayKey(now);return [...new Set([...(Array.isArray(j?.loginDays)?j.loginDays:[])].filter(d=>dateKey(d)&&d>=LOGIN_START&&d<=today))].sort().slice(-400);}
 // Future outfits/rooms can reuse challengeProgress with their own requirement list.
@@ -400,7 +389,7 @@ export function ownedTradeItems(s) {
     const ownedRooms = new Set(unlockedRooms(s));
     const ownedOutfits = new Set(unlockedOutfits(s));
     return [
-        ...GAME_PRIZES.filter(item => s.prizes.includes(item.id)&&!sacrificeLocked(s,'collectible',item.id))
+        ...GAME_PRIZES.filter(item => s.prizes.includes(item.id))
             .map(item => ({ ...item, kind: 'collectible', protected: false })),
         ...ROOMS.filter(item => !item.adventDay && ownedRooms.has(item.id))
             .map(item => ({ ...item, kind: 'room', protected: item.id === 'lavender' || item.id === s.room })),
@@ -458,7 +447,7 @@ function validWeeklyGames(s){
  for(const [key,items] of [['grantedRooms',ROOMS],['grantedOutfits',OUTFITS],['tradedRooms',ROOMS],['tradedOutfits',OUTFITS]])if(s[key]!==undefined&&(!Array.isArray(s[key])||s[key].length>items.length||s[key].some(id=>!items.some(x=>x.id===id))))return false;
  for(const key of ['cabinetWeeks','rouletteWeeks','dropRuns']){const v=s[key];if(v!==undefined&&(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).length>104||Object.keys(v).some(k=>!dateKey(k))))return false;}
  if(Object.values(s.cabinetWeeks||{}).some(n=>!Number.isInteger(n)||n<0||n>2))return false;
- if(s.sacrificeUntil!==undefined&&(!s.sacrificeUntil||typeof s.sacrificeUntil!=='object'||Array.isArray(s.sacrificeUntil)||Object.entries(s.sacrificeUntil).some(([key,n])=>!validSacrificeKey(key)||!Number.isSafeInteger(n)||n<0)))return false;
+ if(s.sacrificeUntil!==undefined&&(!s.sacrificeUntil||typeof s.sacrificeUntil!=='object'||Array.isArray(s.sacrificeUntil)||Object.entries(s.sacrificeUntil).some(([key,n])=>!validSacrificeKey(key,true)||!Number.isSafeInteger(n)||n<0)))return false;
  if(Object.values(s.rouletteWeeks||{}).some(n=>!Number.isInteger(n)||n<0||n>3))return false;
  if(Object.values(s.dropRuns||{}).some(r=>!cleanDrop(r)||r.attempts!==undefined&&(!Number.isInteger(r.attempts)||r.attempts<1||r.attempts>DROP_TRIES)||!Array.isArray(r.pieces)||r.pieces.length>100))return false;
  if(s.rouletteResult!==undefined&&s.rouletteResult!==null&&!cleanRoulette(s.rouletteResult))return false;
@@ -472,7 +461,6 @@ export function keepWeeklyUses(restored,current){
  const active={...cleanSacrifices(restored.sacrificeUntil)};
  for(const [key,until] of Object.entries(cleanSacrifices(current.sacrificeUntil)))active[key]=Math.max(until,active[key]||0);
  restored.sacrificeUntil=active;
- restored.prizes=restored.prizes.filter(id=>!sacrificeLocked(restored,'collectible',id));
  restored.shelf=restored.shelf.map(id=>restored.prizes.includes(id)?id:null);
  restored.grantedRooms=restored.grantedRooms.filter(id=>!sacrificeLocked(restored,'room',id));
  restored.grantedOutfits=restored.grantedOutfits.filter(id=>!sacrificeLocked(restored,'outfit',id));
