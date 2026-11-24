@@ -10,11 +10,13 @@ await rm('dist/content/weekly-notes.json', { force: true });
 // Publish the sorted catalog without editing imported songs or playlist order.
 const catalog = 'dist/music/library.json';
 const library = JSON.parse(await readFile(catalog, 'utf8'));
+const sombrTitles = new Map([
+    ['tracks/sombr-d16043e0bb.mp3', "My Body Isn't Ready"],
+    ['tracks/we-never-dated-8d6d6f8692.mp3', 'We Never Dated'],
+]);
 for (const song of library.tracks) {
-    if (song.file === 'tracks/we-never-dated-8d6d6f8692.mp3') {
-        song.title = 'We Never Dated';
-        song.artist = 'Sombr';
-    }
+    const title = sombrTitles.get(song.file);
+    if (title) Object.assign(song, { title, artist: 'Sombr' });
 }
 const label = value => typeof value === 'string' ? value.trim() : '';
 const alphabet = new Intl.Collator('en', { sensitivity: 'base' });
