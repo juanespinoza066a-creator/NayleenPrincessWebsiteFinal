@@ -57,3 +57,25 @@ const water=game('grace',1);await water.api.reset();water.exec("hazardClock=999;
 g.exec("state='playing';hp=1;invincible=stunned=rootTime=0;hazards=[];hazardClock=999;player=center(2,9);hunter=center(2,9);action=repairing=null;calibration=null;keys.clear();path=[];pathClock=0;decoy=null");g.api.update(.04);assert.equal(g.finished,false);assert.equal(g.get('state'),'lost');assert.equal(g.get('hp'),0);
 g.exec("state='playing';hp=3;invincible=7;hazardClock=999;hunter=center(21,10);player={...gate};machines.forEach(m=>{m.progress=40;m.completed=true});action=null;repairing=null;keys.clear();");g.api.interact();assert.equal(g.get('action.type'),'gate');g.tick(5.1);assert.equal(g.finished,true);assert.equal(g.get('state'),'won');
 console.log('PASS: escaping the tide prevents its damage, melee can finish a run, and the timed gate action completes an escape.');
+
+const multi = game('ann', 0);
+await multi.api.reset();
+multi.bridge.outfit='cozy';
+const pad = multi.document.getElementById('joystick');
+pad.getBoundingClientRect = () => ({left:0,top:0,width:60,height:60});
+pad.setPointerCapture = () => {};
+const sprintButton = multi.document.getElementById('sprint');
+sprintButton.setPointerCapture = () => {};
+const powerButton = multi.document.getElementById('power');
+function touch(target, type, options){
+ const e = new (parseHTML('').window.Event)(type, {cancelable:true});
+ Object.assign(e, options);
+ target.dispatchEvent(e);
+}
+touch(pad,'pointerdown',{button:0,pointerId:1,clientX:65,clientY:30});
+touch(sprintButton,'pointerdown',{button:0,pointerId:2});
+const chargesBefore = multi.get('charges');
+touch(powerButton,'pointerdown',{button:0,pointerId:3});
+touch(powerButton,'click',{detail:1});
+assert.equal(multi.get('charges'),chargesBefore-1);
+assert(multi.get('joy.x')>0 && multi.get('sprinting'), 'the joystick and sprint stay held during a power press');

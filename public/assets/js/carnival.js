@@ -1,7 +1,7 @@
 import {attachTradeScroll} from './trade-scroll.js';
 import {attachAdvent} from './winter-advent.js';
 import {attachPalaceNews} from './palace-news.js';
-import {updateProgress} from './progress-view.js';
+import {updateProgress,updateSacrificeBars} from './progress-view.js';
 import {openDrop} from './princess-drop.js';
 import {openRoulette} from './roulette.js';
 import {HUNTERS,weeklyHunt} from './hunt-config.js';
@@ -14,6 +14,7 @@ import { loadContent, text as t, readNotes } from './content-loader.js';
 import { playBoxSound } from './box-audio.js';
 const $ = id => document.getElementById(id), store = new CarnivalStore(), prize = id => PRIZES.find(p => p.id === id);
 const dialog = $('game-dialog'), body = $('game-body'), result = $('game-result');
+const syncProgress = $('sync-progress');
 let roomSignature = '', wardrobeSignature='', collectionSignature='', toastTimer;
 const renderStudio = makeStudio(store);
 const resetNote = document.createElement('p'); resetNote.className='section-copy'; resetNote.id='weekly-reset-estimate'; $('weekly-box').parentElement.prepend(resetNote);
@@ -34,7 +35,8 @@ function render(s, event = {}) {
     if(dialog.open)return; // Game UI updates itself; paint the room once on closing.
     const counts=journeyCounts(s);
     $('save-status').textContent = event.status || store.status;
-    $('sync-retry').hidden = STATIC || (!store.conflict && (store.online && !store.dirty || !store.ready));
+    syncProgress.hidden = STATIC || !store.ready;
+    $('sync-retry').hidden = STATIC || !store.ready || (!store.conflict && store.online && !store.retryAfter);
     const estimate = weekNumber() >= 52 ? 'The final week of this year’s carnival ♡' : resetEstimate();
     resetNote.textContent = WEEKLY_RESET+' '+estimate; mazeReset.textContent = WEEKLY_RESET;
     const week = weekNumber(), pending = s.weeklyBox && !s.weeklyBox.revealed, claimed = s.weeklyClaims.includes(week);
@@ -44,7 +46,7 @@ function render(s, event = {}) {
     $('weekly-box').textContent = t(pending ? 'weekly.resume' : claimed ? 'weekly.done' : 'weekly.open');
     $('weekly-label').textContent='WEEKLY BLIND BOX';
     const dropRun=s.dropRuns?.[mondayKey()];$('drop-open').disabled=!store.ready||!!dropRun&&dropRun.status!=='active'&&dropAttempts(dropRun)>=DROP_TRIES;$('drop-action').textContent=dropRun?.status==='active'?'Resume your basket →':dropAttempts(dropRun)>=DROP_TRIES?'A fresh basket opens Monday ♡':(DROP_TRIES-dropAttempts(dropRun))+' tries left · Drop a treasure →';
-    const host=HUNTERS.find(h=>h.id===(s.manorRun?.status==='active'?s.manorRun.hunt?.hunter:weeklyHunt(week).hunter))||HUNTERS[0];$('hunt-name').textContent=host.name+' is looking for you';const portrait=$('manor-open').querySelector('img');portrait.src='assets/images/hunters/'+host.id+'.png';portrait.alt=host.name;
+    const host=HUNTERS.find(h=>h.id===(s.manorRun?.status==='active'?s.manorRun.hunt?.hunter:weeklyHunt(week).hunter))||HUNTERS[0];$('hunt-name').textContent=host.name+' is looking for you';const portrait=$('manor-open').querySelector('img');const hunterImage='assets/images/hunters/'+host.id+'.png';if(portrait.getAttribute('src')!==hunterImage)portrait.src=hunterImage;if(portrait.alt!==host.name)portrait.alt=host.name;
     $('cards-open').disabled = !store.ready;
     const canTest = store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true);
     $('test-tools').hidden = !canTest;
@@ -73,7 +75,9 @@ function render(s, event = {}) {
         $('outfit-count').textContent=t('wardrobe.count',{owned:unlocked.length,total:OUTFITS.length});
         $('outfits').replaceChildren(...OUTFITS.filter(o=>!o.adventDay||unlocked.includes(o.id)).map(o => { const owned = unlocked.includes(o.id), b = el('button', undefined, `outfit${s.outfit === o.id ? ' equipped' : ''}${owned ? '' : ' locked'}`); const thumbnail = o.image ? image(o, 'outfit-thumbnail') : el('span', o.icon, 'outfit-icon'); b.append(thumbnail, el('strong', o.name), el('small', owned && !o.image ? t('wardrobe.pending') : s.outfit === o.id ? t('wardrobe.wearing') : owned ? t('wardrobe.wear') : o.hint)); {const goals=outfitProgress(s,o.id,counts);if(goals.length){const list=el('span',undefined,'outfit-goals');for(const goal of goals){const label=goal.label,line=el('span',label+' · '+goal.value+' / '+goal.goal),meter=el('progress');meter.max=goal.goal;meter.value=goal.value;meter.setAttribute('aria-label',label);list.append(line,meter);}b.append(list);}} b.disabled = !store.ready || !owned || !o.image; b.setAttribute('aria-pressed', String(s.outfit === o.id)); b.onclick = () => store.change(s => { s.outfit = o.id; }); return b; }));
     }
-    updateProgress($('outfits'),OUTFITS.filter(o=>!o.adventDay||unlocked.includes(o.id)),o=>outfitProgress(s,o.id,counts));
+    const visibleOutfits = OUTFITS.filter(o=>!o.adventDay||unlocked.includes(o.id));
+    updateProgress($('outfits'),visibleOutfits,o=>outfitProgress(s,o.id,counts));
+    updateSacrificeBars($('outfits'),visibleOutfits,s,'outfit');
     const nextCollection=JSON.stringify(s.prizes);
     if(nextCollection!==collectionSignature){collectionSignature=nextCollection;
         $('collection').replaceChildren(...PRIZES.filter(item=>!item.adventDay||s.prizes.includes(item.id)).map(item => { const card = el('div', undefined, `inventory-item${s.prizes.includes(item.id) ? '' : ' locked'}`); card.append(image(item,'collectible-image inventory-thumbnail'), el('span', item.name)); if (!s.prizes.includes(item.id)) {
@@ -219,17 +223,28 @@ function cards(){
 }
 $('cards-open').onclick = cards;
 $('sync-retry').onclick = () => { if(!store.conflict)return store.retry();open('Choose your saved progress');p('Another device saved a different copy. Download this device’s progress before loading the account copy.');button('Download this device’s copy',()=>downloadJSON('palace-device-backup.json',{kind:'nayleen-carnival-backup',version:3,profile:store.profile,state:store.state}));button('Load account copy',async()=>{await store.retry();close();});button('Keep this device’s copy',close); };
+syncProgress.onclick = async () => {
+    if (syncProgress.disabled) return;
+    syncProgress.disabled = true;
+    try {
+        await store.syncProgress();
+        if (!store.conflict) document.documentElement.dataset.palaceSyncRequested = 'true';
+        if (store.conflict) $('sync-retry').onclick();
+    } finally {
+        syncProgress.disabled = false;
+    }
+};
 attachRecovery(store,{open,close,body});
 $('test-tools').hidden = true;
 const canUseTestingTools = () => store.ready && (store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true));
 $('test-reset').onclick = () => {
     if (!canUseTestingTools()) return;
-    open('Reset this testing save?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current browser/profile. Download a backup first.');
+    open('Reset this Palace?'); p('This clears outfits, collections, scores, crunches, and weekly limits for the current account. Download a backup first.');
     button('Download backup first', () => downloadJSON('nayleen-before-test-reset.json', {kind:'nayleen-carnival-backup', version:3, state:store.state}));
     button('Reset my progress', async () => { try { await store.resetTesting(); localStorage.removeItem('nayleen-manor-peanut'); localStorage.removeItem('nayleen-princess-arcade-stamps'); $('test-status').textContent='A fresh start ♡ Today is login day 1. Weekly games are ready.'; close(); } catch(error){result.textContent=error.message;} });
     button('Cancel', close).classList.add('soft');
 };
-$('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Unlock this testing save?'); p('This unlocks outfits and rooms as testing gifts and completes their bars. Your real login/game counts, saved favorites and weekly turns stay as they are.'); button('Unlock everything', async () => {store.change(s => unlockTestingItems(s)); await store.save(); $('test-status').textContent='All outfits and collectibles unlocked for testing.';close();}); button('Cancel',close).classList.add('soft'); };
+$('test-unlock').onclick = () => { if (!canUseTestingTools()) return; open('Open the whole wardrobe?'); p('This unlocks outfits and rooms as little gifts and completes their bars. Your real login/game counts, saved favorites and weekly turns stay as they are.'); button('Unlock everything', async () => {store.change(s => unlockTestingItems(s)); await store.save(); $('test-status').textContent='All outfits and collectibles are ready ♡';close();}); button('Cancel',close).classList.add('soft'); };
 attachAdvent(store);
 attachPalaceNews();
 await loadContent();

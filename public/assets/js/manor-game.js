@@ -30,7 +30,11 @@ function saveCheckpoint() {
         return;
     window.CarnivalManor?.checkpoint({ player: { x: player.x, y: player.y, facing: player.facing, facingY: player.facingY, travelX:player.travelX||0,travelY:player.travelY||0 }, hunter: { x: hunter.x, y: hunter.y }, hp, stamina, charges, elapsed, peanutFound, timers:{hiddenTime,swiftTime,decodeTime,snareTime,photoTime,rootTime,waterTime,invincible,stunned,hazardClock,calmTime,searchTime,noiseTime}, hazards:hazards.map(h=>({...h})),decoy,lastSeen,noiseTarget,locks:machines.map(m=>m.lockRemaining||0),checks:machines.map(m=>m.nextCheck), machines: machines.map(m => m.progress), pallets: pallets.map(p => p.down) });
 }
-window.addEventListener('pagehide', saveCheckpoint);
+window.addEventListener('pagehide', () => {
+    if (state === 'paused') return; // Pause already recorded and flushed this position.
+    saveCheckpoint();
+    window.CarnivalManor?.flush?.();
+});
 let peanutFound = false, peanutCount = 0, peanutSound = true, peanutAudio;
 const pallets = [[5, 9], [15, 8], [18, 15]].map(([x, y]) => ({ ...center(x, y), down: false }));
 const patrol = [[21, 3], [15, 2], [11, 5], [6, 3], [2, 7], [6, 10], [5, 15], [12, 17], [16, 12], [22, 16], [22, 8]].map(([x, y]) => center(x, y));
@@ -159,6 +163,7 @@ function pause() {
         return;
     state = 'paused';
     saveCheckpoint();
+    window.CarnivalManor?.flush?.();
     keys.clear();
     joy = { x: 0, y: 0 };
     $('stick').style.transform = '';
@@ -517,12 +522,19 @@ function hud() {
 function draw() {
     drawManor({ decoy, buffs:{hidden:hiddenTime,swift:swiftTime,decode:decodeTime,shield:invincible,root:rootTime,water:waterTime,photo:photoTime}, huntConfig, hazards, hiddenTime, canvas, player, hunter, machines, pallets, walls, gate, elapsed, stunned, invincible, calibration, repairing, chase, effects, peanut, peanutFound, treasures: treasures.map(item => ({ ...item, ...window.CarnivalManor?.loot?.[item.index] })), T, COLS, ROWS });
 }
+let drawnState, drawnOutfit;
+window.addEventListener('resize', () => { drawnState = undefined; });
 function frame(now) {
     const dt = Math.min(.04, (now - last) / 1000 || 0);
     last = now;
     update(dt);
     window.ManorAudio?.update(dt, {playing: state === 'playing', chase: chase && stunned === 0, moving: player.moving, decoding: Boolean(repairing && !(repairing.lockRemaining > 0))});
-    draw();
+    const outfit = window.CarnivalManor?.outfit;
+    if (!document.hidden && (state === 'playing' || state !== drawnState || outfit !== drawnOutfit)) {
+        draw();
+        drawnState = state;
+        drawnOutfit = outfit;
+    }
     requestAnimationFrame(frame);
 }
 function savePeanut() { window.CarnivalManor?.savePeanut(peanutFound, peanutCount); }
@@ -635,7 +647,15 @@ $('help').addEventListener('click', () => {
     modal(currentPower().name+' · Your outfit power', currentPower().hint+' Start with three charges; finishing a cipher restores one. Drag the on-screen stick to move. Tap Interact near a cipher and watch for the gold ring and tap when the needle crosses the gold part. Missing locks that cipher for 3 seconds. Stay still while collecting treasure, dropping a pallet, or opening the exit. Use hedges to hide and hold Sprint to run. Leave a glowing warning area before it fills. Cat spells freeze your steps; music and camera flashes take one heart. Staying in rising water takes a heart too.', 'Resume adventure');
 });
 $('interact').addEventListener('click', interact);
-$('power').addEventListener('click', power);
+const powerButton = $('power');
+powerButton.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    power();
+});
+powerButton.addEventListener('click', event => {
+    if (event.detail === 0) power(); // Keyboard and accessibility activation.
+});
 const pad = $('joystick');
 let pointer;
 function joystick(e) {

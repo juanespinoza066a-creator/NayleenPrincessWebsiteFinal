@@ -60,3 +60,22 @@ try {
     Date.now = clock;
 }
 console.log('PASS: two cabinet wishes, a legacy wish carries over, weekly exchanges reset, pending drops reroll, recovery preserves cooldowns, Hunt uses owned outfits, and all three categories can return at 14 days.');
+
+const {parseHTML} = await import('linkedom');
+const {updateSacrificeBars} = await import('../public/assets/js/progress-view.js');
+const {document} = parseHTML('<div id="items"><button></button><button></button></div>');
+globalThis.document = document;
+const cards = document.getElementById('items');
+const now = Date.parse('2026-11-23T12:00:00Z');
+for (const kind of ['room','outfit']) {
+    const items = [{id:'first'}, {id:'second'}];
+    const state = {sacrificeUntil: {[kind+':first']: now + 14*86400000}};
+    updateSacrificeBars(cards, items, state, kind, now);
+    assert.equal(cards.querySelector('.sacrifice-days').textContent,'Locked for 14 more days');
+    assert.equal(cards.querySelector('progress').value,14);
+    assert.equal(cards.children[1].querySelector('progress'),null);
+    updateSacrificeBars(cards, items, state, kind, now + 13*86400000);
+    assert.equal(cards.querySelector('.sacrifice-days').textContent,'Locked for 1 more day');
+    updateSacrificeBars(cards, items, state, kind, now + 14*86400000);
+    assert.equal(cards.querySelector('.sacrifice-days'),null);
+}

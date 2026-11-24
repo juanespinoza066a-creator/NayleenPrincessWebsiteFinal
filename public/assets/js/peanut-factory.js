@@ -48,4 +48,4 @@ $('crunch-button').onclick=()=>{
 };
 $('golden-peanut').onclick=()=>{if(!store.ready||$('golden-peanut').hidden)return;$('golden-peanut').hidden=true;clearTimeout(goldenTimer);const amount=Math.max(25,tapPower(store.state)*5);store.change(s=>addCrunches(s,amount));$('combo-copy').textContent='Golden peanut! +'+format(amount)+' bonus squishes ♡';particles(true);playSquish('chime',sound);vibrate([15,30,15])};
 setInterval(()=>{if(combo&&performance.now()-lastTap>800){combo=0;$('combo-heat').value=0}},500);
-void store.load().then(async()=>{try{const r=await fetch('api/updates',{cache:'no-store'});if(r.ok){espurrLines=(await r.json()).espurrLines;store.emit();}}catch{}});
+void store.load().then(async()=>{try{const {readUpdates}=await import('./content-loader.js');espurrLines=(await readUpdates()).espurrLines;store.emit();}catch{}});

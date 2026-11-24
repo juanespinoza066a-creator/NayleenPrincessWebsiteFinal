@@ -6,12 +6,12 @@ export function ensureCodeLogin() {
  if(!CODE_LOGIN)return Promise.resolve();
  return opening ??= openLogin();
 }
-async function request(method='GET',data) {const r=await fetch('api/code-session',{method,cache:'no-store',headers:{'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});let payload;try{payload=await r.json()}catch{throw new Error('The code-login service is not configured yet. Please ask Juan to check the deployment guide.')}if(!r.ok)throw new Error(payload.error||'Please try again.');return payload;}
+async function request(method='GET',data) {const r=await fetch('api/code-session',{method,cache:'no-store',headers:{'Content-Type':'application/json',...(method==='GET'&&document.querySelector('#outfits,#world,#crunch-balance')?{'X-Palace-Load':'progress'}:{})},body:data?JSON.stringify(data):undefined});let payload;try{payload=await r.json()}catch{throw new Error('The Palace couldn’t open just now. Try again in a moment.')}if(!r.ok)throw new Error(payload.error||'Please try again.');return payload;}
 async function openLogin() {
  const panel=document.createElement('div');panel.className='code-account';const label=document.createElement('span'),logout=document.createElement('button');logout.type='button';logout.className='text-button';logout.textContent='Sign out';logout.hidden=true;panel.append(label,logout);document.body.append(panel);
  logout.onclick=async()=>{logout.disabled=true;try{await Promise.all([...beforeLogout].map(fn=>fn()));await request('DELETE');location.reload()}catch(e){label.textContent=e.message;logout.disabled=false}};
- const mark=profile=>{label.textContent=profile==='testing'?'Testing profile · separate save':'Nayleen’s cloud save ♡';logout.hidden=false;};
- try{const current=await request();if(current.signedIn){mark(current.profile);return {profile:current.profile}}}catch{}
+ const mark=profile=>{label.textContent=profile==='testing'?'Testing profile':'Nayleen’s cloud save ♡';logout.hidden=false;};
+ try{const current=await request();if(current.signedIn){mark(current.profile);return {profile:current.profile,save:current.save}}}catch{}
  return await new Promise(resolve=>{
   const dialog=document.createElement('dialog');dialog.className='code-login';dialog.setAttribute('aria-labelledby','code-login-title');
   const title=document.createElement('h2');title.id='code-login-title';title.textContent='Your Princess Palace';

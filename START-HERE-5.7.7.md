@@ -1,8 +1,19 @@
-# Palace 5.7.7 — Winter gifts, weather and Hunt polish (build 34)
+# Palace 5.7.7 — Winter gifts, weather and Hunt polish (build 36)
 
-Apply the website patch AND install the APK. This replaces the earlier 5.7.7 download and includes all earlier fixes and the New Horizons testing changes. The web ZIP opens directly to everything to copy: public/, api/, server/, tests/ and these notes. Copy its contents into your existing repository root on the **testing** branch, merge folders, replace matching files, commit, Push origin and wait for the Testing Vercel deployment. Install Nayleen-Palace-5.7.7-build34.apk over the existing app. Do not uninstall. No new Supabase SQL is needed if the earlier 5.7.3 backup migration is already installed. Live main and account data were not changed while preparing this update.
+Apply the website patch and install build 36. This replaces the earlier 5.7.7 download and includes all earlier fixes and the New Horizons testing changes. The web ZIP opens directly to everything to copy: public/, api/, server/, tests/ and these notes. Copy its contents into your existing repository root on the **testing** branch, merge folders, replace matching files, commit, Push origin and wait for the Testing Vercel deployment. Install Nayleen-Palace-5.7.7-build36.apk over the existing app. Do not uninstall. No new Supabase SQL is needed if the earlier 5.7.3 backup migration is already installed. Live main and account data were not changed while preparing this update.
 
 The patch excludes your music files/catalog, weekly notes, special dates, sayings and personalized site-text files. Keep your current versions. A complete source ZIP is available for reference; use the incremental patch if you have added music since the last uploaded source.
+
+## Build 36
+- The phone keeps saving progress and edits automatically, while idle companion checks stop after the first successful sync. Tap Sync progress when moving to another device.
+- Signed-in game pages load account and game progress together. Repeat saves skip empty changes and send smaller payloads.
+- The music portrait has a transparent background. Sacrificed rooms and outfits show their remaining wait. The Sunday room opens at 3,500 Princess Drop points, and Hunt abilities can be used while moving.
+
+## Build 35 performance update
+
+- Routine Hunt and Princess Drop checkpoints, rapid squishes, and passive earnings still save on the device first. The web app groups routine cloud writes at roughly 30 minutes. Tap Sync progress at the bottom of the Palace to save now or load newer progress from your account. Rewards and completed runs still sync promptly, and leaving the game attempts to send the latest pending progress.
+- Build 36 replaces the earlier three-minute idle checks.
+- The save server does less repeated date and outfit calculation. Account login, backups, multi-device conflict detection, and the existing game and website screens use the same rules.
 
 ## Build 34
 
@@ -23,7 +34,7 @@ The patch excludes your music files/catalog, weekly notes, special dates, saying
 
 - The room's “Nayleen's room / collectibles unlocked” overlay is hidden.
 - Outfits, rooms and collectibles use wider cards on phones so names stay intact. Initial gallery pages show eight cards; Show more remains available. Text and requirement bars wrap inside the cards. Unopened Advent items stay out of galleries until owned.
-- Princess Drop still allows five attempts per week, grants one random normal collectible on the first 1,500-point milestone, and keeps playing toward 3,200. A full basket explicitly says “You lost · Basket full” and shows the score, tries remaining and the exact weekly collectible already earned. Choosing Finish is distinct from topping out.
+- Princess Drop still allows five attempts per week, grants one random normal collectible on the first 1,500-point milestone, and keeps playing toward 3,500. A full basket explicitly says “You lost · Basket full” and shows the score, tries remaining and the exact weekly collectible already earned. Choosing Finish is distinct from topping out.
 - The Flower Knows advent calendar in your screenshot is a normal beauty-calendar collectible. It was not a claim from the December Advent feature. New December gifts are excluded from normal blind box, Hunt, cabinet, Drop and roulette prize pools.
 - Hunt uses the approved animated models for all 28 outfits, including the weather and winter outfits. Hunt reuses recently drawn poses to reduce repeat drawing during play.
 - The earlier 5.7.6 basket caching, coalesced saves and deferred hidden-screen rendering remain. Those removed the expensive work that was interrupting drops and music.

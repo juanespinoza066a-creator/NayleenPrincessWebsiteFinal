@@ -8,7 +8,7 @@ export function text(key, values = {}) { let value = key.split('.').reduce((v, k
     value = key; return value.replace(/\{\{(\w+)\}\}/g, (_, k) => String(values[k] ?? '')); }
 export async function loadContent() {
     try {
-        const r = await fetch('content/site-text.json', { cache: 'no-store' });
+        const r = await fetch('content/site-text.json');
         if (!r.ok)
             throw new Error();
         content = await r.json();
@@ -17,8 +17,8 @@ export async function loadContent() {
         document.documentElement.dataset.copyError = 'true';
         content = DEFAULT_TEXT;
     }
-    try { const r = await fetch('content/palace-update.json', {cache:'no-store'}); if(r.ok) { const merge=(a,b)=>{for(const [k,v] of Object.entries(b)){if(v&&typeof v==='object'&&!Array.isArray(v)){a[k]={...(a[k]||{})};merge(a[k],v)}else a[k]=v}return a}; content=merge(structuredClone(content),await r.json()); } } catch {}
-    try {const r=await fetch('content/wardrobe-update.json',{cache:'no-store'});if(r.ok){const extra=await r.json();content={...content,wardrobe:{...content.wardrobe,...extra.wardrobe},outfits:{...content.outfits,...extra.outfits},journey:extra.journey||{}};}} catch {}
+    try { const r = await fetch('content/palace-update.json'); if(r.ok) { const merge=(a,b)=>{for(const [k,v] of Object.entries(b)){if(v&&typeof v==='object'&&!Array.isArray(v)){a[k]={...(a[k]||{})};merge(a[k],v)}else a[k]=v}return a}; content=merge(structuredClone(content),await r.json()); } } catch {}
+    try {const r=await fetch('content/wardrobe-update.json');if(r.ok){const extra=await r.json();content={...content,wardrobe:{...content.wardrobe,...extra.wardrobe},outfits:{...content.outfits,...extra.outfits},journey:extra.journey||{}};}} catch {}
     if(content.games?.manor)content.games.manor={...content.games.manor,title:'IDV Hunt',intro:'A new hunter, a moonlit map, and your outfit’s little power. One adventure each week.',action:'Enter this week’s hunt →'};
     const mondayCopy=v=>typeof v==='string'?v.replaceAll('Wednesday','Monday'):Array.isArray(v)?v.map(mondayCopy):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,mondayCopy(x)])):v;content=mondayCopy(content);
     document.querySelectorAll('[data-copy]').forEach(node => { const value = text(node.dataset.copy); if (value !== node.dataset.copy)
@@ -34,7 +34,14 @@ export async function loadContent() {
     document.querySelectorAll('[data-copy="journey.intro"]').forEach(n=>n.textContent=content.journey.intro);
     return true;
 }
-export async function readNotes() {
+let notesRequest;
+export function readNotes() {
+    return notesRequest ??= fetchNotes().catch(error => {
+        notesRequest = null;
+        throw error;
+    });
+}
+async function fetchNotes() {
     await ensureCodeLogin();
     const response = await fetch('api/weekly-notes', { cache: 'no-store' });
     if (!response.ok)
@@ -44,4 +51,16 @@ export async function readNotes() {
         throw new Error('Your scrapbook couldn’t open just now. Please try again soon.');
     const notes = data.notes.filter(n => Number.isInteger(n.week) && n.week >= 1 && n.week <= 52).map(n => ({ ...n, emoji: typeof n.emoji === 'string' ? n.emoji : '💜', title: typeof n.title === 'string' ? n.title : '', message: typeof n.message === 'string' ? n.message : [n.highlight, n.detail, n.lookingForward].filter(Boolean).join('\n\n'), published: n.published === true }));
     return { startDate: data.startDate || '2026-11-18', notes };
+}
+
+let updatesRequest;
+export function readUpdates() {
+    return updatesRequest ??= ensureCodeLogin().then(async () => {
+        const response = await fetch('api/updates', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Your Palace updates couldn’t load.');
+        return response.json();
+    }).catch(error => {
+        updatesRequest = null;
+        throw error;
+    });
 }

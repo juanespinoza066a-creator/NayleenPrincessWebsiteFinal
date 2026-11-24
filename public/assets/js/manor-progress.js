@@ -11,11 +11,12 @@ const bridge = {
     savePeanut(found, count) { if(this.practice)return;store.change(s => { s.manorPeanut = {found, count}; }); },
     async begin() { await ready;this.practice=store.profile==='testing'&&document.getElementById('practice-toggle')?.checked;if(this.practice){this.hunt={hunter:document.getElementById('hunter-select').value,map:Number(document.getElementById('map-select').value)};this.outfit=huntOutfit(store.state,document.getElementById('power-select').value);this.practiceRun={peanutSeed:Math.floor(Math.random()*1e6),week:weekNumber(),hunt:this.hunt,outfit:this.outfit,status:'active',loot:[{id:'frog',claimed:false}],checkpoint:null};this.loot=this.practiceRun.loot;document.querySelector('.player-card img').src=OUTFITS.find(o=>o.id===this.outfit)?.image||OUTFITS[0].image;return structuredClone(this.practiceRun);}let run; store.change(s => { run = beginMaze(s, weekNumber()); }); if(run){this.hunt=run.hunt;this.outfit=run.outfit||store.state.outfit;}return run ? structuredClone(run) : null; },
     checkpoint(checkpoint) { if(this.practice)return; if (store.state.manorRun?.status === 'active')
-        store.change(s => { s.manorRun.checkpoint = checkpoint; }); },
-    claim(index) { if(this.practice){const x=this.practiceRun?.loot[index];if(!x||x.claimed)return null;x.claimed=true;return {id:x.id,isNew:false,name:'A little treasure'};}let reward; store.change(s => { reward = claimMazePrize(s, index); }); if (reward) playBoxSound(); return reward ? { ...reward, name: PRIZES.find(p => p.id === reward.id).name } : null; },
+        store.change(s => { s.manorRun.checkpoint = checkpoint; }, {game:true}); },
+    flush() { if (!this.practice) void store.flushGame(); },
+    claim(index) { if(this.practice){const x=this.practiceRun?.loot[index];if(!x||x.claimed)return null;x.claimed=true;return {id:x.id,isNew:false,name:'A little treasure'};}let reward; store.change(s => { reward = claimMazePrize(s, index); }); if (reward) { playBoxSound(); void store.flushGame(); } return reward ? { ...reward, name: PRIZES.find(p => p.id === reward.id).name } : null; },
     finish(won) { if(this.practice)return; if (store.state.manorRun?.status !== 'active')
         return; store.change(s => { s.manorRun.status = won ? 'won' : 'lost'; s.manorRun.checkpoint = null; s.stats.rounds++; if (won)
-        s.stats.manorWins++; recordJourney(s,won?'maze-win':'maze-loss'); }); }
+        s.stats.manorWins++; recordJourney(s,won?'maze-win':'maze-loss'); }); void store.flushGame(); }
 };
 window.CarnivalManor = bridge;
 store.subscribe(s => { if(!bridge.practice){bridge.outfit = huntOutfit(s,s.manorRun?.status==='active'?s.manorRun.outfit:s.outfit); bridge.hunt=s.manorRun?.status==='active'?s.manorRun.hunt:weeklyHunt(weekNumber());} if(!bridge.practice)bridge.loot = s.manorRun?.loot || []; });
