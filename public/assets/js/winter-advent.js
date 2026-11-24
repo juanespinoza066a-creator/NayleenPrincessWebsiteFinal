@@ -37,7 +37,8 @@ export function attachAdvent(store) {
     detail.hidden = true;
     detail.setAttribute('aria-live', 'polite');
     const doors = [];
-    const preview = () => store?.profile === 'testing';
+    const preview = () => store?.profile === 'testing' && store.adventPreview === true;
+    const visible = () => store?.ready !== false && (store?.adventEnabled !== false || preview());
     let audio = null;
 
     async function readAdventNote(day, line) {
@@ -125,7 +126,10 @@ export function attachAdvent(store) {
         music.setAttribute('aria-pressed', String(!!audio?.enabled));
     };
     tab.onclick = () => {
-        notice.textContent = 'December 1–25 · A little surprise each day ♡';
+        if (!visible()) return;
+        notice.textContent = preview()
+            ? 'Testing only · You can preview every door.'
+            : 'December 1–25 · A little surprise each day ♡';
         refreshDoors();
         if (!modal.open) modal.showModal();
         audio?.dispose();
@@ -142,15 +146,21 @@ export function attachAdvent(store) {
         if (location.hash === '#winter-2026') window.history?.replaceState(null, '', location.pathname + location.search);
         tab.focus();
     });
-    store?.subscribe?.(() => { if (modal.open) refreshDoors(); });
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) audio?.stop();
         else if (modal.open) { refreshDoors(); audio?.start(); }
     });
     window.addEventListener('pagehide', () => audio?.dispose());
-    const fromHash = () => { if (location.hash === '#winter-2026') tab.click(); };
+    const fromHash = () => { if (location.hash === '#winter-2026' && !modal.open && visible()) tab.click(); };
+    const updateAccess = () => {
+        tab.hidden = !visible();
+        if (modal.open && tab.hidden) modal.close();
+        else if (modal.open) refreshDoors();
+        else fromHash();
+    };
+    store?.subscribe?.(updateAccess);
     window.addEventListener('hashchange', fromHash);
     refreshDoors();
-    fromHash();
+    updateAccess();
     return { tab, modal };
 }

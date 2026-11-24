@@ -60,6 +60,8 @@ export class CarnivalStore {
     async load() {
         const identity = await ensureCodeLogin();
         this.profile = CODE_LOGIN ? identity.profile : 'local';
+        this.adventEnabled = identity?.adventEnabled !== false;
+        this.adventPreview = identity?.adventPreview === true;
         if (CODE_LOGIN) {
             this.storageKey = SAVE_KEY + '-code-' + identity.profile;
             try {

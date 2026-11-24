@@ -53,7 +53,7 @@ function setupHunt(){
  };
  if(huntFreePlay(store.profile)){
  const box=document.createElement('div');box.className='hunt-options';
- const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.id='practice-toggle';checkbox.checked=true;const label=document.createElement('label');label.append(checkbox,document.createTextNode('Free play · Save your weekly adventure for later'));box.append(label);
+ const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.id='practice-toggle';checkbox.checked=true;const label=document.createElement('label');label.append(checkbox,document.createTextNode('Free play · Testing only'));box.append(label);
  const make=(id,title,items)=>{const label=document.createElement('label');label.textContent=title;const select=document.createElement('select');select.id=id;for(const [value,name] of items){const o=document.createElement('option');o.value=value;o.textContent=name;select.append(o);}label.append(select);box.append(label);return select;};
  const h=make('hunter-select','Hunter',HUNTERS.map(x=>[x.id,x.name+' · '+x.title]));h.value=bridge.hunt.hunter;
  const m=make('map-select','Garden',[]);
