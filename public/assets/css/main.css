@@ -375,3 +375,5 @@ dialog::backdrop{backdrop-filter:none}.espurr-room .room-label{backdrop-filter:n
   .palace-shortcuts > :is(a, button) { grid-column: span 3; }
   .palace-shortcuts > :last-child { grid-column: 1 / -1; }
 }
+
+.room-preview{overflow:hidden}.room-preview>img{display:block;width:100%;height:100%;object-fit:cover}

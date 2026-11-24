@@ -1,3 +1,4 @@
+import { thumbnail } from './artwork.js';
 import {attachTradeScroll} from './trade-scroll.js';
 import {attachAdvent} from './winter-advent.js';
 import {attachPalaceNews} from './palace-news.js';
@@ -22,7 +23,7 @@ const mazeReset = document.createElement('small'); mazeReset.id='maze-reset-esti
 function el(tag, text, className) { const n = document.createElement(tag); if (text !== undefined)
     n.textContent = text; if (className)
     n.className = className; return n; }
-function image(item, className = 'collectible-image') { const img = el('img', undefined, className); img.src = className.includes('thumbnail')&&item.image.endsWith('.webp')?item.image.replace('assets/images/','assets/images/thumbs/'):item.image; img.alt = item.name; img.loading = 'lazy';img.decoding='async'; return img; }
+function image(item, className = 'collectible-image') { const img = el('img', undefined, className); img.loading = 'lazy'; img.decoding = 'async'; img.src = className.includes('thumbnail') ? thumbnail(item.image) : item.image; img.alt = item.name; return img; }
 function button(text, fn, parent = body) { const b = el('button', text, 'button'); b.onclick = fn; parent.append(b); return b; }
 function p(text) { const n = el('p', text, 'rules'); body.append(n); return n; }
 function actions() { const n = el('div', undefined, 'game-actions'); body.append(n); return n; }

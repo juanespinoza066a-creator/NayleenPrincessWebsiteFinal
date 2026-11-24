@@ -62,7 +62,10 @@ assert.equal(writes.length, 1, 'the first routine save runs after 30 minutes');
 assert.equal(writes.at(-1).state.stats.bestDrop, 75);
 store.change(s => { s.stats.bestDrop += 10; }, { game: true });
 await store.flushGame();
-assert.equal(writes.length, 2, 'exiting flushes only the unsynced tail');
+assert.equal(writes.length, 1, 'closing a game keeps its last checkpoint local');
+assert.equal(JSON.parse(cache.get(store.storageKey)).stats.bestDrop, 85);
+await store.save({ keepalive: true });
+assert.equal(writes.length, 2, 'leaving Palace flushes only the unsynced tail');
 assert.equal(writes.at(-1).state.stats.bestDrop, 85);
 assert.equal(writes.at(-1).keepalive, true);
 
@@ -70,9 +73,13 @@ store.change(s => { s.clicker.manual++; }, { rapid: true });
 await advance(250);
 assert.equal(JSON.parse(cache.get(store.storageKey)).clicker.manual, 1, 'rapid taps are saved locally first');
 assert.equal(writes.length, 2);
-store.change(s => { s.chips += 25; });
-await advance(750);
-assert.equal(writes.length, 3, 'meaningful actions still save promptly');
+store.change(s => { s.chips += 20; });
+await advance(1000);
+store.change(s => { s.chips += 5; });
+await advance(3999);
+assert.equal(writes.length, 2, 'ordinary changes share a five-second save window');
+await advance(1);
+assert.equal(writes.length, 3, 'the edit batch includes the latest local changes');
 assert.equal(writes.at(-1).state.clicker.manual, 1);
 assert.equal(writes.at(-1).state.chips, 125);
 

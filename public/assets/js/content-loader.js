@@ -55,11 +55,11 @@ async function fetchNotes() {
 
 let updatesRequest;
 export function readUpdates() {
-    return updatesRequest ??= ensureCodeLogin().then(async () => {
-        const response = await fetch('api/updates', { cache: 'no-store' });
+    return updatesRequest ??= (async () => {
+        const response = await fetch('content/release.json');
         if (!response.ok) throw new Error('Your Palace updates couldn’t load.');
         return response.json();
-    }).catch(error => {
+    })().catch(error => {
         updatesRequest = null;
         throw error;
     });

@@ -3,6 +3,7 @@ import {CODE_LOGIN,ensureCodeLogin,onCodeLogout} from './code-login.js';
 import { SAVE_KEY, freshState, normalizeState, validState, tick, unlockedOutfits, recordLogin, dayKey, passiveRate, MAX_CRUNCHES } from './game-rules.js';
 export const STATIC = window.CARNIVAL_CONFIG?.mode === 'static';
 const ROUTINE_SYNC_MS = 30 * 60 * 1000;
+const EDIT_SYNC_MS = 5000;
 const FAILED_SYNC_RETRY_MS = 30000;
 const KEEPALIVE_LIMIT = 60 * 1024;
 
@@ -128,13 +129,13 @@ export class CarnivalStore {
         };
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) flush();
-            else this.schedule(true);
+            else { this.updateClock(); this.schedule(true); }
         });
         window.addEventListener('pagehide', flush);
         return this;
     }
     updateClock() {
-        if (!this.ready || this.resetting) return;
+        if (!this.ready || this.resetting || document.hidden) return;
         const now = Date.now();
         const day = dayKey(now);
         if (day !== this.lastLoginDay) {
@@ -166,8 +167,8 @@ export class CarnivalStore {
         tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.status = this.online ? 'Saving your treasures…' : 'Kept on this device. Try saving again when you’re connected.'; const event={unlocked:unlockedOutfits(this.state).filter(id=>!before.includes(id))};if(options.rapid){this.rememberSoon();this.emitFrame(event);}else{this.remember();this.emit(event);}this.schedule(Boolean(options.rapid)); }
     schedule(routine = false) {
         if (!this.online || this.conflict || !this.dirty) return;
-        if (routine && (document.hidden || this.debounce != null || this.gameSaveTimer != null)) return;
-        const delay = routine ? Math.max(0, this.lastSync + ROUTINE_SYNC_MS - Date.now()) : 750;
+        if (this.debounce != null || (routine && (document.hidden || this.gameSaveTimer != null))) return;
+        const delay = routine ? Math.max(0, this.lastSync + ROUTINE_SYNC_MS - Date.now()) : EDIT_SYNC_MS;
         const wait = Math.max(delay, this.retryAfter - Date.now());
         const timer = routine ? 'gameSaveTimer' : 'debounce';
         clearTimeout(this[timer]);
@@ -257,7 +258,7 @@ export class CarnivalStore {
         clearTimeout(this.rememberTimer);
         this.rememberTimer = null;
         this.remember();
-        return this.save({ keepalive: true });
+        this.schedule(true);
     }
     async resetTesting(){
         if(this.profile!=='testing'||!this.online||STATIC)throw new Error('Open your Palace before resetting.');
