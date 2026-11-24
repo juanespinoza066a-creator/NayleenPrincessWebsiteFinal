@@ -3,10 +3,10 @@ import { session, reply } from '../server/common.js';
 import { weekNumber } from '../server/game-rules.js';
 
 const IMAGE_TYPES = {
-    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp'
+    jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif'
 };
 function imageType(file) {
-    if (typeof file !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,95}\.(jpe?g|png|webp)$/i.test(file)) return '';
+    if (typeof file !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,95}\.(jpe?g|png|webp|avif)$/i.test(file)) return '';
     return IMAGE_TYPES[file.split('.').at(-1).toLowerCase()];
 }
 

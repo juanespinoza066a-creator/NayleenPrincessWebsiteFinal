@@ -1,6 +1,6 @@
 # Weekly note photos
 
-Upload one JPEG, PNG, or WebP per note to this folder. Use a filename such as `week-02.webp`.
+Upload one JPEG, PNG, WebP, or AVIF per note to this folder. Use a filename such as `week-02.webp`.
 
 In `server/weekly-notes.json`, find the entry for that week and add the filename
 in an optional `image` field. Leave out the field for notes without photos.
