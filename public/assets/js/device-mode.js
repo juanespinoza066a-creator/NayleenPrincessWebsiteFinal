@@ -15,7 +15,7 @@ export function deviceSaveKey(profile) {
 
 export function rememberedIdentity() {
     const identity = readDeviceData(identityKey);
-    if (!['nayleen', 'testing'].includes(identity?.profile)) return null;
+    if (!['nayleen', 'testing', 'juan'].includes(identity?.profile)) return null;
     const saved = readDeviceData(deviceSaveKey(identity.profile));
     if (!saved || saved.userId !== identity.profile + '-code-profile' || typeof saved.state !== 'object') return null;
     return identity;

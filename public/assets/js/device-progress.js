@@ -124,7 +124,7 @@ export async function syncDevice(store, api, {manual = false, replace = false} =
             store.deviceAttempt = { revision: store.revision, fingerprint };
             if (!store.persistDevice()) throw new Error('Could not keep a local recovery copy before syncing.');
             const result = await api('api/player', {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body
+                method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Palace-Profile': store.profile }, body
             });
             if (store.pageGone) return false;
             if (!Number.isSafeInteger(result.revision) || result.revision <= store.revision)

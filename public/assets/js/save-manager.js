@@ -275,7 +275,7 @@ export class CarnivalStore {
                 this.keepaliveSave = false;
                 const data = await api('api/player', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...(CODE_LOGIN ? { 'X-Palace-Profile': this.profile } : {}) },
                     body,
                     keepalive: canKeepalive
                 });
