@@ -58,6 +58,9 @@
     },
     "api/advent-note.js": {
       "includeFiles": "server/advent-notes.json"
+    },
+    "api/advent-editor.js": {
+      "includeFiles": "server/advent-*.json"
     }
   }
 }

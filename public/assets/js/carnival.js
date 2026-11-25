@@ -1,3 +1,5 @@
+import { DEVICE_MODE } from './device-mode.js';
+import { reconnectDeviceAccount } from './code-login.js';
 import { huntFreePlay } from './hunt-mode.js';
 import { thumbnail } from './artwork.js';
 import {attachTradeScroll} from './trade-scroll.js';
@@ -225,13 +227,16 @@ function cards(){
  p(WEEKLY_RESET);
 }
 $('cards-open').onclick = cards;
-$('sync-retry').onclick = () => { if(!store.conflict)return store.retry();open('Choose your saved progress');p('Another device saved a different copy. Download this device’s progress before loading the account copy.');button('Download this device’s copy',()=>downloadJSON('palace-device-backup.json',{kind:'nayleen-carnival-backup',version:3,profile:store.profile,state:store.state}));button('Load account copy',async()=>{await store.retry();close();});button('Keep this device’s copy',close); };
+$('sync-retry').onclick = () => { if(!store.conflict){
+    if(store.syncNeedsSignIn)return reconnectDeviceAccount().catch(error=>{$('save-status').textContent=error.message;});
+    return store.retry();
+}open('Choose your saved progress');p('Another device saved a different copy. Download this device’s progress before loading the account copy.');button('Download this device’s copy',()=>downloadJSON('palace-device-backup.json',{kind:'nayleen-carnival-backup',version:3,profile:store.profile,state:store.state}));button('Load account copy',async()=>{await store.retry();close();});button('Keep this device’s copy',close); };
 syncProgress.onclick = async () => {
     if (syncProgress.disabled) return;
     syncProgress.disabled = true;
     try {
-        await store.syncProgress();
-        if (!store.conflict) document.documentElement.dataset.palaceSyncRequested = 'true';
+        const synced=await store.syncProgress();
+        if (!store.conflict && (!DEVICE_MODE || synced)) document.documentElement.dataset.palaceSyncRequested = 'true';
         if (store.conflict) $('sync-retry').onclick();
     } finally {
         syncProgress.disabled = false;
@@ -239,6 +244,7 @@ syncProgress.onclick = async () => {
 };
 attachRecovery(store,{open,close,body});
 $('test-tools').hidden = true;
+$('edit-winter')?.toggleAttribute('hidden',DEVICE_MODE);
 const canUseTestingTools = () => store.ready && (store.profile === 'testing' || (STATIC && window.CARNIVAL_CONFIG?.testingTools === true));
 $('test-reset').onclick = () => {
     if (!canUseTestingTools()) return;
@@ -256,7 +262,7 @@ store.subscribe(render);
 await store.load();
 void import('./espurr-personality.js').then(m=>m.attachEspurr());
 setInterval(() => render(store.state), 60000);
-readNotes().then(data => { const latest = data.notes.filter(n => n.published).sort((a, b) => a.week - b.week).at(-1); if (latest)
+if(!DEVICE_MODE)readNotes().then(data => { const latest = data.notes.filter(n => n.published).sort((a, b) => a.week - b.week).at(-1); if (latest)
     $('latest-note').textContent = `${latest.emoji} Week ${latest.week} · ${latest.title} — ${latest.message.slice(0, 160)}`; }).catch(() => { });
 
 $('manor-open').onclick = () => { if (!$('manor-open').disabled) location.href = 'escape.html'; };

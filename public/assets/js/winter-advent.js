@@ -1,3 +1,4 @@
+import { DEVICE_MODE, rememberIdentity, rememberedIdentity } from './device-mode.js';
 import { winterMusic } from './winter-music.js';
 import { OUTFITS, ROOMS, PRIZES, ADVENT_GIFTS, ADVENT_NOTE_DAYS, claimAdvent, adventAvailable } from './game-rules.js';
 
@@ -40,6 +41,30 @@ export function attachAdvent(store) {
     const preview = () => store?.profile === 'testing' && store.adventPreview === true;
     const visible = () => store?.ready !== false && (store?.adventEnabled !== false || preview());
     let audio = null;
+    let checkingSwitches = false;
+    let checkedSwitches = 0;
+
+    async function refreshSwitches() {
+        if (!DEVICE_MODE || !store?.ready || navigator.onLine === false ||
+            checkingSwitches || Date.now() - checkedSwitches < 60 * 60 * 1000) return;
+        checkingSwitches = true;
+        checkedSwitches = Date.now();
+        try {
+            const response = await fetch('content/winter-2026.json', {signal: AbortSignal.timeout(5000)});
+            if (!response.ok) return;
+            const flags = await response.json();
+            if (typeof flags.enabled !== 'boolean' || typeof flags.previewForTesting !== 'boolean') return;
+            store.adventEnabled = flags.enabled;
+            store.adventPreview = store.profile === 'testing' && flags.previewForTesting;
+            const identity = rememberedIdentity();
+            if (identity?.profile === store.profile) rememberIdentity({
+                ...identity, adventEnabled: store.adventEnabled, adventPreview: store.adventPreview
+            });
+            updateAccess();
+        } catch {
+            // Keep the last settings when the connection drops.
+        } finally { checkingSwitches = false; }
+    }
 
     async function readAdventNote(day, line) {
         try {
@@ -127,6 +152,7 @@ export function attachAdvent(store) {
     };
     tab.onclick = () => {
         if (!visible()) return;
+        void refreshSwitches();
         notice.textContent = preview()
             ? 'Testing only · You can preview every door.'
             : 'December 1–25 · A little surprise each day ♡';
@@ -148,7 +174,10 @@ export function attachAdvent(store) {
     });
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) audio?.stop();
-        else if (modal.open) { refreshDoors(); audio?.start(); }
+        else {
+            void refreshSwitches();
+            if (modal.open) { refreshDoors(); audio?.start(); }
+        }
     });
     window.addEventListener('pagehide', () => audio?.dispose());
     const fromHash = () => { if (location.hash === '#winter-2026' && !modal.open && visible()) tab.click(); };
@@ -158,7 +187,8 @@ export function attachAdvent(store) {
         else if (modal.open) refreshDoors();
         else fromHash();
     };
-    store?.subscribe?.(updateAccess);
+    store?.subscribe?.(() => { updateAccess(); void refreshSwitches(); });
+    window.addEventListener('online', () => void refreshSwitches());
     window.addEventListener('hashchange', fromHash);
     refreshDoors();
     updateAccess();

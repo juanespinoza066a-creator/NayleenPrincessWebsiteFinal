@@ -1,4 +1,5 @@
 // Read-only on purpose. Juan publishes by editing server/weekly-notes.json in GitHub.
+import { DEVICE_MODE } from './device-mode.js';
 import {weekNumber} from './game-rules.js';
 import { loadContent, text, readNotes } from './content-loader.js';
 const $ = id => document.getElementById(id);
@@ -50,7 +51,7 @@ async function load() {
         $('journal-status').textContent = '';
     }
     catch {
-        $('journal-status').textContent = 'Our scrapbook couldn’t load just yet. Please try again.';
+        $('journal-status').textContent = DEVICE_MODE && navigator.onLine === false ? 'Connect to the internet to read your weekly notes ♡' : 'Our scrapbook couldn’t load just yet. Please try again.';
         $('retry-load').hidden = false;
     }
 }

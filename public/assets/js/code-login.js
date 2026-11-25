@@ -1,16 +1,23 @@
+import {DEVICE_MODE, rememberedIdentity, forgetIdentity} from './device-mode.js';
 // Only active in the Vercel code-login edition. No passcode is bundled here.
 let opening; const beforeLogout=new Set();
 export const CODE_LOGIN = window.CARNIVAL_CONFIG?.mode === 'code';
+export async function reconnectDeviceAccount() {
+ if(!DEVICE_MODE)return;
+ try{await request('DELETE');forgetIdentity();location.reload();}
+ catch{throw new Error('Connect to the internet to sign in again. Your progress is on this phone.');}
+}
 export function onCodeLogout(fn) {beforeLogout.add(fn);}
 export function ensureCodeLogin() {
  if(!CODE_LOGIN)return Promise.resolve();
  return opening ??= openLogin();
 }
-async function request(method='GET',data) {const r=await fetch('api/code-session',{method,cache:'no-store',headers:{'Content-Type':'application/json',...(method==='GET'&&document.querySelector('#outfits,#world,#crunch-balance')?{'X-Palace-Load':'progress'}:{})},body:data?JSON.stringify(data):undefined});let payload;try{payload=await r.json()}catch{throw new Error('The Palace couldn’t open just now. Try again in a moment.')}if(!r.ok)throw new Error(payload.error||'Please try again.');return payload;}
+async function request(method='GET',data) {const r=await fetch('api/code-session',{method,cache:'no-store',signal:AbortSignal.timeout(8000),headers:{'Content-Type':'application/json',...(method==='GET'&&document.querySelector('#outfits,#world,#crunch-balance')?{'X-Palace-Load':'progress'}:{})},body:data?JSON.stringify(data):undefined});let payload;try{payload=await r.json()}catch{throw new Error('The Palace couldn’t open just now. Try again in a moment.')}if(!r.ok)throw new Error(payload.error||'Please try again.');return payload;}
 async function openLogin() {
  const panel=document.createElement('div');panel.className='code-account';const label=document.createElement('span'),logout=document.createElement('button');logout.type='button';logout.className='text-button';logout.textContent='Sign out';logout.hidden=true;panel.append(label,logout);document.body.append(panel);
- logout.onclick=async()=>{logout.disabled=true;try{await Promise.all([...beforeLogout].map(fn=>fn()));await request('DELETE');location.reload()}catch(e){label.textContent=e.message;logout.disabled=false}};
+ logout.onclick=async()=>{logout.disabled=true;try{await Promise.all([...beforeLogout].map(fn=>fn()));await request('DELETE');if(DEVICE_MODE)forgetIdentity();location.reload()}catch(e){label.textContent=e.message;logout.disabled=false}};
  const mark=profile=>{label.textContent=profile==='testing'?'Testing profile':'Nayleen’s cloud save ♡';logout.hidden=false;};
+ if(DEVICE_MODE){const saved=rememberedIdentity();if(saved){mark(saved.profile);return saved;}}
  try{const current=await request();if(current.signedIn){mark(current.profile);return current}}catch{}
  return await new Promise(resolve=>{
   const dialog=document.createElement('dialog');dialog.className='code-login';dialog.setAttribute('aria-labelledby','code-login-title');

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#eee1f7">
+    <title>Edit Winter 2026 · Nayleen’s Palace</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/code-login.css">
+    <script src="settings.js"></script>
+    <script type="module" src="assets/js/advent-editor.js"></script>
+</head>
+<body>
+<main>
+    <header><nav><a href="carnival.html">‹ Palace</a></nav></header>
+    <section class="save-panel">
+        <h1>Edit Winter 2026</h1>
+        <p id="editor-status" role="status">Opening your calendar editor…</p>
+        <form id="advent-editor" hidden>
+            <p>Download the files after editing and replace them in your GitHub repository’s <code>server</code> folder. Commit and push to publish on the Palace website and app.</p>
+            <fieldset>
+                <legend>Calendar settings</legend>
+                <p><label><input type="checkbox" id="advent-enabled"> Show Winter 2026 in the Palace</label></p>
+                <p><label><input type="checkbox" id="advent-preview"> Let the testing profile open all doors early</label></p>
+                <p>Regular doors open at midnight Central Time on their December dates.</p>
+                <button class="button soft" type="button" id="download-settings">Download advent-settings.json</button>
+            </fieldset>
+            <fieldset>
+                <legend>Private notes</legend>
+                <div id="advent-note-fields"></div>
+                <button class="button soft" type="button" id="download-notes">Download advent-notes.json</button>
+            </fieldset>
+        </form>
+    </section>
+</main>
+</body>
+</html>

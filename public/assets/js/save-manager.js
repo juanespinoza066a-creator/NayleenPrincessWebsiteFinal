@@ -1,3 +1,5 @@
+import { DEVICE_MODE } from './device-mode.js';
+import { loadDevice, writeDevice, deviceStatus, scheduleDevice, syncDevice } from './device-progress.js';
 import {cleanCompanion} from './companion-model.js';
 import {CODE_LOGIN,ensureCodeLogin,onCodeLogout} from './code-login.js';
 import { SAVE_KEY, freshState, normalizeState, validState, tick, unlockedOutfits, recordLogin, dayKey, passiveRate, MAX_CRUNCHES } from './game-rules.js';
@@ -48,7 +50,22 @@ export class CarnivalStore {
     subscribe(fn) { this.listeners.add(fn); fn(this.state, { status: this.status }); return () => this.listeners.delete(fn); }
     emit(extra = {}) { for (const fn of this.listeners)
         fn(this.state, { status: this.status, ...extra }); }
+    persistDevice() {
+        if (this.pageGone || !this.userId) return false;
+        try { writeDevice(this); return true; }
+        catch { this.status = 'Phone storage is full or unavailable. Download a backup before leaving.'; return false; }
+    }
+    syncDevice(options) {
+        if (!this.deviceSyncTask) {
+            this.deviceSyncTask = syncDevice(this, api, options).finally(() => {
+                this.deviceSyncTask = null;
+                scheduleDevice(this);
+            });
+        }
+        return this.deviceSyncTask;
+    }
     remember() { try {
+        if (DEVICE_MODE) return this.persistDevice();
         localStorage.setItem(this.storageKey, JSON.stringify(this.state));
         localStorage.setItem(this.storageKey + '-pending', JSON.stringify({ dirty: this.dirty || this.saving, revision: this.revision, userId: this.userId }));
         return true;
@@ -78,7 +95,17 @@ export class CarnivalStore {
             } catch { this.state = freshState(); this.pending = null; }
             onCodeLogout(() => this.save());
         }
-        if (STATIC) {
+        if (DEVICE_MODE) {
+            try { await loadDevice(this, identity); }
+            catch (error) {
+                this.status = identity.offlineProtocol !== 1
+                    ? 'Install the Palace website update before opening your existing save.'
+                    : 'Connect to the internet, then reopen Palace to bring your save onto this phone.';
+                this.emit();
+                return this;
+            }
+        }
+        else if (STATIC) {
             this.status = 'Saved in this browser. Use a backup to move your progress to another device.';
         }
         else
@@ -112,10 +139,20 @@ export class CarnivalStore {
 
         let companionRefresh;
         window.addEventListener('palace-companion-refresh', event => {
+            if (DEVICE_MODE && !event.palaceReset) return;
             clearTimeout(companionRefresh);
             companionRefresh = setTimeout(() => void this.refreshCompanion(), 2000);
             // A testing reset may finish updating the native widget after the first read.
             if (event.palaceReset) setTimeout(() => void this.refreshCompanion(), 6000);
+        });
+        if (DEVICE_MODE) window.addEventListener('palace-local-weather', ({detail}) => {
+            if (detail?.[0] !== this.profile || !Array.isArray(detail[1]) || this.resetting) return;
+            const settings = this.state.companion.settings.value;
+            const weather = new Set(settings.weatherSeen || []);
+            const before = weather.size;
+            for (const kind of detail[1])
+                if (['sun','cloud','rain','storm','wind','cold','snow','night'].includes(kind)) weather.add(kind);
+            if (weather.size !== before) this.change(() => { settings.weatherSeen = [...weather]; });
         });
         const saveOnOpen = this.dirty;
         if (earned > 0) this.dirty = true;
@@ -127,13 +164,20 @@ export class CarnivalStore {
             if (!this.dirty && !this.saving) return;
             this.remember();
             // A game can capture its final checkpoint in this same browser event.
-            queueMicrotask(() => void this.save({ keepalive: true }));
+            if (!DEVICE_MODE) queueMicrotask(() => void this.save({ keepalive: true }));
         };
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) flush();
             else { this.updateClock(); this.schedule(true); }
         });
-        window.addEventListener('pagehide', flush);
+        window.addEventListener('pagehide', () => {
+            if (DEVICE_MODE) {
+                clearTimeout(this.deviceTimer);
+                this.remember();
+                this.pageGone = true;
+            } else flush();
+        });
+        if (DEVICE_MODE) window.addEventListener('online', () => this.schedule(true));
         return this;
     }
     updateClock() {
@@ -166,8 +210,9 @@ export class CarnivalStore {
     change(fn,options={}) { if (!this.ready)
         return;
         if(options.game){fn(this.state);this.dirty=true;this.rememberSoon();this.schedule(true);return;}
-        tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.status = this.online ? 'Saving your treasures…' : 'Kept on this device. Try saving again when you’re connected.'; const event={unlocked:unlockedOutfits(this.state).filter(id=>!before.includes(id))};if(options.rapid){this.rememberSoon();this.emitFrame(event);}else{this.remember();this.emit(event);}this.schedule(Boolean(options.rapid)); }
+        tick(this.state); const before = unlockedOutfits(this.state); fn(this.state); this.dirty = true; this.status = DEVICE_MODE ? deviceStatus(this) : this.online ? 'Saving your treasures…' : 'Kept on this device. Try saving again when you’re connected.'; const event={unlocked:unlockedOutfits(this.state).filter(id=>!before.includes(id))};if(options.rapid){this.rememberSoon();this.emitFrame(event);}else{this.remember();this.emit(event);}this.schedule(Boolean(options.rapid)); }
     schedule(routine = false) {
+        if (DEVICE_MODE) { scheduleDevice(this); return; }
         if (!this.online || this.conflict || !this.dirty) return;
         if (this.debounce != null || (routine && (document.hidden || this.gameSaveTimer != null))) return;
         const delay = routine ? Math.max(0, this.lastSync + ROUTINE_SYNC_MS - Date.now()) : EDIT_SYNC_MS;
@@ -180,6 +225,7 @@ export class CarnivalStore {
         }, wait);
     }
     save({ routine = false, keepalive = false } = {}) {
+        if (DEVICE_MODE) { this.remember(); return Promise.resolve(); }
         if (this.saving) {
             if (!routine && this.dirty) {
                 this.saveAgain = true;
@@ -265,6 +311,7 @@ export class CarnivalStore {
     async resetTesting(){
         if(this.profile!=='testing'||!this.online||STATIC)throw new Error('Open your Palace before resetting.');
         if(this.resetting)throw new Error('Your Palace is already resetting.');
+        if (DEVICE_MODE && !await this.syncDevice({manual:true})) throw new Error('Sync your testing Palace before resetting.');
         this.resetting=true;
         try{
             clearTimeout(this.debounce);
@@ -282,6 +329,7 @@ export class CarnivalStore {
     }
     async refreshCompanion(){if(!this.ready||!this.online||STATIC||!CODE_LOGIN)return;try{const profile=this.profile,data=await api('api/companion');if(profile!==this.profile||data.profile!==profile)return;this.state.companion=cleanCompanion(data.companion);this.remember();this.emit();}catch{}}
     async syncProgress() {
+        if (DEVICE_MODE) return this.syncDevice({manual:true});
         if (!this.ready || STATIC || this.conflict || this.resetting) return;
         if (this.dirty || this.saving) {
             if (this.online) return this.save();
@@ -320,6 +368,7 @@ export class CarnivalStore {
         }
     }
     async retry() {
+        if (DEVICE_MODE) return this.syncDevice({manual:true, replace:this.conflict});
         if (this.online && !this.conflict)
             return this.save();
         try {

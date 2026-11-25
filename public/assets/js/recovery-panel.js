@@ -1,3 +1,4 @@
+import { DEVICE_MODE } from './device-mode.js';
 import {api,STATIC} from './save-manager.js';
 import {validState,normalizeState} from './game-rules.js';
 export function attachRecovery(store,{open,close,body}){
@@ -13,8 +14,8 @@ export function attachRecovery(store,{open,close,body}){
     if(backup.kind!=='nayleen-carnival-backup'||!validState(backup.state)||backup.profile!==store.profile)throw Error('That saved copy couldn’t be opened. Your progress has not changed.');
     open('Restore this saved copy?');paragraph(date+' · '+backup.state.prizes.length+' collectibles');paragraph('This brings back your saved progress, notes, dates, and playlists. A safety copy is saved first. Weekly turns already used stay used.');
     button('Restore this copy',async()=>{
-     await store.save();if(!store.online||store.conflict||store.dirty||store.saving)throw Error('Let your current progress finish saving, then try again.');store.saving=true;
-     try{const result=await api('api/backups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({backup,revision:store.revision})});store.state=normalizeState(result.state);store.revision=result.revision;store.dirty=false;store.conflict=false;store.lastSync=Date.now();store.status='Restored and saved ♡';store.remember();store.emit();status.textContent='Your treasures are back and saved ♡';close();}finally{store.saving=false;}
+     if(DEVICE_MODE){if(!await store.syncProgress())throw Error("Connect and finish syncing before restoring a backup.");}else await store.save();if(!store.online||store.conflict||store.dirty||store.saving)throw Error('Let your current progress finish saving, then try again.');store.saving=true;
+     try{const result=await api('api/backups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({backup,revision:store.revision})});store.state=normalizeState(result.state);store.revision=result.revision;store.dirty=false;store.conflict=false;if(DEVICE_MODE){store.acknowledgedProgress=store.progressFingerprint(store.state);store.deviceAttempt=null;document.documentElement.dataset.palaceSyncRequested='true';}store.lastSync=Date.now();store.status='Restored and saved ♡';store.remember();store.emit();status.textContent='Your treasures are back and saved ♡';close();}finally{store.saving=false;}
     });button('Keep my current progress',close);
    });}button('Done',close);
   }catch(e){status.textContent=e.message||'Your saved copies couldn’t be reached. Try again shortly.';}

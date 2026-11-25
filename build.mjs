@@ -37,6 +37,13 @@ await writeFile('dist/content/release.json', JSON.stringify({
     espurrLines
 }) + '\n');
 
+// Calendar switches are public. Keep the three messages server-side.
+const adventSettings = JSON.parse(await readFile('server/advent-settings.json', 'utf8'));
+await writeFile('dist/content/winter-2026.json', JSON.stringify({
+    enabled: adventSettings.enabled === true,
+    previewForTesting: adventSettings.previewForTesting === true
+}) + '\n');
+
 // Version gallery images by content so a new illustration gets a fresh URL.
 const art = {};
 async function versionArtwork(directory) {

@@ -10,9 +10,9 @@ export async function body(req) {if(req.body!==undefined){const value=typeof req
 export async function session(req) {
  const match=(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName+'='));const raw=match?.slice(cookieName.length+1);
  if(!raw||!/^[a-f0-9]{64}$/.test(raw))return null;
- const rows=await db(`carnival_sessions?token_hash=eq.${hash(raw)}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=token_hash,profile&limit=1`),profile=rows?.[0]?.profile;
+ const rows=await db(`carnival_sessions?token_hash=eq.${hash(raw)}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=token_hash,profile,expires_at&limit=1`),profile=rows?.[0]?.profile;
  if(!['nayleen','testing'].includes(profile) || profile==='testing'&&!config().testCode)return null;
- return {token:raw,profile};
+ return {token:raw,profile,expiresAt:rows[0].expires_at};
 }
 export function profileForCode(candidate) {
  const {key,code,testCode}=config(),digest=s=>createHmac('sha256',key).update(s).digest();
