@@ -5,6 +5,8 @@ export default async function handler(req,res){
   if(!['GET','POST','DELETE'].includes(req.method))return reply(res,405,{error:'Please try another action.'});
   if(req.method!=='GET'&&!sameOrigin(req))return reply(res,403,{error:'Please use the Palace to manage your backups.'});
   const auth=await session(req);if(!auth)return reply(res,401,{error:'Sign in to keep your treasures safe.'});
+  const expected=req.headers['x-palace-profile'];
+  if(expected!==undefined&&expected!==auth.profile)return reply(res,409,{error:'The signed-in Palace changed. Reopen your room before syncing.'});
   const id=new URL(req.url||'/api/backups','https://palace.invalid').searchParams.get('id');
   if(id&&!/^[1-9][0-9]{0,18}$/.test(id))return reply(res,400,{error:'Choose a saved backup.'});
   const filter=`profile=eq.${auth.profile}`;

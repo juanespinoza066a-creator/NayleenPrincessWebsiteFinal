@@ -7,6 +7,8 @@ export default async function handler(req,res) {
   if(req.method==='PUT'&&!sameOrigin(req))return reply(res,403,{error:'Please save from the carnival website.'});
   const auth=await session(req);
   if(!auth)return reply(res,401,{error:'Enter your carnival code to load the cloud save.'});
+  const expected=req.headers['x-palace-profile'];
+  if(expected!==undefined&&expected!==auth.profile)return reply(res,409,{error:'The signed-in Palace changed. Reopen your room before syncing.'});
   if(req.method==='GET')return reply(res,200,await loadPlayer(auth.profile));
   const data=await body(req);
   if(data.action==='reset-testing'){

@@ -47,7 +47,7 @@ const {window,document} = parseHTML('<header><nav></nav></header>');
 Object.assign(globalThis, {window,document,location:{hash:''}});
 window.HTMLElement.prototype.scrollIntoView = () => {};
 let state = r.normalizeState(JSON.parse(JSON.stringify(recovered)));
-const store = {profile:'testing',get state(){return state;},change(fn){fn(state);}};
+const store = {profile:'testing',adventPreview:true,get state(){return state;},change(fn){fn(state);}};
 const ui = attachAdvent(store);
 ui.modal.showModal = () => { ui.modal.open = true; };
 const doors = [...ui.modal.querySelectorAll('.winter-door')];
