@@ -85,11 +85,12 @@ export function attachAdvent(store) {
             const saved = opened.has(day);
             const locked = !saved && !!store && !adventAvailable(day, preview());
             button.dataset.opened = String(saved);
+            if (ADVENT_NOTE_DAYS.includes(day)) button.dataset.letterVisible = String(!locked);
             button.disabled = !!store && store.ready === false;
             const title = saved ? 'Opened' : locked ? 'Opens December ' + day : 'Open';
             label.textContent = saved ? 'Opened ♡' : locked ? 'Locked' : day === 25 ? '✧ Christmas ✧' : 'Open ♡';
             button.setAttribute('aria-label', 'December ' + day + ' · ' + title);
-            const thumb = ADVENT_NOTE_DAYS.includes(day) ? LETTER_IMAGE : saved
+            const thumb = ADVENT_NOTE_DAYS.includes(day) ? (locked ? '' : LETTER_IMAGE) : saved
                 ? giftImage(ADVENT_GIFTS[day]).replace('assets/images/', 'assets/images/thumbs/')
                 : '';
             if (thumb) {
@@ -103,7 +104,6 @@ export function attachAdvent(store) {
         const art = node('img');
         art.alt = '';
         const isLetter = ADVENT_NOTE_DAYS.includes(day);
-        if (isLetter) button.dataset.letter = 'true';
         art.loading = 'lazy';
         art.decoding = 'async';
         const ribbon = node('i', 'winter-ribbon', '୨୧');
