@@ -1,0 +1,43 @@
+{
+  "timeZone": "America/Chicago",
+  "reminderHour": 9,
+  "events": [
+    {
+      "id": "princess-birthday",
+      "title": "Princess’ birthday",
+      "month": 2,
+      "day": 28,
+      "notify": true
+    },
+    {
+      "id": "anniversary",
+      "title": "Our anniversary",
+      "month": 8,
+      "day": 2,
+      "notify": true
+    },
+    {
+      "id": "juan-birthday",
+      "title": "Juan’s birthday",
+      "month": 7,
+      "day": 6,
+      "notify": true
+    },
+    {
+      "id": "buns-birthday",
+      "title": "Buns’ birthday",
+      "month": 9,
+      "day": 29,
+      "notify": true
+    },
+    {
+      "id": "rgv-comicon",
+      "title": "RGV ComicCon",
+      "month": 4,
+      "day": 23,
+      "endDay": 25,
+      "notify": true,
+      "year": 2027
+    }
+  ]
+}
